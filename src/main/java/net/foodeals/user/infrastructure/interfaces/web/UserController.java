@@ -1,0 +1,57 @@
+package net.foodeals.user.infrastructure.interfaces.web;
+
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
+import net.foodeals.offer.application.services.OfferService;
+import net.foodeals.organizationEntity.application.services.OrganizationEntityService;
+import net.foodeals.user.application.dtos.requests.PostionClientRequest;
+import net.foodeals.user.application.dtos.responses.PositionClientResponse;
+import net.foodeals.user.application.services.UserService;
+import net.foodeals.user.domain.entities.User;
+
+@RestController
+@RequestMapping("v1/users")
+@RequiredArgsConstructor
+public class UserController {
+
+	private final UserService service;
+	private final OfferService offerService ;
+
+	@PostMapping("/set-position-client")
+	public ResponseEntity<PositionClientResponse> setPositionOfClient(@RequestBody PostionClientRequest request) {
+		final User user = service.setPositionClient(request.id(), request.coordinates(), request.raduis());
+		final PositionClientResponse positionClientResponse = new PositionClientResponse(user.getId(),
+				user.getCoordinates(), user.getRaduis());
+		return ResponseEntity.ok(positionClientResponse);
+	}
+
+	 @GetMapping("/nearby")
+	    public ResponseEntity<Map<String, Object>> getNears(
+	            @RequestParam double latitude,
+	            @RequestParam double longitude,
+	            @RequestParam double radius) {
+
+	        Map<String, Object> result = offerService.getNears(latitude, longitude, radius);
+
+	        return ResponseEntity.ok(result);
+	 }
+
+	/*
+	 * @PostMapping public ResponseEntity<PositionClientResponse>
+	 * searchListOfPartenrsByPosition(PostionClientRequest request) { final User
+	 * user =service.setPositionClient(request.id(),request.coordinates(),
+	 * request.raduis()); final PositionClientResponse positionClientResponse=new
+	 * PositionClientResponse(user.getId(), user.getCoordinates(),
+	 * user.getRaduis()); return ResponseEntity.ok(positionClientResponse); }
+	 */
+
+}

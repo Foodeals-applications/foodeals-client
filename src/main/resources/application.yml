@@ -1,0 +1,55 @@
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${USER_NAME}
+    password: ${PASSWORD}
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  application:
+    name: Foodeals Pro
+  datasource:
+    url: jdbc:postgresql://localhost:5434/foodeals
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver 
+  jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: create
+    show-sql: true
+
+app:
+  security:
+    jwt:
+      secret-key: 883e807d7ee46bfd82464d697b0e6455d32b8406c6ee3a36e4a97de7ab976198
+      # 1 day
+      expiration: 86400000
+      refresh-token:
+        # 7 days
+        expiration: 604800000
+
+servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+user:
+  dir: C:/Users/nasri/eclipse-workspace/Foodeals-pro/foodeals-pro-api/
+upload:
+
+  directory:
+          photos
+          
+
+web:
+  resources:
+    static-locations: file:${user.dir}/${upload.directory}/

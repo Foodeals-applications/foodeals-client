@@ -1,0 +1,10 @@
+package net.foodeals.product.domain.repositories;
+
+import java.util.UUID;
+
+import net.foodeals.common.contracts.BaseRepository;
+import net.foodeals.product.domain.entities.PickupCondition;
+
+public interface PickupConditionRepository extends BaseRepository<PickupCondition, UUID> {
+
+}
