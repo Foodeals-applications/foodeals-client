@@ -1,5 +1,7 @@
 package net.foodeals.user.infrastructure.seeders;
 
+import java.util.Objects;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,8 +47,10 @@ public class UserSeeder implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
+		if(Objects.isNull(userRepository.findByEmail("mohamed.benibrahim@example.com").get())) {
 		User user = createNewUser("Mohamed", "Ben Ibrahim", "mohamed.benibrahim@example.com", "CLIENT");
 		userRepository.save(user);
+		}
 
 	}
 

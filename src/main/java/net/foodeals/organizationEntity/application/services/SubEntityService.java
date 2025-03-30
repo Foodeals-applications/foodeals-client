@@ -1,6 +1,8 @@
 package net.foodeals.organizationEntity.application.services;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -29,6 +31,9 @@ public interface SubEntityService extends CrudService<SubEntity,UUID,SubEntityRe
 	Page<SubEntity> getAllByStatus(String status,Pageable pageable);
 
 	SubEntity confirmSubEntity(UUID id);
+	
+
+    List<Map<String, Object>> getStoreCountByActivity();
 }
 
     

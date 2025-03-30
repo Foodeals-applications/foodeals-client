@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -61,7 +62,8 @@ public class OrganizationSeeder implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-
+        if(Objects.isNull(organizationEntityRepository.findByName("Carrefour").get()))
+        {
 		// Création de l'activité "Supermarchés"
 		Activity activity1 = Activity.create("Supermarchés");
 		activityRepository.save(activity1);
@@ -182,6 +184,7 @@ public class OrganizationSeeder implements CommandLineRunner {
 		anotherBox.setPublishAs(PublishAs.SUPERMARKETS_HYPERMARKETS); // Type de publication
 		anotherBox.setBoxStatus(BoxStatus.AVAILABLE); // Statut de la box
 		boxRepository.save(anotherBox); // Enregistrement de la Box
+        }
 	}
 	
 	private Activity createActivity(String name) {

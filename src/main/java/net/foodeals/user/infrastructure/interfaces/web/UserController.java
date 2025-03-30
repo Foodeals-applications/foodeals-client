@@ -1,5 +1,6 @@
 package net.foodeals.user.infrastructure.interfaces.web;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import net.foodeals.offer.application.services.OfferService;
-import net.foodeals.organizationEntity.application.services.OrganizationEntityService;
+import net.foodeals.organizationEntity.application.services.SubEntityService;
 import net.foodeals.user.application.dtos.requests.PostionClientRequest;
 import net.foodeals.user.application.dtos.responses.PositionClientResponse;
 import net.foodeals.user.application.services.UserService;
@@ -24,7 +25,8 @@ import net.foodeals.user.domain.entities.User;
 public class UserController {
 
 	private final UserService service;
-	private final OfferService offerService ;
+	private final OfferService offerService;
+	private final SubEntityService subEntityService;
 
 	@PostMapping("/set-position-client")
 	public ResponseEntity<PositionClientResponse> setPositionOfClient(@RequestBody PostionClientRequest request) {
@@ -34,16 +36,21 @@ public class UserController {
 		return ResponseEntity.ok(positionClientResponse);
 	}
 
-	 @GetMapping("/nearby")
-	    public ResponseEntity<Map<String, Object>> getNears(
-	            @RequestParam double latitude,
-	            @RequestParam double longitude,
-	            @RequestParam double radius) {
+	@GetMapping("/nearby")
+	public ResponseEntity<Map<String, Object>> getNears(@RequestParam double latitude, @RequestParam double longitude,
+			@RequestParam double radius) {
 
-	        Map<String, Object> result = offerService.getNears(latitude, longitude, radius);
+		Map<String, Object> result = offerService.getNears(latitude, longitude, radius);
 
-	        return ResponseEntity.ok(result);
-	 }
+		return ResponseEntity.ok(result);
+	}
+
+	@GetMapping("/store-count")
+	public ResponseEntity<List<Map<String, Object>>> getStoreCountByActivity() {
+		return ResponseEntity.ok(subEntityService.getStoreCountByActivity());
+	}
+
+	
 
 	/*
 	 * @PostMapping public ResponseEntity<PositionClientResponse>

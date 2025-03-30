@@ -5,7 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -253,5 +256,21 @@ public class SubEntityServiceImpl implements SubEntityService {
 		subEntity.setSubEntityStatus(SubEntityStatus.ACTIVE);;
 		return repository.save(subEntity);
 	}
+	
+	
+	@Override
+	 public List<Map<String, Object>> getStoreCountByActivity() {
+	        List<Object[]> results = repository.countStoresByActivity();
+	        List<Map<String, Object>> response = new ArrayList();
+
+	        for (Object[] result : results) {
+	            Map<String, Object> activityMap = new HashMap();
+	            activityMap.put("activity", result[0]);  // Nom de l'activité
+	            activityMap.put("storeCount", result[1]); // Nombre de magasins
+	            response.add(activityMap);
+	        }
+
+	        return response;
+	    }
 
 }

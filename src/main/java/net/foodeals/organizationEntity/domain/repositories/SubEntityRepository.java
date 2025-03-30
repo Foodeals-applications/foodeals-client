@@ -49,5 +49,8 @@ public interface SubEntityRepository extends JpaRepository<SubEntity, UUID> {
 	
     @Query("SELECT s FROM SubEntity s JOIN s.activities a WHERE a.name = :activityName")
     List<SubEntity> findByActivityName(@Param("activityName") String activityName);
+    
+    @Query("SELECT a.name, COUNT(s) FROM SubEntity s JOIN s.activities a GROUP BY a.name")
+    List<Object[]> countStoresByActivity();
 
 }

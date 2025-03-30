@@ -1,5 +1,6 @@
 package net.foodeals.offer.domain.repositories;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,8 +37,8 @@ public interface DealRepository extends BaseRepository<Deal, UUID> {
 	@Query("SELECT d FROM Deal d " + "JOIN d.offer o " + "JOIN o.orders ord "
 			+ "WHERE ord.client IS NULL AND ord.clientPro IS NOT NULL")
 	Page<Deal> findDealsWithProClients(Pageable pageable);
-	
-	
-	
+
+/*	@Query("SELECT SUM(d.price.amount) FROM Deal d WHERE d.subentity.id = :subentityId")
+	BigDecimal calculateTotalSales(@Param("subentityId") UUID subentityId);*/
 
 }
