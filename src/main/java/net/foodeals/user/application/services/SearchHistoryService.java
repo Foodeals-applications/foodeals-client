@@ -10,6 +10,6 @@ public interface SearchHistoryService {
 	 List<SearchHistory> getUserSearchHistory(Integer userId);
 	 SearchHistory saveSearch(Integer userId, String keyword);
 	 void clearUserSearchHistory(Integer userId);
-	 List<Map<String, Object>> getTrendingSearchesForUser(Integer userId);
+	 List<Map<String, Object>> getTrendingSearches();
 
 }

@@ -13,8 +13,7 @@ public interface SearchHistoryRepository extends BaseRepository<SearchHistory, U
 	List<SearchHistory> findByUserIdOrderBySearchedAtDesc(Integer userId);
 
 	@Query("SELECT sh.keyword, COUNT(sh.keyword) AS count FROM SearchHistory sh " +
-		       "WHERE sh.userId = :userId " +
 		       "GROUP BY sh.keyword ORDER BY count DESC")
-		List<Object[]> findTrendingSearchesByUser(Integer userId);
+		List<Object[]> findTrendingSearches();
 
 }

@@ -37,8 +37,8 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getTrendingSearchesForUser(Integer userId) {
-	    return repository.findTrendingSearchesByUser(userId).stream()
+	public List<Map<String, Object>> getTrendingSearches() {
+	    return repository.findTrendingSearches().stream()
 	            .map(result -> Map.of("keyword", result[0], "count", result[1]))
 	            .collect(Collectors.toList());
 	}

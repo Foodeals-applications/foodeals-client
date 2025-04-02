@@ -6,7 +6,6 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import net.foodeals.user.application.services.SearchHistoryService;
+import net.foodeals.user.application.services.UserService;
 import net.foodeals.user.domain.entities.SearchHistory;
+import net.foodeals.user.domain.entities.User;
 
 @RestController
 @RequestMapping("/v1/search-history")
@@ -22,27 +23,33 @@ import net.foodeals.user.domain.entities.SearchHistory;
 public class SearchHistoryController {
 
 	private final SearchHistoryService service;
+	private final UserService userService ;
 
-	@GetMapping("/{userId}")
-	public ResponseEntity<List<SearchHistory>> getUserSearchHistory(@PathVariable Integer userId) {
+	@GetMapping
+	public ResponseEntity<List<SearchHistory>> getUserSearchHistory() {
+		User client =userService.getConnectedUser();
+		Integer userId = client.getId();
 		return ResponseEntity.ok(service.getUserSearchHistory(userId));
 	}
 
 	@PostMapping("/add")
 	public ResponseEntity<SearchHistory> addSearch(@RequestBody Map<String, String> request) {
-		Integer userId = Integer.valueOf(request.get("userId"));
+		User client =userService.getConnectedUser();
+		Integer userId = client.getId();
 		String keyword = request.get("keyword");
 		return ResponseEntity.ok(service.saveSearch(userId, keyword));
 	}
 
-	@DeleteMapping("/{userId}/clear")
-	public ResponseEntity<Void> clearUserHistory(@PathVariable Integer userId) {
+	@DeleteMapping("/clear")
+	public ResponseEntity<Void> clearUserHistory() {
+		User client =userService.getConnectedUser();
+		Integer userId = client.getId();
 		service.clearUserSearchHistory(userId);
 		return ResponseEntity.noContent().build();
 	}
 
-	@GetMapping("/trending/user/{userId}")
-	public ResponseEntity<List<Map<String, Object>>> getTrendingSearches(@PathVariable Integer userId) {
-		return ResponseEntity.ok(service.getTrendingSearchesForUser(userId));
+	@GetMapping("/trending")
+	public ResponseEntity<List<Map<String, Object>>> getTrendingSearches() {
+		return ResponseEntity.ok(service.getTrendingSearches());
 	}
 }
