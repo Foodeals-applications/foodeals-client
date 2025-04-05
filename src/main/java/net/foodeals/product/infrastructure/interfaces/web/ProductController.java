@@ -33,7 +33,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.product.application.dtos.requests.ProductRequest;
 import net.foodeals.product.application.dtos.responses.ProductResponse;
-import net.foodeals.common.services.ExcelService;
 import net.foodeals.product.application.services.ProductService;
 import net.foodeals.product.domain.entities.DeliveryMethod;
 import net.foodeals.product.domain.entities.PaymentMethodProduct;
@@ -44,7 +43,6 @@ import net.foodeals.product.domain.repositories.DeliveryMethodRepository;
 import net.foodeals.product.domain.repositories.PaymentMethodRepository;
 import net.foodeals.product.domain.repositories.PickupConditionRepository;
 import net.foodeals.product.domain.repositories.ProductRepository;
-import net.foodeals.user.application.dtos.responses.UserResponse;
 
 @RestController
 @RequestMapping("v1/products")
@@ -52,7 +50,6 @@ import net.foodeals.user.application.dtos.responses.UserResponse;
 public class ProductController {
 
 	private final ProductService service;
-	private final ExcelService excelService;
 	private final ProductRepository productRepository;
 	private final PaymentMethodRepository paymentMethodRepository;
 	private final DeliveryMethodRepository deliveryMethodRepository;
@@ -157,44 +154,8 @@ public class ProductController {
 		return ResponseEntity.noContent().build();
 	}
 
-	@PostMapping("/upload")
-	public ResponseEntity<String> uploadProducts(@RequestParam("file") MultipartFile file) {
-		try {
-			excelService.readProductsFromExcel(file);
 
-			excelService.readProductsFromExcel(file);
 
-			return ResponseEntity.ok("Products uploaded successfully");
-		} catch (IOException e) {
-			return ResponseEntity.status(500).body("Failed to upload products");
-		}
-	}
-
-	@PostMapping("/scan")
-	public ResponseEntity<?> getProductByBarcode(@RequestParam("file") MultipartFile file) {
-		if (file.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File is empty.");
-		}
-
-		try (InputStream inputStream = file.getInputStream()) {
-			ProductResponse productResponse = mapper.map(service.getProductByBarCode(inputStream),
-					ProductResponse.class);
-
-			return ResponseEntity.ok(productResponse);
-
-		} catch (ProductNotFoundException | NotFoundException e) {
-
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found for barcode.");
-
-		} catch (IOException e) {
-
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the file.");
-
-		} catch (RuntimeException e) {
-
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to read barcode from image.");
-		}
-	}
 
 	@GetMapping("/search")
 	public ResponseEntity<Page<ProductResponse>> searchProducts(@RequestParam(required = false) String name,

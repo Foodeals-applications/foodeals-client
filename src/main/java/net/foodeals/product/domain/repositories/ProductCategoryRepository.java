@@ -29,5 +29,22 @@ public interface ProductCategoryRepository extends BaseRepository<ProductCategor
     List<ProductCategoryDTO> getProductsByCategory(@Param("subentityId") UUID subentityId);*/
 
 
+	@Query("""
+        SELECT DISTINCT c.name
+        FROM ProductCategory c
+        JOIN c.products p
+        WHERE p.subEntity.id = :subEntityId
+    """)
+	List<String> findActiveCategoryNamesBySubEntity(UUID subEntityId);
+
+	@Query("""
+        SELECT c
+        FROM ProductCategory c
+        JOIN c.products p
+        WHERE p.subEntity.id = :subEntityId
+    """)
+	List<ProductCategory> findCategoriesBySubEntity(UUID subEntityId);
+
+
 }
 

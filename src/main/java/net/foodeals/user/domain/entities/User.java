@@ -37,7 +37,6 @@ import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.contract.domain.entities.UserContract;
 import net.foodeals.delivery.domain.entities.CoveredZones;
 import net.foodeals.delivery.domain.entities.Delivery;
-import net.foodeals.dlc.domain.entities.Dlc;
 import net.foodeals.location.domain.entities.Address;
 import net.foodeals.notification.domain.entity.Notification;
 import net.foodeals.order.domain.entities.Order;
@@ -130,8 +129,6 @@ public class User extends AbstractEntity<Integer> implements UserDetails {
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
 	private List<CoveredZones> coveredZones = new ArrayList();
 
-	@ManyToMany(mappedBy = "users")
-	private List<Dlc> dlcs;
 
 	@Enumerated(EnumType.STRING)
 	private UserStatus status;
@@ -313,9 +310,6 @@ public class User extends AbstractEntity<Integer> implements UserDetails {
 		this.address = address;
 	}
 
-	public void setDlcs(List<Dlc> dlcs) {
-		this.dlcs = dlcs;
-	}
 
 	public void setRayon(String rayon) {
 		this.rayon = rayon;

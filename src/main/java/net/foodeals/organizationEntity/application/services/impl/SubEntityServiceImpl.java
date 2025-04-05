@@ -5,14 +5,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import net.foodeals.offer.domain.entities.Box;
+import net.foodeals.offer.domain.entities.Deal;
+import net.foodeals.offer.domain.repositories.BoxRepository;
+import net.foodeals.offer.domain.repositories.DealRepository;
+import net.foodeals.organizationEntity.application.dtos.responses.SubEntityDetailsResponse;
+import net.foodeals.organizationEntity.domain.repositories.*;
+import net.foodeals.product.application.dtos.responses.CategoryProductsResponse;
+import net.foodeals.product.application.dtos.responses.ProductOfferResponse;
+import net.foodeals.product.application.dtos.responses.ProductResponse;
+import net.foodeals.product.domain.repositories.ProductCategoryRepository;
+import net.foodeals.product.domain.repositories.ProductRepository;
+import net.foodeals.user.domain.repositories.LikeRepository;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,10 +48,6 @@ import net.foodeals.organizationEntity.domain.entities.Solution;
 import net.foodeals.organizationEntity.domain.entities.SubEntity;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityStatus;
 import net.foodeals.organizationEntity.domain.exceptions.SubEntityNotFoundException;
-import net.foodeals.organizationEntity.domain.repositories.ActivityRepository;
-import net.foodeals.organizationEntity.domain.repositories.OrganizationEntityRepository;
-import net.foodeals.organizationEntity.domain.repositories.SolutionRepository;
-import net.foodeals.organizationEntity.domain.repositories.SubEntityRepository;
 import net.foodeals.product.domain.exceptions.ProductNotFoundException;
 import net.foodeals.user.domain.entities.User;
 import net.foodeals.user.domain.repositories.UserRepository;
@@ -54,223 +57,302 @@ import net.foodeals.user.domain.repositories.UserRepository;
 @RequiredArgsConstructor
 public class SubEntityServiceImpl implements SubEntityService {
 
-	private final SubEntityRepository repository;
-	private final UserRepository userRepository;
-	private final CityRepository cityRepository;
-	private final CountryRepository countryRepository;
-	private final RegionRepository regionRepository;
-	private final AddressRepository addressRepository;
-	private final ActivityRepository activityRepository;
-	private final SolutionRepository solutionRepository;
-	private final OrganizationEntityRepository organizationEntityRepository;
-	private final ModelMapper mapper;
 
-	@Value("${upload.directory}")
-	private String uploadDir;
+    private final SubEntityRepository repository;
+    private final UserRepository userRepository;
+    private final CityRepository cityRepository;
+    private final CountryRepository countryRepository;
+    private final RegionRepository regionRepository;
+    private final AddressRepository addressRepository;
+    private final ActivityRepository activityRepository;
+    private final SolutionRepository solutionRepository;
+    private final OrganizationEntityRepository organizationEntityRepository;
+    private final LikeRepository likeRepository;
+    private final ProductRepository productRepository;
+    private final ProductCategoryRepository categoryRepository;
+    private final SubEntityRepository subEntityRepository;
+    private final DealRepository dealRepository;
+    private final ModelMapper mapper;
 
-	@Override
-	public List<SubEntity> findAll() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    @Value("${upload.directory}")
+    private String uploadDir;
 
-		if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
-			UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-			String email = userDetails.getUsername();
-			User user = userRepository.findByEmail(email).get();
-			return user.getOrganizationEntity().getSubEntities();
-		}
-		return null;
-	}
+    @Override
+    public List<SubEntity> findAll() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-	@Override
-	public Page<SubEntity> findAll(Integer pageNumber, Integer pageSize) {
-		return repository.findAll(PageRequest.of(pageNumber, pageSize));
-	}
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String email = userDetails.getUsername();
+            User user = userRepository.findByEmail(email).get();
+            return user.getOrganizationEntity().getSubEntities();
+        }
+        return null;
+    }
 
-	@Override
-	public SubEntity findById(UUID id) {
+    @Override
+    public Page<SubEntity> findAll(Integer pageNumber, Integer pageSize) {
+        return repository.findAll(PageRequest.of(pageNumber, pageSize));
+    }
 
-		return repository.findById(id).orElse(null);
-	}
+    @Override
+    public SubEntity findById(UUID id) {
 
-	@Override
-	public SubEntity create(SubEntityRequest request) {
-		SubEntity subEntity = new SubEntity();
-		subEntity.setName(request.name());
-		subEntity.setAvatarPath(request.avatarPath());
-		subEntity.setCoverPath(request.coverPath());
-		subEntity.setIFrame(request.iFrame());
-		subEntity.setPhone(request.phone());
-		subEntity.setEmail(request.email());
-		List<Solution> managedSolutions = fetchSolutionsByNames(request.solutionNames());
-		subEntity.setSolutions(managedSolutions);
+        return repository.findById(id).orElse(null);
+    }
 
-		List<Activity> activities = fetchActivitiesByNames(request.activiteNames());
-		subEntity.setActivities(activities);
+    @Override
+    public SubEntity create(SubEntityRequest request) {
+        SubEntity subEntity = new SubEntity();
+        subEntity.setName(request.name());
+        subEntity.setAvatarPath(request.avatarPath());
+        subEntity.setCoverPath(request.coverPath());
+        subEntity.setIFrame(request.iFrame());
+        subEntity.setPhone(request.phone());
+        subEntity.setEmail(request.email());
+        List<Solution> managedSolutions = fetchSolutionsByNames(request.solutionNames());
+        subEntity.setSolutions(managedSolutions);
 
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        List<Activity> activities = fetchActivitiesByNames(request.activiteNames());
+        subEntity.setActivities(activities);
 
-		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-		String email = userDetails.getUsername();
-		User user = userRepository.findByEmail(email).get();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-		OrganizationEntity organizationEntity = user.getOrganizationEntity();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
+        User user = userRepository.findByEmail(email).get();
 
-		subEntity.setOrganizationEntity(organizationEntity);
+        OrganizationEntity organizationEntity = user.getOrganizationEntity();
 
-		User manager = userRepository.findById(request.managerId())
-				.orElseThrow(() -> new EntityNotFoundException("Manager not found with id: " + request.managerId()));
-		subEntity.setManager(manager);
+        subEntity.setOrganizationEntity(organizationEntity);
 
-		Address address = new Address();
-		address.setCountry(countryRepository.findById(request.countryId())
-				.orElseThrow(() -> new EntityNotFoundException("Country not found with id: " + request.countryId())));
-		address.setCity(cityRepository.findById(request.cityId())
-				.orElseThrow(() -> new EntityNotFoundException("City not found with id: " + request.cityId())));
-		address.setRegion(regionRepository.findById(request.regionId())
-				.orElseThrow(() -> new EntityNotFoundException("Region not found with id: " + request.regionId())));
-		address.setExtraAddress(request.exactAdresse());
+        User manager = userRepository.findById(request.managerId())
+                .orElseThrow(() -> new EntityNotFoundException("Manager not found with id: " + request.managerId()));
+        subEntity.setManager(manager);
 
-		address = addressRepository.save(address);
-		subEntity.setAddress(address);
-		subEntity.setSubEntityStatus(SubEntityStatus.INACTIVE);
-		return repository.save(subEntity);
-	}
+        Address address = new Address();
+        address.setCountry(countryRepository.findById(request.countryId())
+                .orElseThrow(() -> new EntityNotFoundException("Country not found with id: " + request.countryId())));
+        address.setCity(cityRepository.findById(request.cityId())
+                .orElseThrow(() -> new EntityNotFoundException("City not found with id: " + request.cityId())));
+        address.setRegion(regionRepository.findById(request.regionId())
+                .orElseThrow(() -> new EntityNotFoundException("Region not found with id: " + request.regionId())));
+        address.setExtraAddress(request.exactAdresse());
 
-	@Override
-	public SubEntity update(UUID id, SubEntityRequest dto) {
+        address = addressRepository.save(address);
+        subEntity.setAddress(address);
+        subEntity.setSubEntityStatus(SubEntityStatus.INACTIVE);
+        return repository.save(subEntity);
+    }
 
-		SubEntity subEntity = repository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("SubEntity not found with id: " + id));
+    @Override
+    public SubEntity update(UUID id, SubEntityRequest dto) {
 
-		subEntity.setName(dto.name());
-		subEntity.setAvatarPath(dto.avatarPath());
-		subEntity.setCoverPath(dto.coverPath());
-		subEntity.setEmail(dto.email());
-		subEntity.setPhone(dto.phone());
-		subEntity.setIFrame(dto.iFrame());
+        SubEntity subEntity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("SubEntity not found with id: " + id));
 
-		subEntity.setManager(userRepository.findById(dto.managerId())
-				.orElseThrow(() -> new ResourceNotFoundException("Manager not found with id: " + dto.managerId())));
+        subEntity.setName(dto.name());
+        subEntity.setAvatarPath(dto.avatarPath());
+        subEntity.setCoverPath(dto.coverPath());
+        subEntity.setEmail(dto.email());
+        subEntity.setPhone(dto.phone());
+        subEntity.setIFrame(dto.iFrame());
 
-		subEntity.setActivities(fetchActivitiesByNames(dto.activiteNames()));
+        subEntity.setManager(userRepository.findById(dto.managerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Manager not found with id: " + dto.managerId())));
 
-		subEntity.setSolutions(fetchSolutionsByNames(dto.solutionNames()));
+        subEntity.setActivities(fetchActivitiesByNames(dto.activiteNames()));
 
-		Address address = addressRepository.findById(subEntity.getAddress().getId()).get();
+        subEntity.setSolutions(fetchSolutionsByNames(dto.solutionNames()));
 
-		address.setCountry(countryRepository.findById(dto.countryId())
-				.orElseThrow(() -> new EntityNotFoundException("Country not found with id: " + dto.countryId())));
-		address.setCity(cityRepository.findById(dto.cityId())
-				.orElseThrow(() -> new EntityNotFoundException("City not found with id: " + dto.cityId())));
-		address.setRegion(regionRepository.findById(dto.regionId())
-				.orElseThrow(() -> new EntityNotFoundException("Region not found with id: " + dto.regionId())));
+        Address address = addressRepository.findById(subEntity.getAddress().getId()).get();
 
-		subEntity.setAddress(address);
+        address.setCountry(countryRepository.findById(dto.countryId())
+                .orElseThrow(() -> new EntityNotFoundException("Country not found with id: " + dto.countryId())));
+        address.setCity(cityRepository.findById(dto.cityId())
+                .orElseThrow(() -> new EntityNotFoundException("City not found with id: " + dto.cityId())));
+        address.setRegion(regionRepository.findById(dto.regionId())
+                .orElseThrow(() -> new EntityNotFoundException("Region not found with id: " + dto.regionId())));
 
-		return repository.save(subEntity);
-	}
+        subEntity.setAddress(address);
 
-	@Override
-	public SubEntity updateSubEntity(SubEntityRequest dto) {
-		SubEntity subEntity = mapper.map(dto, SubEntity.class);
-		return repository.save(subEntity);
-	}
+        return repository.save(subEntity);
+    }
 
-	@Override
-	public void delete(UUID id) {
-		if (!repository.existsById(id))
-			throw new SubEntityNotFoundException(id);
+    @Override
+    public SubEntity updateSubEntity(SubEntityRequest dto) {
+        SubEntity subEntity = mapper.map(dto, SubEntity.class);
+        return repository.save(subEntity);
+    }
 
-		repository.softDelete(id);
+    @Override
+    public void delete(UUID id) {
+        if (!repository.existsById(id))
+            throw new SubEntityNotFoundException(id);
 
-	}
+        repository.softDelete(id);
 
-	private List<Solution> fetchSolutionsByNames(List<String> solutionNames) {
-		if (solutionNames == null || solutionNames.isEmpty()) {
-			throw new IllegalArgumentException("Solution names list cannot be null or empty.");
-		}
+    }
 
-		return solutionNames.stream().map(this::findSolutionByName).collect(Collectors.toList());
-	}
+    private List<Solution> fetchSolutionsByNames(List<String> solutionNames) {
+        if (solutionNames == null || solutionNames.isEmpty()) {
+            throw new IllegalArgumentException("Solution names list cannot be null or empty.");
+        }
 
-
-	private Solution findSolutionByName(String solutionName) {
-		return solutionRepository.findByName(solutionName);
-	}
+        return solutionNames.stream().map(this::findSolutionByName).collect(Collectors.toList());
+    }
 
 
-	private List<Activity> fetchActivitiesByNames(List<String> activityNames) {
-		return activityNames.stream().map(activityName -> {
-			Activity activity = activityRepository.findByName(activityName);
-			if (activity == null) {
-				throw new EntityNotFoundException("Activity not found with name: " + activityName);
-			}
-			return activity;
-		}).collect(Collectors.toList());
-	}
+    private Solution findSolutionByName(String solutionName) {
+        return solutionRepository.findByName(solutionName);
+    }
 
-	@Override
-	public String saveFile(MultipartFile file) {
 
-		Path path = Paths.get(uploadDir, file.getOriginalFilename());
-		try {
-			Files.createDirectories(path.getParent());
-			Files.write(path, file.getBytes());
-		} catch (IOException e) {
-			throw new RuntimeException("Problem while saving the file.", e);
-		}
+    private List<Activity> fetchActivitiesByNames(List<String> activityNames) {
+        return activityNames.stream().map(activityName -> {
+            Activity activity = activityRepository.findByName(activityName);
+            if (activity == null) {
+                throw new EntityNotFoundException("Activity not found with name: " + activityName);
+            }
+            return activity;
+        }).collect(Collectors.toList());
+    }
 
-		return file.getOriginalFilename();
-	}
+    @Override
+    public String saveFile(MultipartFile file) {
 
-	@Override
-	public void deleteSubEntity(UUID id, String reason, String motif) {
+        Path path = Paths.get(uploadDir, file.getOriginalFilename());
+        try {
+            Files.createDirectories(path.getParent());
+            Files.write(path, file.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException("Problem while saving the file.", e);
+        }
 
-		SubEntity subEntity = findById(id);
-		if (!Objects.isNull(subEntity)) {
-			subEntity.setReason(reason);
-			subEntity.setMotif(motif);
-			subEntity.setSubEntityStatus(SubEntityStatus.ARCHIVED);
-			repository.save(subEntity);
-			repository.softDelete(id);
-		} else {
-			throw new ProductNotFoundException(id);
-		}
+        return file.getOriginalFilename();
+    }
 
-	}
+    @Override
+    public void deleteSubEntity(UUID id, String reason, String motif) {
 
-	public Page<SubEntity> filterSubEntities(Instant startDate, Instant endDate, String raisonSociale, UUID managerId,
-			String email, String phone, UUID cityId, UUID solutionId, Pageable pageable) {
-		return repository.filterSubEntities(raisonSociale, managerId, email, phone, cityId, solutionId,startDate,endDate, pageable);
-	}
+        SubEntity subEntity = findById(id);
+        if (!Objects.isNull(subEntity)) {
+            subEntity.setReason(reason);
+            subEntity.setMotif(motif);
+            subEntity.setSubEntityStatus(SubEntityStatus.ARCHIVED);
+            repository.save(subEntity);
+            repository.softDelete(id);
+        } else {
+            throw new ProductNotFoundException(id);
+        }
 
-	@Override
-	public Page<SubEntity> getAllByStatus(String status, Pageable pageable) {
-        SubEntityStatus subEntityStatus=SubEntityStatus.valueOf(status);
-		return repository.findAllBySubEntityStatus(subEntityStatus, pageable);
-	}
+    }
 
-	@Override
-	public SubEntity confirmSubEntity(UUID id) {
-		SubEntity subEntity=findById(id);
-		subEntity.setSubEntityStatus(SubEntityStatus.ACTIVE);;
-		return repository.save(subEntity);
-	}
-	
-	
-	@Override
-	 public List<Map<String, Object>> getStoreCountByActivity() {
-	        List<Object[]> results = repository.countStoresByActivity();
-	        List<Map<String, Object>> response = new ArrayList();
+    public Page<SubEntity> filterSubEntities(Instant startDate, Instant endDate, String raisonSociale, UUID managerId,
+                                             String email, String phone, UUID cityId, UUID solutionId, Pageable pageable) {
+        return repository.filterSubEntities(raisonSociale, managerId, email, phone, cityId, solutionId, startDate, endDate, pageable);
+    }
 
-	        for (Object[] result : results) {
-	            Map<String, Object> activityMap = new HashMap();
-	            activityMap.put("activity", result[0]);  // Nom de l'activité
-	            activityMap.put("storeCount", result[1]); // Nombre de magasins
-	            response.add(activityMap);
-	        }
+    @Override
+    public Page<SubEntity> getAllByStatus(String status, Pageable pageable) {
+        SubEntityStatus subEntityStatus = SubEntityStatus.valueOf(status);
+        return repository.findAllBySubEntityStatus(subEntityStatus, pageable);
+    }
 
-	        return response;
-	    }
+    @Override
+    public SubEntity confirmSubEntity(UUID id) {
+        SubEntity subEntity = findById(id);
+        subEntity.setSubEntityStatus(SubEntityStatus.ACTIVE);
+        ;
+        return repository.save(subEntity);
+    }
+
+
+    @Override
+    public List<Map<String, Object>> getStoreCountByActivity() {
+        List<Object[]> results = repository.countStoresByActivity();
+        List<Map<String, Object>> response = new ArrayList();
+
+        for (Object[] result : results) {
+            Map<String, Object> activityMap = new HashMap();
+            activityMap.put("activity", result[0]);  // Nom de l'activité
+            activityMap.put("storeCount", result[1]); // Nombre de magasins
+            response.add(activityMap);
+        }
+
+        return response;
+    }
+
+
+    @Override
+    public SubEntityDetailsResponse getSubEntityDetails(UUID subEntityId, Integer userId) {
+        // 1. Récupérer la sous-entité
+        SubEntity subEntity = repository.findById(subEntityId)
+                .orElseThrow(() -> new EntityNotFoundException("SubEntity not found with id: " + subEntityId));
+
+        // Détails de base
+        String name = subEntity.getName();
+        String logo = subEntity.getAvatarPath();
+        String cover = subEntity.getCoverPath();
+        Integer totalSales = repository.getTotalSalesBySubEntity(subEntityId);
+        String address = subEntity.getAddress() != null ? subEntity.getAddress().getAddress()+" "+
+                subEntity.getAddress().getCity().getName(): "N/A";
+        String type = subEntity.getType().toString();
+
+        // Détails avancés
+        boolean isFavorite = likeRepository.existsBySubEntityIdAndUserId(subEntityId, userId);
+        boolean deliveryFree = true;
+        List<String> categoriesWithOffers = categoryRepository.findActiveCategoryNamesBySubEntity(subEntityId);
+
+        // Produits en promotion
+        List<ProductOfferResponse> productsOnOffer = productRepository
+                .findProductsWithActiveOffers(subEntityId);
+
+
+        // Produits triés par catégorie
+        // Produits triés par catégorie
+        List<CategoryProductsResponse> categorizedProducts = categoryRepository.findCategoriesBySubEntity(subEntityId).stream()
+                .map(category -> new CategoryProductsResponse(
+                        category.getName(),
+                        productRepository.findByCategoryAndSubEntity(category.getId(), subEntityId).stream()
+                                .map(product -> {
+                                    // Récupérer les prix et autres informations à partir des boxes et deals
+                                    Double oldPrice = null;
+                                    Double newPrice = null;
+                                    // Deal : Si les offres de Box ne sont pas disponibles, vérifier les Deals
+                                    Optional<Deal> optionalDeal = dealRepository.findActiveDealByProduct(product.getId());
+                                    if (optionalDeal.isPresent()) {
+                                        Deal deal = optionalDeal.get();
+                                        oldPrice = deal.getOffer().getPrice().amount().doubleValue();
+                                        newPrice = deal.getOffer().getSalePrice().amount().doubleValue();
+                                    }
+
+                                    return new ProductResponse(
+                                            product.getProductImagePath(),
+                                            product.getName(),
+                                            oldPrice,
+                                            newPrice,
+                                            0);
+                                })
+                                .collect(Collectors.toList())))
+                .collect(Collectors.toList());
+
+        return new SubEntityDetailsResponse(
+                name,
+                logo,
+                cover,
+                totalSales,
+                address,
+                type,
+                categoriesWithOffers,
+                productsOnOffer,
+                categorizedProducts,
+                subEntity.getNumberOfLikes(),
+                deliveryFree,
+                isFavorite,
+                subEntity.getCoordinates()
+        );
+    }
+
 
 }

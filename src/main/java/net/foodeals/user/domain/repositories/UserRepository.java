@@ -37,9 +37,6 @@ public interface UserRepository extends BaseRepository<User, Integer> {
 	@Query("SELECT u FROM User u WHERE u.organizationEntity.id = :organizationId AND u.role.name = 'MANAGER'")
 	User findManagerOfOrganizationEntity(UUID organizationId);
 
-	@Query("SELECT u FROM User u JOIN u.dlcs d WHERE d.id = :dlcId")
-	List<User> findByDlcId(UUID dlcId);
-
 	@Query("SELECT u FROM User u WHERE LOWER(u.name.lastName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(u.name.firstName) LIKE LOWER(CONCAT('%', :name, '%'))")
 	List<User> findByLastNameOrFirstName(@Param("name") String name);
 

@@ -2,13 +2,12 @@ package net.foodeals.organizationEntity.Controller;
 
 import java.util.UUID;
 
+import net.foodeals.organizationEntity.application.dtos.responses.SubEntityDetailsResponse;
+import net.foodeals.user.application.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import net.foodeals.organizationEntity.application.services.SubEntityService;
@@ -18,15 +17,16 @@ import net.foodeals.organizationEntity.application.services.SubEntityService;
 @RequiredArgsConstructor
 public class SubEntityController {
 
-	private final SubEntityService service;
-	private final ModelMapper mapper;
+    private final SubEntityService subEntityService;
 
-	@Autowired
-    private SubEntityService subentityService;
+    private final UserService userService;
 
-    /*@GetMapping("/details")
-    public ResponseEntity<SubentityDetailsDTO> getSubentityDetails(@RequestParam UUID subentityId) {
-        SubentityDetailsDTO subentityDetails = subentityService.getSubentityDetails(subentityId);
-        return ResponseEntity.ok(subentityDetails);
-    }*/
+    @GetMapping("/{id}/details")
+    public ResponseEntity<SubEntityDetailsResponse> getSubEntityDetails(@PathVariable UUID id) {
+        Integer userId=userService.getConnectedUser().getId();
+        SubEntityDetailsResponse response = subEntityService.getSubEntityDetails(id, userId);
+        return ResponseEntity.ok(response);
+    }
+
+
 }

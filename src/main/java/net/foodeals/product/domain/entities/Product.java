@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import net.foodeals.organizationEntity.domain.entities.SubEntity;
 import org.hibernate.annotations.UuidGenerator;
 
 import jakarta.persistence.CascadeType;
@@ -85,6 +86,9 @@ public class Product extends AbstractEntity<UUID> {
     private User createdBy;
     
     private Date expirationDate ;
+
+    @ManyToOne
+    private SubEntity subEntity ;
     
 
 }

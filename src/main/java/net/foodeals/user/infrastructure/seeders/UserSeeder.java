@@ -47,7 +47,7 @@ public class UserSeeder implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
-		if(Objects.isNull(userRepository.findByEmail("mohamed.benibrahim@example.com").get())) {
+		if(!userRepository.findByEmail("mohamed.benibrahim@example.com").isPresent()) {
 		User user = createNewUser("Mohamed", "Ben Ibrahim", "mohamed.benibrahim@example.com", "CLIENT");
 		userRepository.save(user);
 		}

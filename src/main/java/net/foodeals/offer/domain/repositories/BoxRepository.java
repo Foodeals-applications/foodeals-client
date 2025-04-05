@@ -14,25 +14,29 @@ import net.foodeals.offer.domain.enums.BoxStatus;
 import net.foodeals.offer.domain.enums.BoxType;
 
 public interface BoxRepository extends BaseRepository<Box, UUID> {
-	
-	List<Box> findByType(BoxType type);
-	
-	@Query("SELECT b FROM Box b WHERE b.offer.id = :offerId")
-	public Box getBoxByOfferId(UUID offerId);
-	
-	
-	@Query("""
-		    SELECT b FROM Box b
-		    JOIN b.offer o
-		    JOIN o.openTime ot
-		    WHERE b.boxStatus = :unavailableStatus
-		    OR (b.boxStatus = :expiredStatus AND ot.to < :today AND b.type = :type)
-		""")
-	Page<Box> findExpiredAndUnavailableBoxs(BoxStatus unavailableStatus, BoxStatus expiredStatus,
-			BoxType type,
-			String today,
-			Pageable pageable);
-	
-	
-	 Optional<Box> findByIdAndType(UUID id, BoxType type);
+
+    List<Box> findByType(BoxType type);
+
+    @Query("SELECT b FROM Box b WHERE b.offer.id = :offerId")
+    public Box getBoxByOfferId(UUID offerId);
+
+
+    @Query("""
+                SELECT b FROM Box b
+                JOIN b.offer o
+                JOIN o.openTime ot
+                WHERE b.boxStatus = :unavailableStatus
+                OR (b.boxStatus = :expiredStatus AND ot.to < :today AND b.type = :type)
+            """)
+    Page<Box> findExpiredAndUnavailableBoxs(BoxStatus unavailableStatus, BoxStatus expiredStatus,
+                                            BoxType type,
+                                            String today,
+                                            Pageable pageable);
+
+
+    Optional<Box> findByIdAndType(UUID id, BoxType type);
+
+
 }
+
+

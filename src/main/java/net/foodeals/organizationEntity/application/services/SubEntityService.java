@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import net.foodeals.organizationEntity.application.dtos.responses.SubEntityDetailsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,25 +16,28 @@ import net.foodeals.organizationEntity.application.dtos.requests.SubEntityReques
 import net.foodeals.organizationEntity.domain.entities.SubEntity;
 
 @Service
-public interface SubEntityService extends CrudService<SubEntity,UUID,SubEntityRequest> {
+public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntityRequest> {
 
-	public String saveFile(MultipartFile file);
-	
-	public SubEntity updateSubEntity(SubEntityRequest dto);
-	
-	void deleteSubEntity(UUID id, String reason , String motif);
-	
-	Page<SubEntity> filterSubEntities(Instant startDate, Instant endDate, String raisonSociale, UUID managerId,
-			String email, String phone, UUID cityId, UUID solutionId,
-			Pageable pageable);
-	
-	
-	Page<SubEntity> getAllByStatus(String status,Pageable pageable);
+    public String saveFile(MultipartFile file);
 
-	SubEntity confirmSubEntity(UUID id);
-	
+    public SubEntity updateSubEntity(SubEntityRequest dto);
+
+    void deleteSubEntity(UUID id, String reason, String motif);
+
+    Page<SubEntity> filterSubEntities(Instant startDate, Instant endDate, String raisonSociale, UUID managerId,
+                                      String email, String phone, UUID cityId, UUID solutionId,
+                                      Pageable pageable);
+
+
+    Page<SubEntity> getAllByStatus(String status, Pageable pageable);
+
+    SubEntity confirmSubEntity(UUID id);
+
 
     List<Map<String, Object>> getStoreCountByActivity();
+
+    SubEntityDetailsResponse getSubEntityDetails(UUID subEntityId, Integer userId);
+
 }
 
     

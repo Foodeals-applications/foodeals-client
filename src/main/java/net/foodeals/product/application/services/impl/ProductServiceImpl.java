@@ -25,12 +25,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.google.zxing.NotFoundException;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.ManyToOne;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.product.application.dtos.requests.ProductRequest;
-import net.foodeals.common.services.BarcodeService;
 import net.foodeals.common.valueOjects.Price;
 import net.foodeals.product.application.services.ProductCategoryService;
 import net.foodeals.product.application.services.ProductService;
@@ -57,7 +54,6 @@ class ProductServiceImpl implements ProductService {
 	private final ProductRepository repository;
 	private final ProductCategoryService categoryService;
 	private final ProductSubCategoryService subCategoryService;
-	private final BarcodeService barcodeService;
 	private final PaymentMethodRepository paymentMethodRepository;
 	private final DeliveryMethodRepository deliveryMethodRepository;
 	private final PickupConditionRepository pickupConditionRepository;
@@ -163,19 +159,6 @@ class ProductServiceImpl implements ProductService {
 			throw new ProductNotFoundException(id);
 
 		repository.softDelete(id);
-	}
-
-	@Override
-	public Product getProductByBarCode(InputStream imageStream) throws ProductNotFoundException, NotFoundException {
-		try {
-
-			String barCode = barcodeService.readBarcode(imageStream).trim();
-			return repository.findByBarcode(barCode).orElseThrow(() -> new ProductNotFoundException(barCode));
-		} catch (IOException e) {
-
-			System.out.println("Error reading barcode from image");
-			throw new RuntimeException("Failed to read barcode from image", e);
-		}
 	}
 
 	@Override

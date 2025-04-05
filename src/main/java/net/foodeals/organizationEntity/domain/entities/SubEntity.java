@@ -126,6 +126,8 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
 	private String reason;
 
 	private String motif;
+
+	private Integer numberOfLikes ;
 	
 	@Enumerated(EnumType.STRING)
 	private SubEntityStatus subEntityStatus;

@@ -2,6 +2,7 @@ package net.foodeals.offer.domain.repositories;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -40,5 +41,9 @@ public interface DealRepository extends BaseRepository<Deal, UUID> {
 
 /*	@Query("SELECT SUM(d.price.amount) FROM Deal d WHERE d.subentity.id = :subentityId")
 	BigDecimal calculateTotalSales(@Param("subentityId") UUID subentityId);*/
+
+	@Query("SELECT d FROM Deal d WHERE d.product.id = :productId")
+	Optional<Deal> findActiveDealByProduct(UUID productId);
+
 
 }

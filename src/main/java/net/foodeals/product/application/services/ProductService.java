@@ -18,7 +18,6 @@ import net.foodeals.product.domain.exceptions.ProductNotFoundException;
 
 public interface ProductService extends CrudService<Product, UUID, ProductRequest> {
 
-	Product getProductByBarCode(InputStream imageStream) throws ProductNotFoundException, NotFoundException;
     
 	Page<Product> findProductsByName(String name,Pageable pageable);
 	
