@@ -269,13 +269,13 @@ public class SubEntityServiceImpl implements SubEntityService {
 
 
     @Override
-    public List<Map<String, Object>> getStoreCountByActivity() {
-        List<Object[]> results = repository.countStoresByActivity();
+    public List<Map<String, Object>> getStoreCountByDomains() {
+        List<Object[]> results = repository.countStoresByDomains();
         List<Map<String, Object>> response = new ArrayList();
 
         for (Object[] result : results) {
             Map<String, Object> activityMap = new HashMap();
-            activityMap.put("activity", result[0]);  // Nom de l'activité
+            activityMap.put("domain", result[0]);  // Nom de domaine
             activityMap.put("storeCount", result[1]); // Nombre de magasins
             response.add(activityMap);
         }

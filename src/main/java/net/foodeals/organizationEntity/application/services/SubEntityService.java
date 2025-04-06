@@ -34,7 +34,7 @@ public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntity
     SubEntity confirmSubEntity(UUID id);
 
 
-    List<Map<String, Object>> getStoreCountByActivity();
+    List<Map<String, Object>> getStoreCountByDomains();
 
     SubEntityDetailsResponse getSubEntityDetails(UUID subEntityId, Integer userId);
 

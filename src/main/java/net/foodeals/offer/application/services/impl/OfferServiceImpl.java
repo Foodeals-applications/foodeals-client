@@ -54,16 +54,22 @@ public class OfferServiceImpl implements OfferService {
 		Map<String, Object> resultMap = new HashMap<>();
 
 		// Récupérer les sous-entités liées à chaque type de partenaire
-		List<SubEntity> restaurants = subEntityRepository.findByActivityName("restaurant");
-		List<SubEntity> boulangeries = subEntityRepository.findByActivityName("bakery" );
-		List<SubEntity> hotels = subEntityRepository.findByActivityName("hotel");
-		List<SubEntity> agricultures = subEntityRepository.findByActivityName("agriculture");
-		List<SubEntity> industries = subEntityRepository.findByActivityName("industry");
+		List<SubEntity> restaurants = subEntityRepository.findByDomaineName("Restaurants");
+		List<SubEntity> superMarches = subEntityRepository.findByDomaineName("Supermarchés");
+		List<SubEntity> superettes = subEntityRepository.findByDomaineName("Superettes");
+		List<SubEntity> hyperMarches = subEntityRepository.findByDomaineName("Hypermarchés");
+		List<SubEntity> boulangeries = subEntityRepository.findByDomaineName("Pâtisseries" );
+		List<SubEntity> hotels = subEntityRepository.findByDomaineName("Hôtels");
+		List<SubEntity> agricultures = subEntityRepository.findByDomaineName("Agricultures");
+		List<SubEntity> industries = subEntityRepository.findByDomaineName("Industriels");
 
 		// Filtrer les sous-entités en fonction de la distance
 		resultMap.put("newDeals", getNewDeals(userLat, userLon, radius));
 		resultMap.put("boxes", getBoxes(userLat, userLon, radius));
 		resultMap.put("restaurants", getPartners(userLat, userLon, radius, restaurants));
+		resultMap.put("superMarches", getPartners(userLat, userLon, radius, superMarches));
+		resultMap.put("superettes", getPartners(userLat, userLon, radius, superettes));
+		resultMap.put("hyperMarches", getPartners(userLat, userLon, radius, hyperMarches));
 		resultMap.put("boulangeries", getPartners(userLat, userLon, radius, boulangeries));
 		resultMap.put("hotels", getHotels(userLat, userLon, radius, hotels));
 		resultMap.put("agricultures", getPartners(userLat, userLon, radius, agricultures));

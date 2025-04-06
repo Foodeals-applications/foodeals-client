@@ -46,8 +46,8 @@ public class UserController {
 	}
 
 	@GetMapping("/store-count")
-	public ResponseEntity<List<Map<String, Object>>> getStoreCountByActivity() {
-		return ResponseEntity.ok(subEntityService.getStoreCountByActivity());
+	public ResponseEntity<List<Map<String, Object>>> getStoreCountByDomains() {
+		return ResponseEntity.ok(subEntityService.getStoreCountByDomains());
 	}
 
 	

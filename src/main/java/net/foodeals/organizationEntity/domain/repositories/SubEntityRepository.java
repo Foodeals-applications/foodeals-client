@@ -50,13 +50,15 @@ public interface SubEntityRepository extends JpaRepository<SubEntity, UUID> {
     @Query("SELECT s FROM SubEntity s JOIN s.activities a WHERE a.name = :activityName")
     List<SubEntity> findByActivityName(@Param("activityName") String activityName);
 
-    @Query("SELECT a.name, COUNT(s) FROM SubEntity s JOIN s.activities a GROUP BY a.name")
-    List<Object[]> countStoresByActivity();
+    @Query("SELECT d.name, COUNT(s) FROM SubEntity s JOIN s.subEntityDomains d GROUP BY d.name")
+    List<Object[]> countStoresByDomains();
 
     @Query("SELECT COUNT(o) FROM Offer o, Order or WHERE " +
             " or.offer.id=o.id AND  o.subEntity.id = :subEntityId")
     Integer getTotalSalesBySubEntity(UUID subEntityId);
 
 
+    @Query("SELECT se FROM SubEntity se JOIN se.subEntityDomains sed WHERE sed.name = :domainName")
+    List<SubEntity> findByDomaineName(String domainName);
 
 }
