@@ -1,8 +1,13 @@
 package net.foodeals.organizationEntity.Controller;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import net.foodeals.organizationEntity.application.dtos.responses.SubEntityDetailsResponse;
+import net.foodeals.organizationEntity.application.dtos.responses.SubEntityProductCategoryResponse;
+import net.foodeals.organizationEntity.application.services.SubEntityCategoryService;
+import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
 import net.foodeals.user.application.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +26,32 @@ public class SubEntityController {
 
     private final UserService userService;
 
+    private final SubEntityCategoryService subEntityCategoryService;
+
+
     @GetMapping("/{id}/details")
     public ResponseEntity<SubEntityDetailsResponse> getSubEntityDetails(@PathVariable UUID id) {
-        Integer userId=userService.getConnectedUser().getId();
+        Integer userId = userService.getConnectedUser().getId();
         SubEntityDetailsResponse response = subEntityService.getSubEntityDetails(id, userId);
         return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/by-sub-entity/{subEntityId}")
+    public ResponseEntity<List<SubEntityProductCategoryResponse>> getSubEntityCategoriesBySubEntityId(
+            @PathVariable UUID subEntityId) {
+        List<SubEntityProductCategory> categories = subEntityCategoryService.getCategoriesBySubEntityId(subEntityId);
+        List<SubEntityProductCategoryResponse> response = categories.stream()
+                .map(c -> new SubEntityProductCategoryResponse(c.getId(), c.getName(),generatePhotoUrl(c.getName())))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
+
+
+    private String generatePhotoUrl(String name) {
+        String baseUrl = "/images/"; // Votre domaine ou base d'URL
+        String formattedName = name.trim().toLowerCase().replace(" ", "-"); // Transformation
+        return baseUrl + formattedName + ".jpg"; // Exemple d'extension .jpg
     }
 
 

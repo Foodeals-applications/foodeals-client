@@ -132,6 +132,7 @@ public class OfferServiceImpl implements OfferService {
 
 			// Ajouter les informations de l'organisation associée au SubEntity
 			OrganizationEntity org = subEntity.getOrganizationEntity();
+			subEntityMap.put("subEntityId", subEntity.getId());
 			subEntityMap.put("subEntityName", subEntity.getName());
 			subEntityMap.put("subEntityLogo", subEntity.getAvatarPath());
 			subEntityMap.put("organizationName", org.getName());
