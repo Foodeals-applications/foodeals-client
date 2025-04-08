@@ -57,6 +57,12 @@ public interface SubEntityRepository extends JpaRepository<SubEntity, UUID> {
             " or.offer.id=o.id AND  o.subEntity.id = :subEntityId")
     Integer getTotalSalesBySubEntity(UUID subEntityId);
 
+    @Query("SELECT o.offer.subEntity.id, COUNT(o) AS totalSales " +
+            "FROM Order o " +
+            "GROUP BY o.offer.subEntity.id " +
+            "ORDER BY totalSales DESC")
+    List<Object[]> findBestSellers();
+
 
     @Query("SELECT se FROM SubEntity se JOIN se.subEntityDomains sed WHERE sed.name = :domainName")
     List<SubEntity> findByDomaineName(String domainName);

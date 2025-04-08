@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.foodeals.location.application.dtos.responses.AddressResponse;
@@ -14,22 +15,13 @@ import net.foodeals.user.application.dtos.responses.UserResponse;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
+@Builder
 public class SubEntityResponse {
-	private UUID id;
-	private String name;
-	private List<ActivityResponse> activities;
-	private String avatarPath;
-	private String coverPath;
-	private String email;
-	private String phone ;
-	private List<SolutionResponse>solutions;
-	private AddressResponse addressReponse;
-	private String iframe ;
-	private Date creationDate;
-	private int numberOfCollabs;
-    private int numberOfOffers ;
-    private int numberOfOrders;
-    private UserResponse manager ;
-    private SubEntityStatus status;
+	private String name;               // Nom du magasin
+	private String address;            // Adresse du magasin
+	private String distance;           // Distance (par exemple, "5 km")
+	private Double donationsToAssociations; // Montant donné aux associations (exemple : "5000€")
+	private Integer antiWasteYears;    // Années de lutte anti-gaspillage
+	private Integer basketsSold;
+
 }

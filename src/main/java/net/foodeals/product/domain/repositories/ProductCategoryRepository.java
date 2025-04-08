@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.foodeals.product.domain.entities.Product;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -17,6 +18,9 @@ public interface ProductCategoryRepository extends BaseRepository<ProductCategor
 
 	@Query("SELECT c FROM ProductCategory c WHERE c.name = :name AND c.deletedAt IS NULL")
 	public Optional<ProductCategory>  findByName(String name);
+
+	@Query("SELECT c FROM ProductCategory c  JOIN c.products p where p.id=:productId")
+	public Optional<ProductCategory>  findByProduct(UUID productId);
 	
 	@Query("SELECT c FROM ProductCategory c WHERE c.slug = :slug AND c.deletedAt IS NULL")
     Optional<ProductCategory> findBySlug(String slug);

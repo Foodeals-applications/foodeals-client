@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import net.foodeals.organizationEntity.application.dtos.responses.BestSellerResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.SubEntityDetailsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,8 @@ public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntity
     Page<SubEntity> filterSubEntities(Instant startDate, Instant endDate, String raisonSociale, UUID managerId,
                                       String email, String phone, UUID cityId, UUID solutionId,
                                       Pageable pageable);
+
+    List<BestSellerResponse> getBestSellers(Double salesThreshold);
 
 
     Page<SubEntity> getAllByStatus(String status, Pageable pageable);

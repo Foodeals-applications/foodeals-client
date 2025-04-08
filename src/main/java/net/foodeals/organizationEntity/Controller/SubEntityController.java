@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.foodeals.organizationEntity.application.dtos.responses.BestSellerResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.SubEntityDetailsResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.SubEntityProductCategoryResponse;
 import net.foodeals.organizationEntity.application.services.SubEntityCategoryService;
@@ -46,6 +47,15 @@ public class SubEntityController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping
+    public ResponseEntity<List<BestSellerResponse>> getBestSellers(
+            @RequestParam(value = "threshold", defaultValue = "1000") Double salesThreshold
+    ) {
+        List<BestSellerResponse> bestSellers = subEntityService.getBestSellers(salesThreshold);
+        return ResponseEntity.ok(bestSellers);
+    }
+
 
 
     private String generatePhotoUrl(String name) {

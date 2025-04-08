@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import net.foodeals.organizationEntity.application.dtos.responses.SubEntityResponse;
+import net.foodeals.organizationEntity.application.services.SubEntityService;
+import net.foodeals.product.application.dtos.responses.ProductDetailsResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -49,131 +52,47 @@ import net.foodeals.product.domain.repositories.ProductRepository;
 @RequiredArgsConstructor
 public class ProductController {
 
-	private final ProductService service;
+	private final ProductService productService;
+	private final SubEntityService subEntityService;
 	private final ProductRepository productRepository;
 	private final PaymentMethodRepository paymentMethodRepository;
 	private final DeliveryMethodRepository deliveryMethodRepository;
 	private final PickupConditionRepository pickupConditionRepository;
 	private final ModelMapper mapper;
 
-	@GetMapping
-	public ResponseEntity<Page<ProductResponse>> getAll
-	(@RequestParam(defaultValue = "0") Integer pageNum,
-			@RequestParam(defaultValue = "10") Integer pageSize,@RequestParam(value="name",required = false)String name) {
-		Page<ProductResponse> response =null;
-		if(name==null) {
-		response = service.findAll(pageNum, pageSize)
-				.map(product -> mapper.map(product, ProductResponse.class));
-		}
-		else {
-			response=service.findProductsByName(name, PageRequest.of(pageNum, pageSize))
-					.map(product -> mapper.map(product, ProductResponse.class));
-		}
+
+
+	@GetMapping("/{productId}/details")
+	public ResponseEntity<ProductDetailsResponse> getProductDetails(@PathVariable UUID productId) {
+
+		// 1. Récupérer les détails du produit
+		ProductResponse product = productService.getProductDetails(productId);
+
+		// 2. Récupérer les détails du magasin lié au produit
+	//	SubEntityResponse store = subEntityService.getSubEntityDetails(product.getSubEntityId());
+
+		// 3. Récupérer les avis pour le produit
+		//ReviewResponse reviews = reviewsService.getProductReviews(productId);
+
+		// 4. Vérifier les modalités et la livraison
+		//DeliveryResponse delivery = deliveryService.getDeliveryOptions(productId, store.getId());
+
+		// 5. Obtenir des produits similaires dans la même catégorie
+		//List<ProductSuggestionResponse> similarProducts = suggestionService.getSimilarProducts(product);
+
+		// 6. Construire la réponse finale
+		ProductDetailsResponse response = new ProductDetailsResponse(
+			null, product, null, null, null
+		);
+
 		return ResponseEntity.ok(response);
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<ProductResponse> getById(@PathVariable UUID id) {
-		final ProductResponse response = mapper.map(service.findById(id), ProductResponse.class);
-		return ResponseEntity.ok(response);
-	}
-
-	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<ProductResponse> create(@RequestPart("product") @Valid ProductRequest request,
-			@RequestPart("productImage") MultipartFile productImage) {
-
-		String imagePath = service.saveFile(productImage);
-
-		request = new ProductRequest(request.name(), request.title(), request.description(), request.barcode(),
-				request.type(), request.price(), imagePath, request.categoryId(), request.subCategoryId(),
-				request.brand(), request.rayon(),null);
-
-		final ProductResponse response = mapper.map(service.create(request), ProductResponse.class);
-		return new ResponseEntity<>(response, HttpStatus.CREATED);
-	}
-
-	@PutMapping("/{id}")
-	public ResponseEntity<ProductResponse> updateProduct(@PathVariable UUID id, @RequestParam UUID paymentMethodId,
-			@RequestParam UUID deliveryMethodId, @RequestBody List<PickupCondition> newPickupConditions) {
-
-		Product product = service.findById(id);
-
-		PaymentMethodProduct paymentMethodProduct = paymentMethodRepository.findById(paymentMethodId)
-				.orElseThrow(() -> new RuntimeException("Payment Method not found"));
-		product.setPaymentMethodProduct(paymentMethodProduct);
-
-		DeliveryMethod deliveryMethod = deliveryMethodRepository.findById(deliveryMethodId)
-				.orElseThrow(() -> new RuntimeException("Delivery Method not found"));
-		product.setDeliveryMethod(deliveryMethod);
-
-		pickupConditionRepository.deleteAll(product.getPickupConditions());
-
-		Product updatedProduct = productRepository.save(product);
-
-		List<PickupCondition> pickupConditionsProduct = new ArrayList<>();
-		for (PickupCondition pickupCondition : newPickupConditions) {
-			pickupCondition.setProduct(updatedProduct);
-			pickupCondition = pickupConditionRepository.save(pickupCondition);
-			pickupConditionsProduct.add(pickupCondition);
-		}
-		updatedProduct.setPickupConditions(pickupConditionsProduct);
-		updatedProduct = productRepository.save(updatedProduct);
-		final ProductResponse response = mapper.map(updatedProduct, ProductResponse.class);
-		return ResponseEntity.ok(response);
-	}
-
-	@PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<ProductResponse> update(@PathVariable UUID id,
-			@RequestPart("product") @Valid ProductRequest request,
-			@RequestPart(value = "productImage", required = false) MultipartFile productImage) {
-
-		String imagePath = null;
-		if (productImage != null) {
-			imagePath = service.saveFile(productImage);
-		} else {
-			imagePath = request.productImagePath();
-		}
-		request = new ProductRequest(request.name(), request.title(), request.description(), request.barcode(),
-				request.type(), request.price(), imagePath, request.categoryId(), request.subCategoryId(),
-				request.brand(), request.rayon(),null);
-
-		final ProductResponse response = mapper.map(service.update(id, request), ProductResponse.class);
-		return ResponseEntity.ok(response);
-	}
-
-	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> delete(@PathVariable UUID id) {
-		service.delete(id);
-		return ResponseEntity.noContent().build();
-	}
-
-	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<Void> deleteProduct(@PathVariable UUID id, @RequestParam String reason,
-			@RequestParam String motif) {
-		service.deleteProduct(id, reason, motif);
-		return ResponseEntity.noContent().build();
-	}
 
 
 
 
-	@GetMapping("/search")
-	public ResponseEntity<Page<ProductResponse>> searchProducts(@RequestParam(required = false) String name,
-			@RequestParam(required = false) String brand, @RequestParam(required = false) UUID categoryId,
-			@RequestParam(required = false) UUID subCategoryId, @RequestParam(required = false) String barcode,
-			@RequestParam(required = false) Integer userId,
-			@RequestParam(required = false) Instant startDate,
-	        @RequestParam(required = false) Instant endDate,
-			Pageable pageable) {
-		Page<ProductResponse> products = service
-				.searchProducts(name, brand, categoryId, subCategoryId, barcode,userId,startDate,endDate, pageable)
-				.map(product -> mapper.map(product, ProductResponse.class));
-		
-		if (!products.hasContent()) {
-			products= service.findAll(pageable.getPageNumber(), pageable.getPageSize())
-					.map(product -> mapper.map(product, ProductResponse.class));
-		}
-		return ResponseEntity.ok(products);
-	}
+
+
 
 }

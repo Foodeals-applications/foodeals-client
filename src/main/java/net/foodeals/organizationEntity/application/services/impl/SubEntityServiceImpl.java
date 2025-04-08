@@ -1,6 +1,7 @@
 package net.foodeals.organizationEntity.application.services.impl;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,9 +13,13 @@ import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.repositories.BoxRepository;
 import net.foodeals.offer.domain.repositories.DealRepository;
+import net.foodeals.order.domain.repositories.OrderRepository;
+import net.foodeals.organizationEntity.application.dtos.responses.BestSellerResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.SubEntityDetailsResponse;
+import net.foodeals.organizationEntity.application.dtos.responses.SubEntityResponse;
 import net.foodeals.organizationEntity.domain.repositories.*;
 import net.foodeals.product.application.dtos.responses.CategoryProductsResponse;
+import net.foodeals.product.application.dtos.responses.PriceResponse;
 import net.foodeals.product.application.dtos.responses.ProductOfferResponse;
 import net.foodeals.product.application.dtos.responses.ProductResponse;
 import net.foodeals.product.domain.repositories.ProductCategoryRepository;
@@ -72,6 +77,7 @@ public class SubEntityServiceImpl implements SubEntityService {
     private final ProductCategoryRepository categoryRepository;
     private final SubEntityRepository subEntityRepository;
     private final DealRepository dealRepository;
+    private final OrderRepository orderRepository;
     private final ModelMapper mapper;
 
     @Value("${upload.directory}")
@@ -126,17 +132,13 @@ public class SubEntityServiceImpl implements SubEntityService {
 
         subEntity.setOrganizationEntity(organizationEntity);
 
-        User manager = userRepository.findById(request.managerId())
-                .orElseThrow(() -> new EntityNotFoundException("Manager not found with id: " + request.managerId()));
+        User manager = userRepository.findById(request.managerId()).orElseThrow(() -> new EntityNotFoundException("Manager not found with id: " + request.managerId()));
         subEntity.setManager(manager);
 
         Address address = new Address();
-        address.setCountry(countryRepository.findById(request.countryId())
-                .orElseThrow(() -> new EntityNotFoundException("Country not found with id: " + request.countryId())));
-        address.setCity(cityRepository.findById(request.cityId())
-                .orElseThrow(() -> new EntityNotFoundException("City not found with id: " + request.cityId())));
-        address.setRegion(regionRepository.findById(request.regionId())
-                .orElseThrow(() -> new EntityNotFoundException("Region not found with id: " + request.regionId())));
+        address.setCountry(countryRepository.findById(request.countryId()).orElseThrow(() -> new EntityNotFoundException("Country not found with id: " + request.countryId())));
+        address.setCity(cityRepository.findById(request.cityId()).orElseThrow(() -> new EntityNotFoundException("City not found with id: " + request.cityId())));
+        address.setRegion(regionRepository.findById(request.regionId()).orElseThrow(() -> new EntityNotFoundException("Region not found with id: " + request.regionId())));
         address.setExtraAddress(request.exactAdresse());
 
         address = addressRepository.save(address);
@@ -148,8 +150,7 @@ public class SubEntityServiceImpl implements SubEntityService {
     @Override
     public SubEntity update(UUID id, SubEntityRequest dto) {
 
-        SubEntity subEntity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("SubEntity not found with id: " + id));
+        SubEntity subEntity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("SubEntity not found with id: " + id));
 
         subEntity.setName(dto.name());
         subEntity.setAvatarPath(dto.avatarPath());
@@ -158,8 +159,7 @@ public class SubEntityServiceImpl implements SubEntityService {
         subEntity.setPhone(dto.phone());
         subEntity.setIFrame(dto.iFrame());
 
-        subEntity.setManager(userRepository.findById(dto.managerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Manager not found with id: " + dto.managerId())));
+        subEntity.setManager(userRepository.findById(dto.managerId()).orElseThrow(() -> new ResourceNotFoundException("Manager not found with id: " + dto.managerId())));
 
         subEntity.setActivities(fetchActivitiesByNames(dto.activiteNames()));
 
@@ -167,12 +167,9 @@ public class SubEntityServiceImpl implements SubEntityService {
 
         Address address = addressRepository.findById(subEntity.getAddress().getId()).get();
 
-        address.setCountry(countryRepository.findById(dto.countryId())
-                .orElseThrow(() -> new EntityNotFoundException("Country not found with id: " + dto.countryId())));
-        address.setCity(cityRepository.findById(dto.cityId())
-                .orElseThrow(() -> new EntityNotFoundException("City not found with id: " + dto.cityId())));
-        address.setRegion(regionRepository.findById(dto.regionId())
-                .orElseThrow(() -> new EntityNotFoundException("Region not found with id: " + dto.regionId())));
+        address.setCountry(countryRepository.findById(dto.countryId()).orElseThrow(() -> new EntityNotFoundException("Country not found with id: " + dto.countryId())));
+        address.setCity(cityRepository.findById(dto.cityId()).orElseThrow(() -> new EntityNotFoundException("City not found with id: " + dto.cityId())));
+        address.setRegion(regionRepository.findById(dto.regionId()).orElseThrow(() -> new EntityNotFoundException("Region not found with id: " + dto.regionId())));
 
         subEntity.setAddress(address);
 
@@ -187,8 +184,7 @@ public class SubEntityServiceImpl implements SubEntityService {
 
     @Override
     public void delete(UUID id) {
-        if (!repository.existsById(id))
-            throw new SubEntityNotFoundException(id);
+        if (!repository.existsById(id)) throw new SubEntityNotFoundException(id);
 
         repository.softDelete(id);
 
@@ -248,8 +244,7 @@ public class SubEntityServiceImpl implements SubEntityService {
 
     }
 
-    public Page<SubEntity> filterSubEntities(Instant startDate, Instant endDate, String raisonSociale, UUID managerId,
-                                             String email, String phone, UUID cityId, UUID solutionId, Pageable pageable) {
+    public Page<SubEntity> filterSubEntities(Instant startDate, Instant endDate, String raisonSociale, UUID managerId, String email, String phone, UUID cityId, UUID solutionId, Pageable pageable) {
         return repository.filterSubEntities(raisonSociale, managerId, email, phone, cityId, solutionId, startDate, endDate, pageable);
     }
 
@@ -287,16 +282,14 @@ public class SubEntityServiceImpl implements SubEntityService {
     @Override
     public SubEntityDetailsResponse getSubEntityDetails(UUID subEntityId, Integer userId) {
         // 1. Récupérer la sous-entité
-        SubEntity subEntity = repository.findById(subEntityId)
-                .orElseThrow(() -> new EntityNotFoundException("SubEntity not found with id: " + subEntityId));
+        SubEntity subEntity = repository.findById(subEntityId).orElseThrow(() -> new EntityNotFoundException("SubEntity not found with id: " + subEntityId));
 
         // Détails de base
         String name = subEntity.getName();
         String logo = subEntity.getAvatarPath();
         String cover = subEntity.getCoverPath();
         Integer totalSales = repository.getTotalSalesBySubEntity(subEntityId);
-        String address = subEntity.getAddress() != null ? subEntity.getAddress().getAddress()+" "+
-                subEntity.getAddress().getCity().getName(): "N/A";
+        String address = subEntity.getAddress() != null ? subEntity.getAddress().getAddress() + " " + subEntity.getAddress().getCity().getName() : "N/A";
         String type = subEntity.getType().toString();
 
         // Détails avancés
@@ -305,54 +298,71 @@ public class SubEntityServiceImpl implements SubEntityService {
         List<String> categoriesWithOffers = categoryRepository.findActiveCategoryNamesBySubEntity(subEntityId);
 
         // Produits en promotion
-        List<ProductOfferResponse> productsOnOffer = productRepository
-                .findProductsWithActiveOffers(subEntityId);
+        List<ProductOfferResponse> productsOnOffer = productRepository.findProductsWithActiveOffers(subEntityId);
 
 
         // Produits triés par catégorie
         // Produits triés par catégorie
-        List<CategoryProductsResponse> categorizedProducts = categoryRepository.findCategoriesBySubEntity(subEntityId).stream()
-                .map(category -> new CategoryProductsResponse(
-                        category.getName(),
-                        productRepository.findByCategoryAndSubEntity(category.getId(), subEntityId).stream()
-                                .map(product -> {
-                                    // Récupérer les prix et autres informations à partir des boxes et deals
-                                    Double oldPrice = null;
-                                    Double newPrice = null;
-                                    // Deal : Si les offres de Box ne sont pas disponibles, vérifier les Deals
-                                    Optional<Deal> optionalDeal = dealRepository.findActiveDealByProduct(product.getId());
-                                    if (optionalDeal.isPresent()) {
-                                        Deal deal = optionalDeal.get();
-                                        oldPrice = deal.getOffer().getPrice().amount().doubleValue();
-                                        newPrice = deal.getOffer().getSalePrice().amount().doubleValue();
-                                    }
+        List<CategoryProductsResponse> categorizedProducts = categoryRepository.findCategoriesBySubEntity(subEntityId).stream().map(category -> new CategoryProductsResponse(category.getName(), productRepository.findByCategoryAndSubEntity(category.getId(), subEntityId).stream().map(product -> {
+            // Récupérer les prix et autres informations à partir des boxes et deals
+            Double oldPrice = null;
+            Double newPrice = null;
+            // Deal : Si les offres de Box ne sont pas disponibles, vérifier les Deals
+            Optional<Deal> optionalDeal = dealRepository.findActiveDealByProduct(product.getId());
+            if (optionalDeal.isPresent()) {
+                Deal deal = optionalDeal.get();
+                oldPrice = deal.getOffer().getPrice().amount().doubleValue();
+                newPrice = deal.getOffer().getSalePrice().amount().doubleValue();
+            }
 
-                                    return new ProductResponse(
-                                            product.getProductImagePath(),
-                                            product.getName(),
-                                            oldPrice,
-                                            newPrice,
-                                            0);
-                                })
-                                .collect(Collectors.toList())))
-                .collect(Collectors.toList());
+            return new ProductResponse(product.getId(),product.getProductImagePath(), product.getName(),product.getDescription(), new PriceResponse(oldPrice, newPrice), categoriesWithOffers, 0,subEntityId);
+        }).collect(Collectors.toList()))).collect(Collectors.toList());
 
-        return new SubEntityDetailsResponse(
-                name,
-                logo,
-                cover,
-                totalSales,
-                address,
-                type,
-                categoriesWithOffers,
-                productsOnOffer,
-                categorizedProducts,
-                subEntity.getNumberOfLikes(),
-                deliveryFree,
-                isFavorite,
-                subEntity.getCoordinates()
+        return new SubEntityDetailsResponse(name, logo, cover, totalSales, address, type, categoriesWithOffers, productsOnOffer, categorizedProducts, subEntity.getNumberOfLikes(), deliveryFree, isFavorite, subEntity.getCoordinates());
+    }
+
+    public List<BestSellerResponse> getBestSellers(Double salesThreshold) {
+
+        Double globalTotalSales = orderRepository.findGlobalTotalSales();
+        List<Object[]> bestSellersData = orderRepository.findBestSellers();
+
+        return bestSellersData.stream().map(data -> {
+            UUID subEntityId = (UUID) data[0];
+            BigDecimal totalSales = (BigDecimal) data[1];
+
+            SubEntity subEntity = subEntityRepository.findById(subEntityId).orElseThrow(() -> new IllegalArgumentException("SubEntity not found"));
+            if (totalSales.compareTo(BigDecimal.valueOf(salesThreshold)) > 0) {
+                return new BestSellerResponse(subEntity.getId(), subEntity.getName(), subEntity.getAvatarPath(), subEntity.getCoverPath(), totalSales.doubleValue(),
+                        totalSales.doubleValue() / globalTotalSales.doubleValue() * 100, calculateDeliveryFee(totalSales.doubleValue()));
+            }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+
+    public SubEntityResponse getStoreDetails(UUID subEntityId) {
+        // Récupérer la sous-entité par son ID
+        SubEntity subEntity = subEntityRepository.findById(subEntityId)
+                .orElseThrow(() -> new EntityNotFoundException("Magasin non trouvé"));
+
+        // Construire manuellement l'objet de réponse
+        return new SubEntityResponse(
+                subEntity.getName(),
+                subEntity.getAddress().getAddress() + " " + subEntity.getAddress().getCity().getName(),
+                "0",
+                500.0,
+                0,
+                0
         );
     }
 
+
+    private Double calculateDeliveryFee(Double totalSales) {
+
+        if (totalSales > 5000) {
+            return 0.0;
+        }
+        return 20.0;
+    }
 
 }
