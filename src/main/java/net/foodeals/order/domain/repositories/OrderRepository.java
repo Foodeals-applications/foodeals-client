@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import net.foodeals.user.domain.entities.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -13,6 +14,9 @@ import net.foodeals.order.domain.enums.OrderSource;
 import net.foodeals.order.domain.enums.OrderStatus;
 
 public interface OrderRepository extends BaseRepository<Order, UUID> {
+
+    @Query("SELECT o FROM Order o WHERE o.client.id=:userId")
+    List<Order> findOrdersByClient(Integer userId);
 
     @Query("SELECT o FROM Order o WHERE o.createdAt >= :startOfDay AND o.createdAt < :endOfDay AND o.status = :status")
     List<Order> findOrdersByDateRangeAndStatus(Instant startOfDay, Instant endOfDay, OrderStatus status);
@@ -46,6 +50,7 @@ public interface OrderRepository extends BaseRepository<Order, UUID> {
 
     @Query("SELECT SUM(o.offer.salePrice.amount)FROM Order o")
     Double findGlobalTotalSales();
+
 
 
 }

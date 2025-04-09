@@ -1,6 +1,7 @@
 package net.foodeals.order.domain.entities;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
@@ -25,6 +26,7 @@ import net.foodeals.order.domain.enums.OrderStatus;
 import net.foodeals.order.domain.enums.OrderType;
 import net.foodeals.organizationEntity.domain.entities.SubEntity;
 import net.foodeals.user.domain.entities.User;
+import org.springframework.lang.Nullable;
 
 @Entity
 @Table(name = "orders")
@@ -39,6 +41,12 @@ public class Order extends AbstractEntity<UUID> {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "order_type")
 	private OrderType type;
+
+	@Nullable
+	private LocalTime collectionStartTime ;
+
+	private LocalTime collectionEndTime;
+
 
 	@Enumerated(EnumType.STRING)
 	private OrderStatus status;
@@ -183,6 +191,18 @@ public class Order extends AbstractEntity<UUID> {
 		this.seen = seen;
 		return this;
 	}
-	
+
+
+	public Order setCollectionStartTime(LocalTime collectionStartTime) {
+		this.collectionStartTime = collectionStartTime;
+		return this;
+	}
+
+	public Order setCollectionEndTime(LocalTime collectionEndTime) {
+		this.collectionEndTime = collectionEndTime;
+		return this;
+	}
+
+
 
 }

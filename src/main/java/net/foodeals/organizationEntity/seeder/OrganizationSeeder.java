@@ -1,16 +1,14 @@
 package net.foodeals.organizationEntity.seeder;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Currency;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalTime;
+import java.util.*;
 
 import net.foodeals.order.domain.entities.Order;
-import net.foodeals.order.domain.enums.OrderSource;
-import net.foodeals.order.domain.enums.OrderStatus;
-import net.foodeals.order.domain.enums.OrderType;
+import net.foodeals.order.domain.entities.Transaction;
+import net.foodeals.order.domain.enums.*;
 import net.foodeals.order.domain.repositories.OrderRepository;
+import net.foodeals.order.domain.repositories.TransactionRepository;
 import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
 import net.foodeals.organizationEntity.domain.repositories.SubEntityDomainRepository;
 import net.foodeals.product.domain.entities.Product;
@@ -74,6 +72,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     private final SubEntityDomainRepository subEntityDomainRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final OrderRepository orderRepository;
+    private final TransactionRepository transactionRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -96,7 +95,7 @@ public class OrganizationSeeder implements CommandLineRunner {
             domains.add(domainSuperMarchesOpt.get());
             SubEntity carrefourMarket =
                     createSubEntity("Carrefour Market", carrefour, subEntityManager, activity1,
-                            subEntityAddress, 39,domains);
+                            subEntityAddress, 39, domains);
 
 
             // Ajout de produits associés à la sous-entité
@@ -119,9 +118,16 @@ public class OrganizationSeeder implements CommandLineRunner {
             System.out.println("Seed terminé pour Carrefour, ses produits, Deals et Boxes.");
 
             // MIG : Ajout des Orders
-            createOrder(carrefourMarket, carrefourOffer1, product1, "Client A", "client.a@gmail.com");
-            createOrder(carrefourMarket, carrefourOffer2, product2, "Client B", "client.b@gmail.com");
-
+            Order order1=createOrder(carrefourMarket, carrefourOffer1, product1,OrderStatus.OPEN);
+            Order order2=createOrder(carrefourMarket, carrefourOffer2, product2,OrderStatus.CANCELED);
+            Transaction transaction1 = createTransactionForOrder(order1, "PAY123456789", order1.getOffer().getPrice());
+            Transaction transaction2 = createTransactionForOrder(order2, "PAY123456790", order2.getOffer().getPrice());
+            transaction1=transactionRepository.save(transaction1);
+            transaction2=transactionRepository.save(transaction2);
+            order1.setTransaction(transaction1);
+            order2.setTransaction(transaction2);
+            order1=orderRepository.save(order1);
+            order2=orderRepository.save(order2);
         }
     }
 
@@ -158,7 +164,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     }
 
     // Méthode pour créer une sous-entité
-    private SubEntity createSubEntity(String name, OrganizationEntity orgEntity, User manager, Activity activity, Address address, Integer numberOfLikes,List<SubEntityDomain> domains) {
+    private SubEntity createSubEntity(String name, OrganizationEntity orgEntity, User manager, Activity activity, Address address, Integer numberOfLikes, List<SubEntityDomain> domains) {
         SubEntity subEntity = new SubEntity();
         subEntity.setName(name);
         subEntity.setAvatarPath("/images/" + name.toLowerCase().replace(" ", "-") + "-avatar.png");
@@ -227,11 +233,13 @@ public class OrganizationSeeder implements CommandLineRunner {
     }
 
     // Nouvelle méthode pour créer une commande
-    private Order createOrder(SubEntity subEntity, Offer offer, Product product, String clientName, String clientEmail) {
-        User client = createUser(clientName.split(" ")[0], clientName.split(" ")[1], clientEmail, "0650432178");
+    private Order createOrder(SubEntity subEntity, Offer offer, Product product,OrderStatus orderStatus) {
+        User client = userRepository.findByEmail("mohamed.benibrahim@example.com").get();
         Order order = new Order();
         order.setOrderType(OrderType.AT_PLACE);
-        order.setStatus(OrderStatus.COMPLETED);
+        order.setStatus(orderStatus);
+        order.setCollectionStartTime(LocalTime.MIN);
+        order.setCollectionEndTime(LocalTime.MAX);
         order.setClient(client);
         order.setOffer(offer);
         order.setQuantity(1);  // Exemple de quantité par défaut
@@ -239,4 +247,43 @@ public class OrganizationSeeder implements CommandLineRunner {
         order.setOrderSource(OrderSource.DEAL_PRO);
         return orderRepository.save(order);
     }
+
+
+    private Transaction createTransaction(String paymentId,
+                                          String reference,
+                                          String context,
+                                          Price price,
+                                          TransactionStatus status,
+                                          TransactionType type,
+                                          Order order) {
+        Transaction transaction = new Transaction();
+
+        transaction.setPaymentId(paymentId);       // Défini l'ID du paiement
+        transaction.setReference(reference);       // Défini la référence unique
+        transaction.setContext(context);           // Défini le contexte de la transaction
+        transaction.setPrice(price);               // Défini le prix de la transaction
+        transaction.setStatus(status);             // Défini le statut de la transaction
+        transaction.setType(type);                 // Défini le type de la transaction
+        transaction.setOrder(order);               // Associe à une commande
+
+        return transaction;
+    }
+
+
+    private Transaction createTransactionForOrder(Order order, String paymentId, Price price) {
+        // Générer une référence unique
+        String reference = "C-180926-345";
+
+        // Initialiser et retourner une nouvelle transaction
+        return createTransaction(
+                paymentId,
+                reference,
+                "Paiement effectué",
+                price,
+                TransactionStatus.COMPLETED,
+                TransactionType.CASH,
+                order
+        );
+    }
+
 }

@@ -9,10 +9,13 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import net.foodeals.offer.domain.repositories.DealRepository;
+import net.foodeals.order.application.dtos.responses.OrderResponse;
+import net.foodeals.product.domain.entities.Product;
+import net.foodeals.product.domain.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -52,6 +55,8 @@ public class OrderServiceImpl implements OrderService {
 	private final UserService userService;
 	private final OfferService offerService;
 	private final DeliveryService deliveryService;
+	private final DealRepository dealRepository;
+	private final ProductRepository productRepository;
 
 	@Value("${upload.directory}")
 	private String uploadDir;
@@ -107,142 +112,56 @@ public class OrderServiceImpl implements OrderService {
 		repository.softDelete(id);
 	}
 
-	@Transactional
-	@Override
-	public List<Order> getOrdersForTodayAndStatus(String status) {
-		LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN);
-		LocalDateTime endOfDay = LocalDateTime.now().with(LocalTime.MAX);
-
-		Instant startOfDayInstant = startOfDay.atZone(ZoneId.systemDefault()).toInstant();
-		Instant endOfDayInstant = endOfDay.atZone(ZoneId.systemDefault()).toInstant();
-		OrderStatus orderStatus = OrderStatus.valueOf(status);
-		return repository.findOrdersByDateRangeAndStatus(startOfDayInstant, endOfDayInstant, orderStatus);
-	}
 
 	@Override
-	public List<Order> getOrdersForToday() {
-		LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN);
-		LocalDateTime endOfDay = LocalDateTime.now().with(LocalTime.MAX);
+	public Map<String, List<OrderResponse>> findOrdersByClient(User client) {
+		// Récupération de toutes les commandes du client
 
-		Instant startOfDayInstant = startOfDay.atZone(ZoneId.systemDefault()).toInstant();
-		Instant endOfDayInstant = endOfDay.atZone(ZoneId.systemDefault()).toInstant();
-		return repository.findOrdersByDateRange(startOfDayInstant, endOfDayInstant);
+		List<Order> orders = repository.findOrdersByClient(client.getId());
+
+		// Création de la Map pour stocker les commandes par statut
+		Map<String, List<OrderResponse>> mapOrders = new HashMap<>();
+
+		// Filtrer et mapper les commandes par statut
+		List<OrderResponse> pendingOrders = orders.stream()
+				.filter(order -> OrderStatus.OPEN.name().equalsIgnoreCase(order.getStatus().name()))
+				.map(this::mapToOrderResponse)
+				.collect(Collectors.toList());
+
+		List<OrderResponse> inProgressOrders = orders.stream()
+				.filter(order -> OrderStatus.IN_PROGRESS.name().equalsIgnoreCase(order.getStatus().name()))
+				.map(this::mapToOrderResponse)
+				.collect(Collectors.toList());
+
+		List<OrderResponse> canceledOrders = orders.stream()
+				.filter(order -> OrderStatus.CANCELED.name().equalsIgnoreCase(order.getStatus().name()))
+				.map(this::mapToOrderResponse)
+				.collect(Collectors.toList());
+
+		// Ajouter les listes dans la Map
+		mapOrders.put("en attente", pendingOrders);
+		mapOrders.put("en cours", inProgressOrders);
+		mapOrders.put("annulé", canceledOrders);
+
+		return mapOrders;
 	}
 
-	@Override
-	public Order cancelOrder(UUID id, String reason, String subject, MultipartFile attachment) throws Exception {
-		Order order = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Order not found"));
 
-		if (order.getStatus() == OrderStatus.CANCELED) {
-			throw new Exception("Order is already canceled");
-		}
+	private OrderResponse mapToOrderResponse(Order order) {
+		UUID idProduct=productRepository.findProductsWithActiveOffers(order.getOffer().getSubEntity().getId()).
+				get(0).getId();
+		Product product =productRepository.findById(idProduct).orElseThrow(EntityNotFoundException::new);
+		return new OrderResponse(
+				order.getId(),
+				product.getName(),
+				product.getProductImagePath(),
+				order.getOffer().getSalePrice().amount().doubleValue(),
+				order.getCreatedAt(),
+				OrderType.AT_PLACE==(order.getType()) ? order.getCollectionStartTime().getHour() : 0,
+				OrderType.AT_PLACE==(order.getType()) ? order.getCollectionEndTime().getHour() : 0,
+				order.getTransaction().getReference()
+		);
 
-		order.setStatus(OrderStatus.CANCELED);
-		order.setCancellationReason(reason);
-		order.setCancellationDate(LocalDateTime.now());
-
-		order.setCancellationSubject(subject);
-		if (attachment != null && !attachment.isEmpty()) {
-
-			String attachmentPath = null;
-			try {
-				attachmentPath = saveAttachment(attachment);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			order.setAttachmentPath(attachmentPath);
-		}
-
-		return repository.save(order);
 	}
 
-	private String saveAttachment(MultipartFile file) throws IOException {
-		String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-		Path filePath = Paths.get(uploadDir, fileName);
-
-		try {
-			Files.createDirectories(filePath.getParent());
-			Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-		} catch (IOException e) {
-			throw new IOException("Failed to save attachment");
-		}
-
-		return filePath.toString();
-	}
-
-	@Override
-	public List<Order> getAllOrdersNotAffected() {
-		return repository.findOrdersNotAffected();
-	}
-
-	@Override
-	public List<Order> getAllOrdersNotAffectedBySource(OrderSource orderSource) {
-		return repository.findOrdersNotAffectedBySource(orderSource);
-	}
-
-	@Override
-	public List<Order> getOrdersForOrganization(OrganizationEntity organizationEntity) {
-
-		List<SubEntity> subEntities = organizationEntity.getSubEntities();
-
-		List<Order> allOrders = new ArrayList<>();
-
-		for (SubEntity subEntity : subEntities) {
-			List<Activity> activities = subEntity.getActivities();
-			for (Activity activity : activities) {
-				List<Offer> offers = activity.getOffers();
-
-				for (Offer offer : offers) {
-					List<Order> orders = offer.getOrders();
-					for (Order order : orders) {
-						if (order.getClient() != null && order.getClientPro() == null)
-							allOrders.add(order);
-					}
-
-				}
-			}
-		}
-		return allOrders;
-	}
-
-	@Override
-	public List<Order> getOrdersDealProForOrganization(OrganizationEntity organizationEntity, OrderStatus orderStatus) {
-
-		List<SubEntity> subEntities = organizationEntity.getSubEntities();
-
-		List<Order> allOrders = new ArrayList<>();
-
-		for (SubEntity subEntity : subEntities) {
-			List<Activity> activities = subEntity.getActivities();
-			for (Activity activity : activities) {
-				List<Offer> offers = activity.getOffers();
-
-				for (Offer offer : offers) {
-					List<Order> orders = offer.getOrders();
-					for (Order order : orders) {
-						if (order.getClient() == null && order.getClientPro() != null
-								&& order.getStatus().compareTo(orderStatus) == 0)
-							allOrders.add(order);
-					}
-
-				}
-			}
-		}
-		return allOrders;
-	}
-
-	@Override
-	public List<Order> getOrdersHistoryAndStatus(String status) {
-		LocalDateTime todayLocalTime = LocalDateTime.now();
-	
-
-		Instant today = todayLocalTime.atZone(ZoneId.systemDefault()).toInstant();
-		OrderStatus orderStatus = OrderStatus.valueOf(status);
-		return repository.findHistoryOrdersByStatus(today, orderStatus);
-	}
-
-	@Override
-	public List<Order> getAllOrdersAffected() {
-		return repository.findOrdersAffected();
-	}
 }
