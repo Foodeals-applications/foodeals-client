@@ -48,7 +48,9 @@ public class BoxDetailsModelMapperConfig {
 		}, OpenTime.class, OpenTimeResponse.class);
 
 		mapper.addConverter(context -> {
-			final BoxItem boxItem = context.getSource();
+			final BoxItem boxItem = context.
+
+					getSource();
 			Product product = boxItem.getProduct();
 			return new BoxItemResponse(boxItem.getPrice(), boxItem.getQuantity(),
 					mapper.map(product, ProductResponse.class)

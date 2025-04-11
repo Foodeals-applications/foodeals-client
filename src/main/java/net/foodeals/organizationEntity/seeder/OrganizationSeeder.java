@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.*;
 
+import net.foodeals.offer.domain.enums.*;
 import net.foodeals.order.domain.entities.Order;
 import net.foodeals.order.domain.entities.Transaction;
 import net.foodeals.order.domain.enums.*;
@@ -29,11 +30,6 @@ import net.foodeals.location.domain.repositories.CountryRepository;
 import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.entities.Offer;
-import net.foodeals.offer.domain.enums.BoxStatus;
-import net.foodeals.offer.domain.enums.BoxType;
-import net.foodeals.offer.domain.enums.Category;
-import net.foodeals.offer.domain.enums.DealStatus;
-import net.foodeals.offer.domain.enums.PublishAs;
 import net.foodeals.offer.domain.repositories.BoxRepository;
 import net.foodeals.offer.domain.repositories.DealRepository;
 import net.foodeals.offer.domain.repositories.OfferRepository;
@@ -118,16 +114,21 @@ public class OrganizationSeeder implements CommandLineRunner {
             System.out.println("Seed terminé pour Carrefour, ses produits, Deals et Boxes.");
 
             // MIG : Ajout des Orders
-            Order order1=createOrder(carrefourMarket, carrefourOffer1, product1,OrderStatus.OPEN);
+            Order order1=createOrder(carrefourMarket, carrefourOffer1, product1,OrderStatus.IN_PROGRESS);
             Order order2=createOrder(carrefourMarket, carrefourOffer2, product2,OrderStatus.CANCELED);
+            Order order3=createOrder(carrefourMarket, carrefourOffer2, product2,OrderStatus.COMPLETED);
             Transaction transaction1 = createTransactionForOrder(order1, "PAY123456789", order1.getOffer().getPrice());
             Transaction transaction2 = createTransactionForOrder(order2, "PAY123456790", order2.getOffer().getPrice());
+            Transaction transaction3 = createTransactionForOrder(order2, "PAY123456791", order3.getOffer().getPrice());
             transaction1=transactionRepository.save(transaction1);
             transaction2=transactionRepository.save(transaction2);
+            transaction3=transactionRepository.save(transaction3);
             order1.setTransaction(transaction1);
             order2.setTransaction(transaction2);
-            order1=orderRepository.save(order1);
-            order2=orderRepository.save(order2);
+            order3.setTransaction(transaction3);
+            orderRepository.save(order1);
+            orderRepository.save(order2);
+            orderRepository.save(order3);
         }
     }
 
@@ -200,6 +201,7 @@ public class OrganizationSeeder implements CommandLineRunner {
         offer.setSubEntity(subEntity);
         offer.setPrice(new Price(price, Currency.getInstance("MAD")));
         offer.setSalePrice(new Price(salePrice, Currency.getInstance("MAD")));
+        offer.setModalityPaiement(ModalityPaiement.CASH);
         offer.setDeliveryFee(5L);
         return offerRepository.save(offer);
     }

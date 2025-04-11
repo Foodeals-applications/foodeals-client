@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import net.foodeals.offer.domain.repositories.DealRepository;
+import net.foodeals.order.application.dtos.responses.OrderDetailsResponse;
 import net.foodeals.order.application.dtos.responses.OrderResponse;
 import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.repositories.ProductRepository;
@@ -124,12 +125,12 @@ public class OrderServiceImpl implements OrderService {
 
 		// Filtrer et mapper les commandes par statut
 		List<OrderResponse> pendingOrders = orders.stream()
-				.filter(order -> OrderStatus.OPEN.name().equalsIgnoreCase(order.getStatus().name()))
+				.filter(order -> OrderStatus.IN_PROGRESS.name().equalsIgnoreCase(order.getStatus().name()))
 				.map(this::mapToOrderResponse)
 				.collect(Collectors.toList());
 
 		List<OrderResponse> inProgressOrders = orders.stream()
-				.filter(order -> OrderStatus.IN_PROGRESS.name().equalsIgnoreCase(order.getStatus().name()))
+				.filter(order -> OrderStatus.COMPLETED.name().equalsIgnoreCase(order.getStatus().name()))
 				.map(this::mapToOrderResponse)
 				.collect(Collectors.toList());
 
@@ -140,10 +141,19 @@ public class OrderServiceImpl implements OrderService {
 
 		// Ajouter les listes dans la Map
 		mapOrders.put("en attente", pendingOrders);
-		mapOrders.put("en cours", inProgressOrders);
+		mapOrders.put("livré", inProgressOrders);
 		mapOrders.put("annulé", canceledOrders);
 
 		return mapOrders;
+	}
+
+	@Override
+	public OrderDetailsResponse getDetailsOrder(UUID id) {
+		Order order =findById(id);
+		if(order!=null){
+         return mapToOrderDetailsResponse(order);
+		}
+		return null;
 	}
 
 
@@ -161,6 +171,23 @@ public class OrderServiceImpl implements OrderService {
 				OrderType.AT_PLACE==(order.getType()) ? order.getCollectionEndTime().getHour() : 0,
 				order.getTransaction().getReference()
 		);
+
+	}
+
+
+	private OrderDetailsResponse mapToOrderDetailsResponse(Order order) {
+		UUID idProduct=productRepository.findProductsWithActiveOffers(order.getOffer().getSubEntity().getId()).
+				get(0).getId();
+		Product product =productRepository.findById(idProduct).orElseThrow(EntityNotFoundException::new);
+		return new OrderDetailsResponse(order.getId(),
+				product.getName(),
+				product.getDescription(),
+				product.getProductImagePath(),
+				order.getOffer().getSalePrice().amount().doubleValue(),
+				order.getDelivery() != null ? Date.from(order.getDelivery().getCreatedAt()) : null,
+				20,
+				order.getOffer().getModalityPaiement()
+				) ;
 
 	}
 
