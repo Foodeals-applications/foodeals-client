@@ -104,8 +104,8 @@ public class OrganizationSeeder implements CommandLineRunner {
             Offer carrefourOffer2 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("59.99"));
 
             // Deals associés aux produits
-            createDealWithOfferAndProduct("Promo Carrefour Market", "Réduction pommes bio.", carrefourOffer1, DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, product1);
-            createDealWithOfferAndProduct("Promotion Noël Carrefour", "Offre spéciale sur le gâteau de Noël.", carrefourOffer2, DealStatus.AVAILABLE, Category.FROZEN_PRODUCTS, product3);
+            createDealWithOfferAndProduct("Promo Carrefour Market", "Réduction pommes bio.", carrefourOffer1, 1,DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, product1);
+            createDealWithOfferAndProduct("Promotion Noël Carrefour", "Offre spéciale sur le gâteau de Noël.", carrefourOffer2, 2,DealStatus.AVAILABLE, Category.FROZEN_PRODUCTS, product3);
 
             // Boxes associées aux offres
             createBoxWithOffer("Box Carrefour Market", "Box avec lait et autres produits.", carrefourOffer1, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.DAIRY_PRODUCTS, product2);
@@ -207,7 +207,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     }
 
     // Méthode pour créer un deal associé à un produit
-    private Deal createDealWithOfferAndProduct(String title, String description, Offer offer, DealStatus status, Category category, Product product) {
+    private Deal createDealWithOfferAndProduct(String title, String description, Offer offer,Integer quantity, DealStatus status, Category category, Product product) {
         Deal deal = new Deal();
         deal.setTitle(title);
         deal.setDescription(description);
@@ -215,7 +215,8 @@ public class OrganizationSeeder implements CommandLineRunner {
         deal.setDealStatus(status);
         deal.setCategory(category);
         deal.setPublishAs(PublishAs.SUPERMARKETS_HYPERMARKETS);
-        deal.setProduct(product); // Associer le produit au Deal
+        deal.setProduct(product);
+        deal.setQuantity(quantity);
         deal.setOffer(offer);
         return dealRepository.save(deal);
     }

@@ -3,13 +3,10 @@ package net.foodeals.organizationEntity.domain.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import net.foodeals.common.models.AbstractEntity;
-import net.foodeals.contract.domain.entities.Contract;
-import net.foodeals.contract.domain.entities.Subscription;
 import net.foodeals.delivery.domain.entities.CoveredZones;
 import net.foodeals.location.domain.entities.Address;
 import net.foodeals.notification.domain.entity.Notification;
 import net.foodeals.organizationEntity.domain.entities.enums.EntityType;
-import net.foodeals.payment.domain.entities.Payment;
 import net.foodeals.user.domain.entities.User;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -75,20 +72,12 @@ public class OrganizationEntity extends AbstractEntity<UUID> {
     @JoinColumn(name = "bank_information")
     private BankInformation bankInformation;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Contract contract;
+
 
     @Builder.Default
     @ManyToMany(cascade = CascadeType.ALL)
     private Set<Features> features = new HashSet<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "organizationEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Payment> payments = new ArrayList<>();
-
-    @Builder.Default
-    @OneToMany(mappedBy = "organizationEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Subscription> subscriptions = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "organizationEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

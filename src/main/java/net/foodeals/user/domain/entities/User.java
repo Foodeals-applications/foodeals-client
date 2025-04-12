@@ -31,10 +31,8 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
-import net.foodeals.common.entities.enums.StateStatus;
 import net.foodeals.common.models.AbstractEntity;
 import net.foodeals.common.valueOjects.Coordinates;
-import net.foodeals.contract.domain.entities.UserContract;
 import net.foodeals.delivery.domain.entities.CoveredZones;
 import net.foodeals.delivery.domain.entities.Delivery;
 import net.foodeals.location.domain.entities.Address;
@@ -112,9 +110,6 @@ public class User extends AbstractEntity<Integer> implements UserDetails {
 
 	@OneToMany(mappedBy = "deliveryBoy", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Delivery> deliveries;
-
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<UserContract> userContracts;
 
 	@OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
 	private List<Order> orders = new ArrayList();
@@ -298,9 +293,6 @@ public class User extends AbstractEntity<Integer> implements UserDetails {
 		this.deliveries = deliveries;
 	}
 
-	public void setUserContracts(List<UserContract> userContracts) {
-		this.userContracts = userContracts;
-	}
 
 	public void setOrders(List<Order> orders) {
 		this.orders = orders;

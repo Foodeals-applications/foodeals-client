@@ -3,7 +3,6 @@ package net.foodeals.offer.infrastructure.interfaces.web;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import net.foodeals.offer.application.dtos.responses.CartResponse;
-import net.foodeals.offer.application.services.CartMapper;
 import net.foodeals.offer.application.services.CartService;
 import net.foodeals.offer.domain.entities.Cart;
-import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.user.application.services.UserService;
 
 @RestController
@@ -36,7 +33,7 @@ public class CartController {
 			@RequestParam int quantity) {
 		Integer userId=userService.getConnectedUser().getId();
 		Cart cart = cartService.addDealToCart(userId, dealId, quantity);
-		CartResponse cartResponse = CartMapper.toCartResponse(cart);
+		CartResponse cartResponse = cartService.toCartResponse(cart);
 		return ResponseEntity.ok(cartResponse);
 	}
 
@@ -44,7 +41,10 @@ public class CartController {
 	public ResponseEntity<CartResponse> getCart() {
 		Integer userId=userService.getConnectedUser().getId();
 		Cart cart = cartService.getCartByUser(userId);
-		CartResponse cartResponse = CartMapper.toCartResponse(cart);
+		if(cart==null){
+			return ResponseEntity.noContent().build();
+		}
+		CartResponse cartResponse = cartService.toCartResponse(cart);
 		return ResponseEntity.ok(cartResponse);
 	}
 
@@ -67,10 +67,5 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
 	
-	@DeleteMapping("/deleteAllDealPro/{organizationId}")
-    public ResponseEntity<Void> deleteAllDealsByOrganization(@PathVariable UUID organizationId) {
-        cartService.deleteAllDealsByOrganizationFromCart(organizationId);
-        return ResponseEntity.noContent().build();
-    }
 
 }

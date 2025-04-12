@@ -12,6 +12,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.repositories.DealRepository;
 import net.foodeals.order.application.dtos.responses.OrderDetailsResponse;
 import net.foodeals.order.application.dtos.responses.OrderResponse;
@@ -178,6 +179,7 @@ public class OrderServiceImpl implements OrderService {
 	private OrderDetailsResponse mapToOrderDetailsResponse(Order order) {
 		UUID idProduct=productRepository.findProductsWithActiveOffers(order.getOffer().getSubEntity().getId()).
 				get(0).getId();
+		Deal deal=dealRepository.findActiveDealByProduct(idProduct).orElse(null);
 		Product product =productRepository.findById(idProduct).orElseThrow(EntityNotFoundException::new);
 		return new OrderDetailsResponse(order.getId(),
 				product.getName(),
@@ -186,8 +188,8 @@ public class OrderServiceImpl implements OrderService {
 				order.getOffer().getSalePrice().amount().doubleValue(),
 				order.getDelivery() != null ? Date.from(order.getDelivery().getCreatedAt()) : null,
 				20,
-				order.getOffer().getModalityPaiement()
-				) ;
+				order.getOffer().getModalityPaiement(),
+				deal.getId()) ;
 
 	}
 

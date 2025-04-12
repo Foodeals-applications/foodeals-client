@@ -9,12 +9,10 @@ import org.hibernate.annotations.UuidGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.Setter;
 import net.foodeals.common.models.AbstractEntity;
 import net.foodeals.common.valueOjects.Coordinates;
-import net.foodeals.contract.domain.entities.Contract;
 import net.foodeals.location.domain.entities.Address;
 import net.foodeals.offer.domain.entities.DonorInfo;
 import net.foodeals.offer.domain.entities.Offer;
@@ -25,8 +23,6 @@ import net.foodeals.offer.domain.enums.DonorType;
 import net.foodeals.offer.domain.enums.PublisherType;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityStatus;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityType;
-import net.foodeals.payment.domain.entities.PartnerI;
-import net.foodeals.payment.domain.entities.Enum.PartnerType;
 import net.foodeals.user.domain.entities.User;
 
 @Entity
@@ -34,7 +30,7 @@ import net.foodeals.user.domain.entities.User;
 
 @Getter
 @Setter
-public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, ReceiverInfo, PublisherI, PartnerI {
+public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, ReceiverInfo, PublisherI {
 
     @Id
     @GeneratedValue
@@ -99,8 +95,6 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Offer> offers = new ArrayList<>();
 
-    @ManyToOne
-    private Contract contract;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Solution> solutions = new ArrayList<>();
@@ -127,9 +121,6 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
     public SubEntity() {
     }
 
-    public PartnerType getPartnerType() {
-        return PartnerType.SUB_ENTITY;
-    }
 
     @Override
     public UUID getId() {
@@ -146,18 +137,9 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
         return null;
     }
 
-    @Override
-    @Transactional
-    public boolean subscriptionPayedBySubEntities() {
-        // return this.contract.isSubscriptionPayedBySubEntities();
-        return false;
-    }
 
-    @Override
-    public boolean singleSubscription() {
-        // return this.contract.isSingleSubscription();
-        return false;
-    }
+
+
 
     @Override
     public DonationReceiverType getReceiverType() {
@@ -179,20 +161,9 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
         return null;
     }
 
-    @Override
-    public String getName() {
-        return this.name;
-    }
 
-    @Override
-    public String getAvatarPath() {
-        return this.avatarPath;
-    }
 
-    @Override
-    public boolean commissionPayedBySubEntities() {
-        return this.organizationEntity.getContract().isCommissionPayedBySubEntities();
-    }
+
 
     public void addSubEntityDomain(SubEntityDomain domain) {
         this.subEntityDomains.add(domain);

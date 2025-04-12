@@ -1,8 +1,6 @@
 package net.foodeals.organizationEntity.application.dtos.requests;
 
 import lombok.Data;
-import net.foodeals.contract.application.DTo.upload.SolutionsContractDto;
-import net.foodeals.delivery.domain.entities.CoveredZones;
 import net.foodeals.organizationEntity.domain.entities.enums.EntityType;
 
 import java.util.List;
@@ -34,7 +32,6 @@ public class CreateAnOrganizationEntityDto {
 
     private Float minimumReduction; //
 
-    private List<SolutionsContractDto> solutionsContractDto; // valid
 
     private Boolean oneSubscription; // valid
 

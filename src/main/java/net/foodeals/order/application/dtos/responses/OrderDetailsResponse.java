@@ -30,4 +30,6 @@ public class OrderDetailsResponse {
     private int hourOfCollectionOrDelivey;
 
     private ModalityPaiement modalityPaiement;
+
+    private UUID dealId ;
 }
