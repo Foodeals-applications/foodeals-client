@@ -1,10 +1,22 @@
 package net.foodeals.offer.application.dtos.responses;
 
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.List;
 
-import net.foodeals.common.valueOjects.Price;
 
-public record CartResponse (List<DealCartResponse>deals,int totalOfProducts,Price priceHt,Price priceTva,
-		Price priceTotalTTc,Price commissionFoodeals) {
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public class CartResponse {
+
+    private double deliveryCost;
+    private double totalPrice;
+    private List<CartItemResponse> cartsItemsResponse;
 
 }

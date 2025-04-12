@@ -4,7 +4,11 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import net.foodeals.offer.application.dtos.responses.CartItemResponse;
+import net.foodeals.offer.application.dtos.responses.CartResponse;
+import net.foodeals.product.domain.entities.Product;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -23,89 +27,120 @@ import net.foodeals.offer.domain.repositories.DealRepository;
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
 
-	private final CartRepository cartRepository;
-	private final CartItemRepository cartItemRepository;
-	private final DealRepository dealRepository;
+    private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
+    private final DealRepository dealRepository;
 
-	@Override
-	public Cart addDealToCart(Integer userId, UUID dealId, int quantity) {
+    @Override
+    public Cart addDealToCart(Integer userId, UUID dealId, int quantity) {
 
-		Cart cart = cartRepository.findByUserId(userId).orElse(new Cart(userId));
+        Cart cart = cartRepository.findByUserId(userId).orElse(new Cart(userId));
 
-		Deal deal = dealRepository.findById(dealId).orElseThrow(() -> new IllegalArgumentException("Deal not found"));
+        Deal deal = dealRepository.findById(dealId).orElseThrow(() -> new IllegalArgumentException("Deal not found"));
 
-		CartItem cartItem = new CartItem(cart, deal, quantity);
-		cart.getItems().add(cartItem);
+        CartItem cartItem = new CartItem(cart, deal, quantity);
+        cart.getItems().add(cartItem);
 
-		cartRepository.save(cart);
-		return cart;
-	}
+        cartRepository.save(cart);
+        return cart;
+    }
 
-	@Override
-	public Cart getCartByUser(Integer userId) {
-		return cartRepository.findByUserId(userId).orElseThrow(() -> new IllegalArgumentException("Cart not found"));
-	}
+    @Override
+    public Cart getCartByUser(Integer userId) {
+        return cartRepository.findByUserId(userId).orElseThrow(() -> new IllegalArgumentException("Cart not found"));
+    }
 
-	public void clearCart(Integer userId) {
-		Cart cart = cartRepository.findByUserId(userId)
-				.orElseThrow(() -> new IllegalArgumentException("Cart not found"));
-		cartItemRepository.deleteAll(cart.getItems()); 
-		cart.setItems(null);; 
-		cart =cartRepository.save(cart);
-		
+    public void clearCart(Integer userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
+        cartItemRepository.deleteAll(cart.getItems());
+        cart.setItems(null);
+        ;
+        cart = cartRepository.save(cart);
 
-	}
 
-	@Override
-	public void deleteAllDealsByOrganizationFromCart(UUID organizationId) {
+    }
 
-		List<Cart> carts = cartRepository.findAll();
+    @Override
+    public void deleteAllDealsByOrganizationFromCart(UUID organizationId) {
 
-		for (Cart cart : carts) {
+        List<Cart> carts = cartRepository.findAll();
 
-			List<CartItem> itemsToRemove = cart.getItems().stream()
-					.filter(cartItem -> cartItem.getDeal() != null && cartItem.getDeal().getCreator() != null
-							&& organizationId.equals(cartItem.getDeal().getCreator().getId()))
-					.toList();
+        for (Cart cart : carts) {
 
-			cart.getItems().removeAll(itemsToRemove);
+            List<CartItem> itemsToRemove = cart.getItems().stream()
+                    .filter(cartItem -> cartItem.getDeal() != null && cartItem.getDeal().getCreator() != null
+                            && organizationId.equals(cartItem.getDeal().getCreator().getId()))
+                    .toList();
 
-			cartItemRepository.deleteAll(itemsToRemove);
-		}
+            cart.getItems().removeAll(itemsToRemove);
 
-	}
+            cartItemRepository.deleteAll(itemsToRemove);
+        }
 
-	@Override
-	public void deleteSingleDealByOrganizationFromCart(UUID organizationId, UUID dealId) {
-	  
-	    List<Cart> carts = cartRepository.findAll();
+    }
 
-	    for (Cart cart : carts) {
-	       
-	        CartItem itemToRemove = cart.getItems().stream()
-	            .filter(cartItem -> cartItem.getDeal() != null 
-	                && cartItem.getDeal().getCreator() != null
-	                && organizationId.equals(cartItem.getDeal().getCreator().getId())
-	                && dealId.equals(cartItem.getDeal().getId()))
-	            .findFirst()
-	            .orElse(null);
+    @Override
+    public void deleteSingleDealByOrganizationFromCart(UUID organizationId, UUID dealId) {
 
-	        if (itemToRemove != null) {
-	           
-	            cart.getItems().remove(itemToRemove);
+        List<Cart> carts = cartRepository.findAll();
 
-	            
-	            cartItemRepository.delete(itemToRemove);
-	        }
-	    }
-	}
+        for (Cart cart : carts) {
 
-	@Override
-	public Deal updatePrice(UUID id, BigDecimal newPrice) {
-		 Deal dealPro = dealRepository.findById(id).orElseThrow(() -> new RuntimeException("DealPro not found"));
-	     dealPro.setPrice(new Price(newPrice,Currency.getInstance("MAD")));
-	    return dealRepository.save(dealPro);
-	}
+            CartItem itemToRemove = cart.getItems().stream()
+                    .filter(cartItem -> cartItem.getDeal() != null
+                            && cartItem.getDeal().getCreator() != null
+                            && organizationId.equals(cartItem.getDeal().getCreator().getId())
+                            && dealId.equals(cartItem.getDeal().getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (itemToRemove != null) {
+
+                cart.getItems().remove(itemToRemove);
+
+
+                cartItemRepository.delete(itemToRemove);
+            }
+        }
+    }
+
+    @Override
+    public Deal updatePrice(UUID id, BigDecimal newPrice) {
+        Deal dealPro = dealRepository.findById(id).orElseThrow(() -> new RuntimeException("DealPro not found"));
+        dealPro.setPrice(new Price(newPrice, Currency.getInstance("MAD")));
+        return dealRepository.save(dealPro);
+    }
+
+
+    public  CartResponse toCartResponse(Cart cart) {
+
+        Long deliveryCost = 0L;
+        double totalDeliveryFee = cart.getItems().stream()
+                .mapToDouble(cartItem -> cartItem.getDeal().getOffer().getDeliveryFee() * cartItem.getDeal().getQuantity())
+                .sum();
+
+        double totalPrice = cart.getItems().stream()
+                .mapToDouble(cartItem -> cartItem.getDeal().getOffer().getSalePrice().amount().doubleValue())
+                .sum();
+
+        cart.getItems().stream()
+                .mapToDouble(cartItem -> cartItem.getDeal().getOffer().getSalePrice().amount().doubleValue())
+                .sum();
+        List<CartItemResponse> cartItemResponses = cart.getItems().stream()
+                .map(cartItem -> toCartItemResponse(cartItem)) // use map instead of forEach to return a new list
+                .collect(Collectors.toList());
+        return new CartResponse(deliveryCost, totalDeliveryFee, cartItemResponses);
+    }
+
+
+    public CartItemResponse toCartItemResponse(CartItem cartItem) {
+        Product product = cartItem.getDeal().getProduct();
+        CartItemResponse cartItemResponse = new CartItemResponse(product.getName(), product.getProductImagePath(),
+                cartItem.getDeal().getOffer().getSalePrice().amount().doubleValue(), cartItem.getDeal().getOffer().getSubEntity().getName(),
+                cartItem.getDeal().getOffer().getSubEntity().getAvatarPath(), cartItem.getDeal().getQuantity());
+        return cartItemResponse;
+    }
 
 
 }
