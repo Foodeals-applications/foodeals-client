@@ -36,7 +36,9 @@ public class SecurityConfiguration {
             "/Activity/**",
             "/Rayon/**",
             "/v1/users",
-            "v1/products"
+            "v1/products",
+            "/login**",
+            "/error"
     };
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;

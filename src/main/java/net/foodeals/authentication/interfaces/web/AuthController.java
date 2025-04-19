@@ -4,12 +4,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.authentication.application.dtos.requests.FacebookTokenRequest;
 import net.foodeals.authentication.application.dtos.requests.LoginRequest;
 import net.foodeals.authentication.application.dtos.requests.RegisterRequest;
 import net.foodeals.authentication.application.dtos.requests.VerifyTokenRequest;
 import net.foodeals.authentication.application.dtos.responses.AuthenticationResponse;
 import net.foodeals.authentication.application.dtos.responses.LoginResponse;
 import net.foodeals.authentication.application.services.AuthenticationService;
+import net.foodeals.authentication.application.services.FacebookService;
 import net.foodeals.authentication.application.services.JwtService;
 
 import jakarta.servlet.http.Cookie;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthenticationService service;
     private final JwtService jwtService;
+    private final FacebookService facebookService;
 
     @PostMapping("register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody @Valid RegisterRequest request) {
@@ -55,5 +58,12 @@ public class AuthController {
     public ResponseEntity<Boolean> verifyToken(@RequestBody @Valid VerifyTokenRequest request) {
         boolean isValid = service.verifyToken(request.token());
         return ResponseEntity.ok(isValid);
+    }
+
+    @PostMapping("/facebook")
+    public ResponseEntity<LoginResponse> loginWithFacebook(@RequestBody FacebookTokenRequest request, HttpServletResponse response) {
+        LoginResponse loginResponse = facebookService.authenticateWithFacebook(request.getAccessToken());
+        // Ajoute le token JWT dans un cookie si besoin
+        return ResponseEntity.ok(loginResponse);
     }
 }

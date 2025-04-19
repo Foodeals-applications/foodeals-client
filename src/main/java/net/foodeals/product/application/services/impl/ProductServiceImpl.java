@@ -96,7 +96,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public Product findById(UUID uuid) {
-		return null;
+		return productRepository.findById(uuid).orElse(null);
 	}
 
 	@Override
