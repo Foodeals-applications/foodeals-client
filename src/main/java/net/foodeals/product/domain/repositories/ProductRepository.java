@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.foodeals.product.application.dtos.responses.ProductOfferResponse;
+import net.foodeals.product.domain.entities.ProductCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -63,4 +64,5 @@ public interface ProductRepository extends BaseRepository<Product, UUID>, SlugRe
     List<ProductOfferResponse> findProductsWithActiveOffers(UUID subEntityId);
 
 
+    List<Product> findByCategoryAndIdNot(ProductCategory category, UUID id);
 }

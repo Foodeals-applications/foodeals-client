@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.*;
 
+import net.foodeals.offer.domain.entities.OpenTime;
 import net.foodeals.offer.domain.enums.*;
+import net.foodeals.offer.domain.repositories.OpenTimeRepository;
 import net.foodeals.order.domain.entities.Order;
 import net.foodeals.order.domain.entities.Transaction;
 import net.foodeals.order.domain.enums.*;
@@ -69,6 +71,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     private final ProductCategoryRepository productCategoryRepository;
     private final OrderRepository orderRepository;
     private final TransactionRepository transactionRepository;
+    private final OpenTimeRepository openTimeRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -95,14 +98,15 @@ public class OrganizationSeeder implements CommandLineRunner {
 
 
             // Ajout de produits associés à la sous-entité
-            Product product1 = createProduct(carrefourMarket, "Pommes Bio", "Pommes fraîches et biologiques.", new BigDecimal("5.99"), "Supermarchés");
-            Product product2 = createProduct(carrefourMarket, "Lait entier", "Bouteille de lait entier 1L.", new BigDecimal("1.99"), "Supermarchés");
-            Product product3 = createProduct(carrefourMarket, "Buche de Noël", "Délicieux gâteau de Noël.", new BigDecimal("15.99"), "Supermarchés");
+            Product product1 = createProduct(carrefourMarket, "Pommes Bio", "Pommes fraîches et biologiques.", new BigDecimal("5.99"), "Supermarchés",20);
+            Product product2 = createProduct(carrefourMarket, "Lait entier", "Bouteille de lait entier 1L.", new BigDecimal("1.99"), "Supermarchés",10);
+            Product product3 = createProduct(carrefourMarket, "Buche de Noël", "Délicieux gâteau de Noël.", new BigDecimal("15.99"), "Supermarchés",6);
 
             // Ajout d'Offers, Deals et Boxes
             Offer carrefourOffer1 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("49.99"));
+            createOpenTimes(carrefourOffer1);
             Offer carrefourOffer2 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("59.99"));
-
+            createOpenTimes(carrefourOffer2);
             // Deals associés aux produits
             createDealWithOfferAndProduct("Promo Carrefour Market", "Réduction pommes bio.", carrefourOffer1, 1,DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, product1);
             createDealWithOfferAndProduct("Promotion Noël Carrefour", "Offre spéciale sur le gâteau de Noël.", carrefourOffer2, 2,DealStatus.AVAILABLE, Category.FROZEN_PRODUCTS, product3);
@@ -183,7 +187,8 @@ public class OrganizationSeeder implements CommandLineRunner {
     }
 
     // Méthode pour créer un produit associé à une sous-entité
-    private Product createProduct(SubEntity subEntity, String name, String description, BigDecimal price, String category) {
+    private Product createProduct(SubEntity subEntity, String name, String description,
+                                  BigDecimal price, String category,Integer stock) {
         Product product = new Product();
         product.setName(name);
         product.setProductImagePath("/images/" + name.toLowerCase().replace(" ", "-") + "-avatar.png");
@@ -192,6 +197,7 @@ public class OrganizationSeeder implements CommandLineRunner {
         product.setSubEntity(subEntity); // Associer explicitement le produit à la sous-entité
         ProductCategory productCategory = productCategoryRepository.findByName(category).orElse(null);
         product.setCategory(productCategory);
+        product.setStock(stock);
         return productRepository.save(product);
     }
 
@@ -203,7 +209,12 @@ public class OrganizationSeeder implements CommandLineRunner {
         offer.setSalePrice(new Price(salePrice, Currency.getInstance("MAD")));
         offer.setModalityPaiement(ModalityPaiement.CASH);
         offer.setDeliveryFee(5L);
+        offer.setModalityTypes(List.of(ModalityType.AT_PLACE,ModalityType.DELIVERY,ModalityType.PICKUP));
         return offerRepository.save(offer);
+    }
+
+    private void createOpenTimes(Offer offer) {
+        openTimeRepository.saveAllAndFlush(List.of(new OpenTime(new Date(),"08:00","19:00",offer)));
     }
 
     // Méthode pour créer un deal associé à un produit

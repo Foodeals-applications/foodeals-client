@@ -89,6 +89,8 @@ public class Product extends AbstractEntity<UUID> {
 
     @ManyToOne
     private SubEntity subEntity ;
+
+    private Integer stock=0 ;
     
 
 }

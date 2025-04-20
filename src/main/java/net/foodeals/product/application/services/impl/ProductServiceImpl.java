@@ -10,10 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.Currency;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -21,6 +18,7 @@ import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.repositories.DealRepository;
 import net.foodeals.product.application.dtos.responses.PriceResponse;
 import net.foodeals.product.application.dtos.responses.ProductResponse;
+import net.foodeals.product.application.dtos.responses.ProductSuggestionResponse;
 import net.foodeals.product.domain.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -79,9 +77,44 @@ public class ProductServiceImpl implements ProductService {
 				.price(new PriceResponse(deal.getOffer().getSalePrice().amount().doubleValue(),
 						deal.getOffer().getPrice().amount().doubleValue()))
 				.categories(categories)
-				.stock(00)
+				.stock(product.getStock())
 				.subEntityId(product.getSubEntity().getId())
 				.build();
+	}
+
+	@Override
+	public List<ProductSuggestionResponse> getSimilarProducts(Product product) {
+		List<Product> similarProducts = productRepository
+				.findByCategoryAndIdNot(product.getCategory(), product.getId());
+
+		// Récupérer les IDs de tous les produits similaires
+		List<UUID> productIds = similarProducts.stream()
+				.map(Product::getId)
+				.collect(Collectors.toList());
+
+		// Charger tous les deals actifs en une seule requête
+		List<Deal> activeDeals = dealRepository.findActiveDealsByProductIds(productIds);
+
+		// Mapper les deals par ID produit
+		Map<UUID, Deal> dealMap = activeDeals.stream()
+				.collect(Collectors.toMap(deal -> deal.getProduct().getId(), deal -> deal));
+
+		return similarProducts.stream()
+				.filter(p -> dealMap.containsKey(p.getId())) // Garder seulement les produits avec un deal
+				.map(p -> {
+					Deal deal = dealMap.get(p.getId());
+					double oldPrice = deal.getOffer().getPrice().amount().doubleValue();
+					double newPrice = deal.getOffer().getSalePrice().amount().doubleValue();
+					PriceResponse price = new PriceResponse(oldPrice, newPrice);
+					return new ProductSuggestionResponse(
+							p.getId(),
+							p.getProductImagePath(),
+							p.getName(),
+							price,
+							p.getStock()
+					);
+				})
+				.collect(Collectors.toList());
 	}
 
 	@Override

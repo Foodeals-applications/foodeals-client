@@ -38,6 +38,14 @@ public class OpenTime extends AbstractEntity<UUID> {
 		this.to = to;
 	}
 
+    public OpenTime(Date date, String from, String to,Offer offer) {
+        super();
+        this.date = date;
+        this.from = from;
+        this.to = to;
+        this.offer = offer;
+    }
+
 
 
 	public OpenTime() {

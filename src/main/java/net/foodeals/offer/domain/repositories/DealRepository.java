@@ -46,4 +46,8 @@ public interface DealRepository extends BaseRepository<Deal, UUID> {
 	Optional<Deal> findActiveDealByProduct(UUID productId);
 
 
+	@Query("SELECT d FROM Deal d WHERE d.product.id IN :productIds")
+	List<Deal> findActiveDealsByProductIds(@Param("productIds") List<UUID> productIds);
+
+
 }
