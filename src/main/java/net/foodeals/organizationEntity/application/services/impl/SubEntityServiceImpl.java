@@ -1,30 +1,45 @@
 package net.foodeals.organizationEntity.application.services.impl;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import net.foodeals.offer.domain.entities.Box;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import net.foodeals.common.Utils.DistanceCalculator;
+import net.foodeals.location.domain.entities.Address;
+import net.foodeals.location.domain.repositories.AddressRepository;
+import net.foodeals.location.domain.repositories.CityRepository;
+import net.foodeals.location.domain.repositories.CountryRepository;
+import net.foodeals.location.domain.repositories.RegionRepository;
+import net.foodeals.offer.application.dtos.responses.DealResponse;
+import net.foodeals.offer.application.dtos.responses.SupplementDealResponse;
 import net.foodeals.offer.domain.entities.Deal;
-import net.foodeals.offer.domain.repositories.BoxRepository;
+import net.foodeals.offer.domain.entities.Offer;
 import net.foodeals.offer.domain.repositories.DealRepository;
+import net.foodeals.offer.domain.repositories.OfferRepository;
 import net.foodeals.order.domain.repositories.OrderRepository;
-import net.foodeals.organizationEntity.application.dtos.responses.BestSellerResponse;
-import net.foodeals.organizationEntity.application.dtos.responses.SubEntityDetailsResponse;
-import net.foodeals.organizationEntity.application.dtos.responses.SubEntityResponse;
-import net.foodeals.organizationEntity.domain.repositories.*;
+import net.foodeals.organizationEntity.application.dtos.requests.SubEntityRequest;
+import net.foodeals.organizationEntity.application.dtos.responses.*;
+import net.foodeals.organizationEntity.application.services.SubEntityService;
+import net.foodeals.organizationEntity.domain.entities.Activity;
+import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
+import net.foodeals.organizationEntity.domain.entities.Solution;
+import net.foodeals.organizationEntity.domain.entities.SubEntity;
+import net.foodeals.organizationEntity.domain.entities.enums.SubEntityStatus;
+import net.foodeals.organizationEntity.domain.exceptions.SubEntityNotFoundException;
+import net.foodeals.organizationEntity.domain.repositories.ActivityRepository;
+import net.foodeals.organizationEntity.domain.repositories.OrganizationEntityRepository;
+import net.foodeals.organizationEntity.domain.repositories.SolutionRepository;
+import net.foodeals.organizationEntity.domain.repositories.SubEntityRepository;
 import net.foodeals.product.application.dtos.responses.CategoryProductsResponse;
 import net.foodeals.product.application.dtos.responses.PriceResponse;
 import net.foodeals.product.application.dtos.responses.ProductOfferResponse;
 import net.foodeals.product.application.dtos.responses.ProductResponse;
+import net.foodeals.product.domain.exceptions.ProductNotFoundException;
 import net.foodeals.product.domain.repositories.ProductCategoryRepository;
 import net.foodeals.product.domain.repositories.ProductRepository;
+import net.foodeals.user.application.services.UserService;
+import net.foodeals.user.domain.entities.User;
 import net.foodeals.user.domain.repositories.LikeRepository;
+import net.foodeals.user.domain.repositories.UserRepository;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,25 +52,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import net.foodeals.location.domain.entities.Address;
-import net.foodeals.location.domain.repositories.AddressRepository;
-import net.foodeals.location.domain.repositories.CityRepository;
-import net.foodeals.location.domain.repositories.CountryRepository;
-import net.foodeals.location.domain.repositories.RegionRepository;
-import net.foodeals.organizationEntity.application.dtos.requests.SubEntityRequest;
-import net.foodeals.organizationEntity.application.services.SubEntityService;
-import net.foodeals.organizationEntity.domain.entities.Activity;
-import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
-import net.foodeals.organizationEntity.domain.entities.Solution;
-import net.foodeals.organizationEntity.domain.entities.SubEntity;
-import net.foodeals.organizationEntity.domain.entities.enums.SubEntityStatus;
-import net.foodeals.organizationEntity.domain.exceptions.SubEntityNotFoundException;
-import net.foodeals.product.domain.exceptions.ProductNotFoundException;
-import net.foodeals.user.domain.entities.User;
-import net.foodeals.user.domain.repositories.UserRepository;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -65,6 +69,7 @@ public class SubEntityServiceImpl implements SubEntityService {
 
     private final SubEntityRepository repository;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final CityRepository cityRepository;
     private final CountryRepository countryRepository;
     private final RegionRepository regionRepository;
@@ -76,6 +81,8 @@ public class SubEntityServiceImpl implements SubEntityService {
     private final ProductRepository productRepository;
     private final ProductCategoryRepository categoryRepository;
     private final SubEntityRepository subEntityRepository;
+    private final OfferRepository offerRepository;
+    ;
     private final DealRepository dealRepository;
     private final OrderRepository orderRepository;
     private final ModelMapper mapper;
@@ -315,10 +322,60 @@ public class SubEntityServiceImpl implements SubEntityService {
                 newPrice = deal.getOffer().getSalePrice().amount().doubleValue();
             }
 
-            return new ProductResponse(product.getId(),product.getProductImagePath(), product.getName(),product.getDescription(), new PriceResponse(oldPrice, newPrice), categoriesWithOffers, 0,subEntityId);
+            return new ProductResponse(product.getId(), product.getProductImagePath(), product.getName(), product.getDescription(), new PriceResponse(oldPrice, newPrice), categoriesWithOffers, 0, subEntityId);
         }).collect(Collectors.toList()))).collect(Collectors.toList());
 
         return new SubEntityDetailsResponse(name, logo, cover, totalSales, address, type, categoriesWithOffers, productsOnOffer, categorizedProducts, subEntity.getNumberOfLikes(), deliveryFree, isFavorite, subEntity.getCoordinates());
+    }
+
+    @Override
+    public HotelDetailsResponse getHotelDetails(UUID subEntityId) {
+        SubEntity subEntity = repository.findById(subEntityId).orElse(null);
+        if (subEntity != null) {
+            User connectedUser = userService.getConnectedUser();
+            double distance = DistanceCalculator.calculateDistance(connectedUser.getCoordinates().latitude().doubleValue(), connectedUser.getCoordinates().longitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue());
+            return new HotelDetailsResponse(subEntityId, subEntity.getAvatarPath(), subEntity.getName(), subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(), subEntity.getModalityTypes(), distance, subEntity.getNumberOfLikes(), subEntity.isFeeDelivered(), subEntity.getNumberOfStars());
+        } else return null;
+    }
+
+    @Override
+    public RestaurantDetailsResponse getRestaurantDetails(UUID subEntityId) {
+        SubEntity subEntity = repository.findById(subEntityId).orElse(null);
+        if (subEntity != null) {
+            User connectedUser = userService.getConnectedUser();
+            double distance = DistanceCalculator.calculateDistance(connectedUser.getCoordinates().latitude().doubleValue(), connectedUser.getCoordinates().longitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue());
+            List<Deal> deals = new ArrayList<>();
+            List<Offer> offers = offerRepository.getOffersBySubEntity(subEntity);
+            for (Offer offer : offers) {
+                deals.add(dealRepository.getDealByOfferId(offer.getId()));
+            }
+
+            List<DealResponse> dealsResponse = deals.stream().map(deal -> {
+                // Récupérer les suppléments liés à ce deal
+                List<SupplementDealResponse> supplementResponses = deal.getSupplements().stream()
+                        .map(supplement -> new SupplementDealResponse(
+                                supplement.getId(),
+                                supplement.getName(),
+                                supplement.getPrice(),
+                                supplement.getSupplementImagePath()
+                        ))
+                        .collect(Collectors.toList());
+
+                return new DealResponse(
+                        deal.getId(),
+                        deal.getProduct().getName(),
+                        deal.getProduct().getDescription(),
+                        deal.getProduct().getProductImagePath(),
+                        Date.from(deal.getCreatedAt()),
+                        null,
+                        null,
+                        deal.getDealStatus(),
+                        supplementResponses
+                );
+            }).collect(Collectors.toList());
+
+            return new RestaurantDetailsResponse(subEntityId, subEntity.getAvatarPath(), subEntity.getName(), subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(), subEntity.getModalityTypes(), distance, subEntity.getNumberOfLikes(), subEntity.isFeeDelivered(), subEntity.getNumberOfStars(), dealsResponse);
+        } else return null;
     }
 
     public List<BestSellerResponse> getBestSellers(Double salesThreshold) {
@@ -332,8 +389,7 @@ public class SubEntityServiceImpl implements SubEntityService {
 
             SubEntity subEntity = subEntityRepository.findById(subEntityId).orElseThrow(() -> new IllegalArgumentException("SubEntity not found"));
             if (totalSales.compareTo(BigDecimal.valueOf(salesThreshold)) > 0) {
-                return new BestSellerResponse(subEntity.getId(), subEntity.getName(), subEntity.getAvatarPath(), subEntity.getCoverPath(), totalSales.doubleValue(),
-                        totalSales.doubleValue() / globalTotalSales.doubleValue() * 100, calculateDeliveryFee(totalSales.doubleValue()));
+                return new BestSellerResponse(subEntity.getId(), subEntity.getName(), subEntity.getAvatarPath(), subEntity.getCoverPath(), totalSales.doubleValue(), totalSales.doubleValue() / globalTotalSales.doubleValue() * 100, calculateDeliveryFee(totalSales.doubleValue()));
             }
             return null;
         }).filter(Objects::nonNull).collect(Collectors.toList());
@@ -342,18 +398,10 @@ public class SubEntityServiceImpl implements SubEntityService {
 
     public SubEntityResponse getStoreDetails(UUID subEntityId) {
         // Récupérer la sous-entité par son ID
-        SubEntity subEntity = subEntityRepository.findById(subEntityId)
-                .orElseThrow(() -> new EntityNotFoundException("Magasin non trouvé"));
+        SubEntity subEntity = subEntityRepository.findById(subEntityId).orElseThrow(() -> new EntityNotFoundException("Magasin non trouvé"));
 
         // Construire manuellement l'objet de réponse
-        return new SubEntityResponse(
-                subEntity.getName(),
-                subEntity.getAddress().getAddress() + " " + subEntity.getAddress().getCity().getName(),
-                "0",
-                500.0,
-                0,
-                0
-        );
+        return new SubEntityResponse(subEntity.getName(), subEntity.getAddress().getAddress() + " " + subEntity.getAddress().getCity().getName(), "0", 500.0, 0, 0);
     }
 
 

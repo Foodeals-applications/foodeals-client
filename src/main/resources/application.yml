@@ -14,7 +14,7 @@ spring:
             enable: true
 
   application:
-    name: Foodeals Pro
+    name: Foodeals Client
   datasource:
     url: jdbc:postgresql://localhost:5434/foodeals
     username: postgres

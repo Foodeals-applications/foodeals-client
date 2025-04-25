@@ -2,6 +2,12 @@ package net.foodeals.location.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.common.valueOjects.Coordinates;
+import net.foodeals.location.application.dtos.requests.CreateAddressAccountRequest;
+import net.foodeals.location.domain.entities.Country;
+import net.foodeals.location.domain.repositories.CityRepository;
+import net.foodeals.location.domain.repositories.CountryRepository;
+import net.foodeals.location.domain.repositories.RegionRepository;
 import net.foodeals.organizationEntity.application.dtos.requests.EntityAddressDto;
 import net.foodeals.location.application.dtos.requests.AddressRequest;
 import net.foodeals.location.application.services.AddressService;
@@ -30,6 +36,9 @@ class AddressServiceImpl implements AddressService {
     private final CityService cityService;
     private final ModelMapper modelMapper;
     private final RegionService regionService;
+    private final RegionRepository regionRepository;
+    private final CountryRepository countryRepository;
+    private final CityRepository cityRepository;
 
     @Override
     public List<Address> findAll() {
@@ -96,5 +105,34 @@ class AddressServiceImpl implements AddressService {
                 .region(region)
                 .build();
         return this.repository.save(address);
+    }
+
+
+    @Override
+    public Address createAccountAddress(CreateAddressAccountRequest request) {
+        City city = cityRepository.findById(request.getCityId())
+                .orElseThrow(() -> new RuntimeException("Region not found"));
+        Region region = regionRepository.findById(request.getRegionId())
+                .orElseThrow(() -> new RuntimeException("Region not found"));
+        Country country = countryRepository.findById(request.getCountryId())
+                .orElseThrow(() -> new RuntimeException("Country not found"));
+
+        Coordinates coordinates = new Coordinates(request.getLatitude(), request.getLongitude());
+
+        Address address = Address.builder()
+                .address(request.getAddress())
+                .extraAddress(request.getExtraAddress())
+                .zip(request.getZip())
+                .contactName(request.getContactName())
+                .contactEmail(request.getContactEmail())
+                .contactPhone(request.getContactPhone())
+                .addressType(request.getAddressType())
+                .coordinates(coordinates)
+                .city(city)
+                .region(region)
+                .country(country)
+                .build();
+
+        return repository.save(address);
     }
 }

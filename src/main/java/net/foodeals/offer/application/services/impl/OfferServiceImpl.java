@@ -149,11 +149,11 @@ public class OfferServiceImpl implements OfferService {
 			return calculateDistance(userLat, userLon, coordinates.latitude(), coordinates.longitude()) <= radius;
 		}).map(hotel -> {
 			Map<String, Object> hotelMap = new HashMap<>();
-			OrganizationEntity org = hotel.getOrganizationEntity();
-			hotelMap.put("logo", org.getAvatarPath());
-			hotelMap.put("cover", org.getCoverPath());
-			hotelMap.put("hotelName", org.getName());
 
+			hotelMap.put("hotelId", hotel.getId());
+			hotelMap.put("logo", hotel.getAvatarPath());
+			hotelMap.put("hotelName", hotel.getName());
+			hotelMap.put("nubmerOfLike", hotel.getNumberOfLikes());
 			List<Map<String, Object>> hotelOffers = new ArrayList<>();
 			hotel.getOffers().forEach(offer -> {
 				Map<String, Object> offerMap = new HashMap<>();

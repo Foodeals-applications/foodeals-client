@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.*;
+import net.foodeals.offer.domain.enums.ModalityType;
 import org.hibernate.annotations.UuidGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -99,6 +100,9 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Solution> solutions = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
+    private List<ModalityType>modalityTypes;
+
     private String email;
 
     private String phone;
@@ -108,6 +112,10 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
     private String motif;
 
     private Integer numberOfLikes;
+
+    private Float numberOfStars;
+
+    private boolean feeDelivered;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "subentity_domains", joinColumns = @JoinColumn(name = "subentity_id"), inverseJoinColumns = @JoinColumn(name = "domain_id"))

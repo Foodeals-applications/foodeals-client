@@ -1,22 +1,17 @@
 package net.foodeals.organizationEntity.Controller;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import net.foodeals.organizationEntity.application.dtos.responses.BestSellerResponse;
-import net.foodeals.organizationEntity.application.dtos.responses.SubEntityDetailsResponse;
-import net.foodeals.organizationEntity.application.dtos.responses.SubEntityProductCategoryResponse;
+import lombok.RequiredArgsConstructor;
+import net.foodeals.organizationEntity.application.dtos.responses.*;
 import net.foodeals.organizationEntity.application.services.SubEntityCategoryService;
+import net.foodeals.organizationEntity.application.services.SubEntityService;
 import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
 import net.foodeals.user.application.services.UserService;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import lombok.RequiredArgsConstructor;
-import net.foodeals.organizationEntity.application.services.SubEntityService;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("v1/subentities")
@@ -43,7 +38,7 @@ public class SubEntityController {
             @PathVariable UUID subEntityId) {
         List<SubEntityProductCategory> categories = subEntityCategoryService.getCategoriesBySubEntityId(subEntityId);
         List<SubEntityProductCategoryResponse> response = categories.stream()
-                .map(c -> new SubEntityProductCategoryResponse(c.getId(), c.getName(),generatePhotoUrl(c.getName())))
+                .map(c -> new SubEntityProductCategoryResponse(c.getId(), c.getName(), generatePhotoUrl(c.getName())))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
@@ -57,6 +52,18 @@ public class SubEntityController {
     }
 
 
+    @GetMapping("/hotel/details/{id}")
+    public ResponseEntity<HotelDetailsResponse> getHotemDetails(@PathVariable UUID id) {
+
+        HotelDetailsResponse response = subEntityService.getHotelDetails(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/restaurant/details/{id}")
+    public ResponseEntity<RestaurantDetailsResponse> getRestaurantDetails(@PathVariable UUID id) {
+        RestaurantDetailsResponse response = subEntityService.getRestaurantDetails(id);
+        return ResponseEntity.ok(response);
+    }
 
     private String generatePhotoUrl(String name) {
         String baseUrl = "/images/"; // Votre domaine ou base d'URL

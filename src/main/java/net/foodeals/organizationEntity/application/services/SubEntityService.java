@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.foodeals.organizationEntity.application.dtos.responses.BestSellerResponse;
+import net.foodeals.organizationEntity.application.dtos.responses.HotelDetailsResponse;
+import net.foodeals.organizationEntity.application.dtos.responses.RestaurantDetailsResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.SubEntityDetailsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +42,10 @@ public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntity
     List<Map<String, Object>> getStoreCountByDomains();
 
     SubEntityDetailsResponse getSubEntityDetails(UUID subEntityId, Integer userId);
+
+    HotelDetailsResponse getHotelDetails(UUID subEntityId);
+
+    RestaurantDetailsResponse getRestaurantDetails(UUID subEntityId);
 
 }
 

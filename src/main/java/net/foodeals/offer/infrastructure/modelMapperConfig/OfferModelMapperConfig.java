@@ -72,7 +72,7 @@ public class OfferModelMapperConfig {
 			Integer numberOfItems=deal.getQuantity();
 			return new DealResponse(deal.getId(), deal.getProduct().getName(), deal.getProduct().getDescription(),
 					product.getProductImagePath(),creationDate,numberOfOrders,numberOfItems,
-					deal.getDealStatus(),"deal");
+					deal.getDealStatus(),null);
 		}, Deal.class, DealResponse.class);
 
 		mapper.addConverter(context -> {

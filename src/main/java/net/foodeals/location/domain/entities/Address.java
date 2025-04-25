@@ -3,19 +3,10 @@ package net.foodeals.location.domain.entities;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.*;
+import net.foodeals.location.domain.enums.AddressType;
 import org.hibernate.annotations.UuidGenerator;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,6 +37,19 @@ public class Address extends AbstractEntity<UUID> {
 
     @Column(name = "extra_address")
     private String extraAddress;
+
+    @Column(name = "contact_name")
+    private String contactName;
+
+    @Column(name = "contact_email")
+    private String contactEmail;
+
+    @Column(name = "contact_phone")
+    private String contactPhone;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "address_type")
+    private AddressType addressType;
 
     private String zip;
 

@@ -1,27 +1,5 @@
 package net.foodeals.organizationEntity.seeder;
 
-import java.math.BigDecimal;
-import java.time.LocalTime;
-import java.util.*;
-
-import net.foodeals.offer.domain.entities.OpenTime;
-import net.foodeals.offer.domain.enums.*;
-import net.foodeals.offer.domain.repositories.OpenTimeRepository;
-import net.foodeals.order.domain.entities.Order;
-import net.foodeals.order.domain.entities.Transaction;
-import net.foodeals.order.domain.enums.*;
-import net.foodeals.order.domain.repositories.OrderRepository;
-import net.foodeals.order.domain.repositories.TransactionRepository;
-import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
-import net.foodeals.organizationEntity.domain.repositories.SubEntityDomainRepository;
-import net.foodeals.product.domain.entities.Product;
-import net.foodeals.product.domain.entities.ProductCategory;
-import net.foodeals.product.domain.repositories.ProductCategoryRepository;
-import net.foodeals.product.domain.repositories.ProductRepository;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import lombok.RequiredArgsConstructor;
 import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.common.valueOjects.Price;
@@ -32,21 +10,44 @@ import net.foodeals.location.domain.repositories.CountryRepository;
 import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.entities.Offer;
+import net.foodeals.offer.domain.entities.OpenTime;
+import net.foodeals.offer.domain.enums.*;
 import net.foodeals.offer.domain.repositories.BoxRepository;
 import net.foodeals.offer.domain.repositories.DealRepository;
 import net.foodeals.offer.domain.repositories.OfferRepository;
+import net.foodeals.offer.domain.repositories.OpenTimeRepository;
+import net.foodeals.order.domain.entities.Order;
+import net.foodeals.order.domain.entities.Transaction;
+import net.foodeals.order.domain.enums.*;
+import net.foodeals.order.domain.repositories.OrderRepository;
+import net.foodeals.order.domain.repositories.TransactionRepository;
 import net.foodeals.organizationEntity.domain.entities.Activity;
 import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
 import net.foodeals.organizationEntity.domain.entities.SubEntity;
+import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
 import net.foodeals.organizationEntity.domain.entities.enums.EntityType;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityStatus;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityType;
 import net.foodeals.organizationEntity.domain.repositories.ActivityRepository;
 import net.foodeals.organizationEntity.domain.repositories.OrganizationEntityRepository;
+import net.foodeals.organizationEntity.domain.repositories.SubEntityDomainRepository;
 import net.foodeals.organizationEntity.domain.repositories.SubEntityRepository;
+import net.foodeals.product.domain.entities.Product;
+import net.foodeals.product.domain.entities.ProductCategory;
+import net.foodeals.product.domain.entities.Supplement;
+import net.foodeals.product.domain.repositories.ProductCategoryRepository;
+import net.foodeals.product.domain.repositories.ProductRepository;
+import net.foodeals.product.domain.repositories.SupplementRepository;
 import net.foodeals.user.domain.entities.User;
 import net.foodeals.user.domain.repositories.UserRepository;
 import net.foodeals.user.domain.valueObjects.Name;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalTime;
+import java.util.*;
 
 
 @Component
@@ -64,6 +65,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     private final AddressRepository addressRepository;
 
     private final DealRepository dealRepository;
+    private final SupplementRepository supplementRepository;
     private final BoxRepository boxRepository;
     private final OfferRepository offerRepository;
     private final ProductRepository productRepository;
@@ -77,7 +79,9 @@ public class OrganizationSeeder implements CommandLineRunner {
     public void run(String... args) throws Exception {
         if (!organizationEntityRepository.findByName("Carrefour").isPresent()) {
 
-            // Création des entités de base
+            /**
+             * Création superretes et superMarchés
+             */
             Activity activity1 = createActivity("Supermarchés");
             User partnerManager = createUser("Ahmed", "Ben Ali", "ahmed.ben.ali@carrefour.ma", "0650123456");
             User subEntityManager = createUser("Sara", "El Fassi", "sara.elfassi@carrefourmarket.ma", "0650765432");
@@ -94,13 +98,13 @@ public class OrganizationSeeder implements CommandLineRunner {
             domains.add(domainSuperMarchesOpt.get());
             SubEntity carrefourMarket =
                     createSubEntity("Carrefour Market", carrefour, subEntityManager, activity1,
-                            subEntityAddress, 39, domains);
+                            subEntityAddress, 39, true, 4.5f, domains);
 
 
             // Ajout de produits associés à la sous-entité
-            Product product1 = createProduct(carrefourMarket, "Pommes Bio", "Pommes fraîches et biologiques.", new BigDecimal("5.99"), "Supermarchés",20);
-            Product product2 = createProduct(carrefourMarket, "Lait entier", "Bouteille de lait entier 1L.", new BigDecimal("1.99"), "Supermarchés",10);
-            Product product3 = createProduct(carrefourMarket, "Buche de Noël", "Délicieux gâteau de Noël.", new BigDecimal("15.99"), "Supermarchés",6);
+            Product product1 = createProduct(carrefourMarket, "Pommes Bio", "Pommes fraîches et biologiques.", new BigDecimal("5.99"), "Supermarchés", 20);
+            Product product2 = createProduct(carrefourMarket, "Lait entier", "Bouteille de lait entier 1L.", new BigDecimal("1.99"), "Supermarchés", 10);
+            Product product3 = createProduct(carrefourMarket, "Buche de Noël", "Délicieux gâteau de Noël.", new BigDecimal("15.99"), "Supermarchés", 6);
 
             // Ajout d'Offers, Deals et Boxes
             Offer carrefourOffer1 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("49.99"));
@@ -108,8 +112,8 @@ public class OrganizationSeeder implements CommandLineRunner {
             Offer carrefourOffer2 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("59.99"));
             createOpenTimes(carrefourOffer2);
             // Deals associés aux produits
-            createDealWithOfferAndProduct("Promo Carrefour Market", "Réduction pommes bio.", carrefourOffer1, 1,DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, product1);
-            createDealWithOfferAndProduct("Promotion Noël Carrefour", "Offre spéciale sur le gâteau de Noël.", carrefourOffer2, 2,DealStatus.AVAILABLE, Category.FROZEN_PRODUCTS, product3);
+            createDealWithOfferAndProduct("Promo Carrefour Market", "Réduction pommes bio.", carrefourOffer1, 1, DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, product1);
+            createDealWithOfferAndProduct("Promotion Noël Carrefour", "Offre spéciale sur le gâteau de Noël.", carrefourOffer2, 2, DealStatus.AVAILABLE, Category.FROZEN_PRODUCTS, product3);
 
             // Boxes associées aux offres
             createBoxWithOffer("Box Carrefour Market", "Box avec lait et autres produits.", carrefourOffer1, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.DAIRY_PRODUCTS, product2);
@@ -118,21 +122,84 @@ public class OrganizationSeeder implements CommandLineRunner {
             System.out.println("Seed terminé pour Carrefour, ses produits, Deals et Boxes.");
 
             // MIG : Ajout des Orders
-            Order order1=createOrder(carrefourMarket, carrefourOffer1, product1,OrderStatus.IN_PROGRESS);
-            Order order2=createOrder(carrefourMarket, carrefourOffer2, product2,OrderStatus.CANCELED);
-            Order order3=createOrder(carrefourMarket, carrefourOffer2, product2,OrderStatus.COMPLETED);
+            Order order1 = createOrder(carrefourMarket, carrefourOffer1, product1, OrderStatus.IN_PROGRESS);
+            Order order2 = createOrder(carrefourMarket, carrefourOffer2, product2, OrderStatus.CANCELED);
+            Order order3 = createOrder(carrefourMarket, carrefourOffer2, product2, OrderStatus.COMPLETED);
             Transaction transaction1 = createTransactionForOrder(order1, "PAY123456789", order1.getOffer().getPrice());
             Transaction transaction2 = createTransactionForOrder(order2, "PAY123456790", order2.getOffer().getPrice());
             Transaction transaction3 = createTransactionForOrder(order2, "PAY123456791", order3.getOffer().getPrice());
-            transaction1=transactionRepository.save(transaction1);
-            transaction2=transactionRepository.save(transaction2);
-            transaction3=transactionRepository.save(transaction3);
+            transaction1 = transactionRepository.save(transaction1);
+            transaction2 = transactionRepository.save(transaction2);
+            transaction3 = transactionRepository.save(transaction3);
             order1.setTransaction(transaction1);
             order2.setTransaction(transaction2);
             order3.setTransaction(transaction3);
             orderRepository.save(order1);
             orderRepository.save(order2);
             orderRepository.save(order3);
+
+
+            /**
+             * Création hotel
+             */
+
+            Activity activityHotel = createActivity("Hôtels");
+            User hotelManager = createUser("Ismail", "Ben Mabrouk", "ismail.mabrouk@golden-tolip.ma", "0650123456");
+            User subEntityHotelManager = createUser("Mourad", "Ramhi", "mourad.ramhi@golden-tolip.ma", "0650765432");
+
+            Address hotelMainAddress = createAddress("123 Rue Golden St", "Casablanca", "20000", "Maroc");
+            OrganizationEntity goldenTolip = createOrganizationEntity("Golden-Tolip", activityHotel, hotelMainAddress,
+                    hotelManager);
+
+            Address subEntityHotelAddress = createAddress("12  Rue Golden St Maaref", "Casablanca", "20000", "Maroc");
+
+            List<SubEntityDomain> domainsHotel = new ArrayList<>();
+            Optional<SubEntityDomain> domainHotel = subEntityDomainRepository.findByName("Hôtels");
+            domainsHotel.add(domainHotel.get());
+
+            SubEntity goldenTolipCasa =
+                    createSubEntity("Golden Tolip Casa", goldenTolip, subEntityHotelManager, activityHotel,
+                            subEntityHotelAddress, 400, false, 3.8f, domainsHotel);
+
+
+            /**
+             * Création restaurant
+             */
+
+            Activity activityRestaurant = createActivity("Restaurants");
+            User restautantManager = createUser("Chafik", "Jarraya", "chafik.jarraya@kfc.ma", "0650123456");
+            User subEntityRestaurantManager = createUser("Salim", "El iamani", "salim.eliamani@kfc.ma", "0650765432");
+
+            Address restautantMainAddress = createAddress("123 Mohamed V St", "Casablanca", "20000", "Maroc");
+            OrganizationEntity kfc = createOrganizationEntity("KFC", activityRestaurant,
+                    restautantMainAddress,
+                    restautantManager);
+
+            Address subEntityRestaurantAddress = createAddress("12  Rue Ibnou Sina Maaref", "Casablanca", "20000", "Maroc");
+
+            List<SubEntityDomain> domainsRestaurant = new ArrayList<>();
+            Optional<SubEntityDomain> domainRestaurant = subEntityDomainRepository.findByName("Restaurants");
+            domainsRestaurant.add(domainRestaurant.get());
+
+            SubEntity kfcCasa =
+                    createSubEntity("KFC Casa", kfc, subEntityRestaurantManager, activityRestaurant,
+                            subEntityRestaurantAddress, 400, true, 4.8F, domainsRestaurant);
+
+
+            Offer kfcOffer1 = createOffer(kfcCasa, new BigDecimal("129.99"), new BigDecimal("89.99"));
+            createOpenTimes(kfcOffer1);
+            Offer kfcOffer2 = createOffer(kfcCasa, new BigDecimal("139.99"), new BigDecimal("89.99"));
+            createOpenTimes(kfcOffer2);
+
+            Product productKfc1 = createProduct(kfcCasa, "Tinders", "Tinders Kabab.", new BigDecimal("5.99"), "Restaurants", 20);
+            Product productKfc2 = createProduct(kfcCasa, "Chicken wings", "Box chings wings.", new BigDecimal("1.99"), "Restaurants", 10);
+            Deal deal1 = createDealWithOfferAndProduct("23 wings magics", "Réduction spéciale.", kfcOffer1, 1, DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, productKfc1);
+            Deal deal2 = createDealWithOfferAndProduct("Deux tinders achétes un gratuit", "Offre spéciale étudiant.", kfcOffer2, 2, DealStatus.AVAILABLE, Category.FROZEN_PRODUCTS, productKfc2);
+            createSupplement("Coca", deal1);
+            createSupplement("Fanta", deal1);
+
+            createSupplement("Sauce mayonnaise", deal2);
+            createSupplement("Sauce algerienne", deal2);
         }
     }
 
@@ -169,7 +236,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     }
 
     // Méthode pour créer une sous-entité
-    private SubEntity createSubEntity(String name, OrganizationEntity orgEntity, User manager, Activity activity, Address address, Integer numberOfLikes, List<SubEntityDomain> domains) {
+    private SubEntity createSubEntity(String name, OrganizationEntity orgEntity, User manager, Activity activity, Address address, Integer numberOfLikes, boolean feeDelivered, Float numberOfStars, List<SubEntityDomain> domains) {
         SubEntity subEntity = new SubEntity();
         subEntity.setName(name);
         subEntity.setAvatarPath("/images/" + name.toLowerCase().replace(" ", "-") + "-avatar.png");
@@ -183,12 +250,15 @@ public class OrganizationSeeder implements CommandLineRunner {
         subEntity.setAddress(address);
         subEntity.setNumberOfLikes(numberOfLikes);
         subEntity.setSubEntityDomains(domains);
+        subEntity.setFeeDelivered(feeDelivered);
+        subEntity.setNumberOfStars(numberOfStars);
+        subEntity.setModalityTypes(List.of(ModalityType.AT_PLACE, ModalityType.DELIVERY, ModalityType.PICKUP));
         return subEntityRepository.save(subEntity);
     }
 
     // Méthode pour créer un produit associé à une sous-entité
     private Product createProduct(SubEntity subEntity, String name, String description,
-                                  BigDecimal price, String category,Integer stock) {
+                                  BigDecimal price, String category, Integer stock) {
         Product product = new Product();
         product.setName(name);
         product.setProductImagePath("/images/" + name.toLowerCase().replace(" ", "-") + "-avatar.png");
@@ -201,6 +271,16 @@ public class OrganizationSeeder implements CommandLineRunner {
         return productRepository.save(product);
     }
 
+    private Supplement createSupplement(String name, Deal deal) {
+        Supplement supplement = new Supplement();
+        supplement.setName(name);
+        supplement.setSupplementImagePath("/images/" + name.toLowerCase().replace(" ", "-") + ".png");
+        supplement.setPrice(new Price(new BigDecimal("50"), Currency.getInstance("MAD")));
+        supplement.setDeal(deal);
+
+        return supplementRepository.save(supplement);
+    }
+
     // Méthode pour créer une offre
     private Offer createOffer(SubEntity subEntity, BigDecimal salePrice, BigDecimal price) {
         Offer offer = new Offer();
@@ -209,16 +289,16 @@ public class OrganizationSeeder implements CommandLineRunner {
         offer.setSalePrice(new Price(salePrice, Currency.getInstance("MAD")));
         offer.setModalityPaiement(ModalityPaiement.CASH);
         offer.setDeliveryFee(5L);
-        offer.setModalityTypes(List.of(ModalityType.AT_PLACE,ModalityType.DELIVERY,ModalityType.PICKUP));
+        offer.setModalityTypes(List.of(ModalityType.AT_PLACE, ModalityType.DELIVERY, ModalityType.PICKUP));
         return offerRepository.save(offer);
     }
 
     private void createOpenTimes(Offer offer) {
-        openTimeRepository.saveAllAndFlush(List.of(new OpenTime(new Date(),"08:00","19:00",offer)));
+        openTimeRepository.saveAllAndFlush(List.of(new OpenTime(new Date(), "08:00", "19:00", offer)));
     }
 
     // Méthode pour créer un deal associé à un produit
-    private Deal createDealWithOfferAndProduct(String title, String description, Offer offer,Integer quantity, DealStatus status, Category category, Product product) {
+    private Deal createDealWithOfferAndProduct(String title, String description, Offer offer, Integer quantity, DealStatus status, Category category, Product product) {
         Deal deal = new Deal();
         deal.setTitle(title);
         deal.setDescription(description);
@@ -247,7 +327,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     }
 
     // Nouvelle méthode pour créer une commande
-    private Order createOrder(SubEntity subEntity, Offer offer, Product product,OrderStatus orderStatus) {
+    private Order createOrder(SubEntity subEntity, Offer offer, Product product, OrderStatus orderStatus) {
         User client = userRepository.findByEmail("mohamed.benibrahim@example.com").get();
         Order order = new Order();
         order.setOrderType(OrderType.AT_PLACE);
