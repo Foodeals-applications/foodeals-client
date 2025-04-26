@@ -3,7 +3,11 @@ package net.foodeals.user.application.services;
 import net.foodeals.common.contracts.CrudService;
 import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.user.application.dtos.requests.UserRequest;
+import net.foodeals.user.application.dtos.responses.FavorisOfferPartenerResponse;
+import net.foodeals.user.application.dtos.responses.FavorisOfferResponse;
 import net.foodeals.user.domain.entities.User;
+
+import java.util.List;
 
 public interface UserService extends CrudService<User, Integer, UserRequest> {
 
@@ -17,4 +21,8 @@ public interface UserService extends CrudService<User, Integer, UserRequest> {
 	void changePassword(Integer idUser, String password);
 	
 	User setPositionClient(Integer id ,Coordinates coordinates,int raduis);
+
+    List<FavorisOfferResponse> getListFavorisOffers();
+
+    List<FavorisOfferPartenerResponse> getListFavorisOffersPartners();
 }

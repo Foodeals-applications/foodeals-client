@@ -6,11 +6,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.foodeals.common.valueOjects.Price;
 
+import java.util.UUID;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
 @Getter
-public class FavorisResponse {
+public class FavorisOfferResponse {
+
+    private UUID dealId ;
 
     private String photoProduct;
 

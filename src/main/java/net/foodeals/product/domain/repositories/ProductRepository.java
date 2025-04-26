@@ -65,4 +65,7 @@ public interface ProductRepository extends BaseRepository<Product, UUID>, SlugRe
 
 
     List<Product> findByCategoryAndIdNot(ProductCategory category, UUID id);
+
+
+
 }
