@@ -65,6 +65,12 @@ public class SubEntityController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/bakery/details/{id}")
+    public ResponseEntity<BakeryDetailsResponse> getBakeryDetails(@PathVariable UUID id) {
+        BakeryDetailsResponse response = subEntityService.getBakeryDetails(id);
+        return ResponseEntity.ok(response);
+    }
+
     private String generatePhotoUrl(String name) {
         String baseUrl = "/images/"; // Votre domaine ou base d'URL
         String formattedName = name.trim().toLowerCase().replace(" ", "-"); // Transformation

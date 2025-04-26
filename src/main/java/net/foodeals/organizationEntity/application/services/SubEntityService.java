@@ -5,10 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import net.foodeals.organizationEntity.application.dtos.responses.BestSellerResponse;
-import net.foodeals.organizationEntity.application.dtos.responses.HotelDetailsResponse;
-import net.foodeals.organizationEntity.application.dtos.responses.RestaurantDetailsResponse;
-import net.foodeals.organizationEntity.application.dtos.responses.SubEntityDetailsResponse;
+import net.foodeals.organizationEntity.application.dtos.responses.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -46,6 +43,9 @@ public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntity
     HotelDetailsResponse getHotelDetails(UUID subEntityId);
 
     RestaurantDetailsResponse getRestaurantDetails(UUID subEntityId);
+
+
+    BakeryDetailsResponse getBakeryDetails(UUID subEntityId);
 
 }
 

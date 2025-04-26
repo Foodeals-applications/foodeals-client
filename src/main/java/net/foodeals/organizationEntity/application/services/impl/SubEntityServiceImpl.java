@@ -378,6 +378,46 @@ public class SubEntityServiceImpl implements SubEntityService {
         } else return null;
     }
 
+    @Override
+    public BakeryDetailsResponse getBakeryDetails(UUID subEntityId) {
+        SubEntity subEntity = repository.findById(subEntityId).orElse(null);
+        if (subEntity != null) {
+            User connectedUser = userService.getConnectedUser();
+            double distance = DistanceCalculator.calculateDistance(connectedUser.getCoordinates().latitude().doubleValue(), connectedUser.getCoordinates().longitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue());
+            List<Deal> deals = new ArrayList<>();
+            List<Offer> offers = offerRepository.getOffersBySubEntity(subEntity);
+            for (Offer offer : offers) {
+                deals.add(dealRepository.getDealByOfferId(offer.getId()));
+            }
+
+            List<DealResponse> dealsResponse = deals.stream().map(deal -> {
+                // Récupérer les suppléments liés à ce deal
+                List<SupplementDealResponse> supplementResponses = deal.getSupplements().stream()
+                        .map(supplement -> new SupplementDealResponse(
+                                supplement.getId(),
+                                supplement.getName(),
+                                supplement.getPrice(),
+                                supplement.getSupplementImagePath()
+                        ))
+                        .collect(Collectors.toList());
+
+                return new DealResponse(
+                        deal.getId(),
+                        deal.getProduct().getName(),
+                        deal.getProduct().getDescription(),
+                        deal.getProduct().getProductImagePath(),
+                        Date.from(deal.getCreatedAt()),
+                        null,
+                        null,
+                        deal.getDealStatus(),
+                        supplementResponses
+                );
+            }).collect(Collectors.toList());
+
+            return new BakeryDetailsResponse(subEntityId, subEntity.getAvatarPath(), subEntity.getName(), subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(), subEntity.getModalityTypes(), distance, subEntity.getNumberOfLikes(), subEntity.isFeeDelivered(), subEntity.getNumberOfStars(), dealsResponse);
+        } else return null;
+    }
+
     public List<BestSellerResponse> getBestSellers(Double salesThreshold) {
 
         Double globalTotalSales = orderRepository.findGlobalTotalSales();
