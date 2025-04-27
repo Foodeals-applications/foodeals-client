@@ -418,6 +418,26 @@ public class SubEntityServiceImpl implements SubEntityService {
         } else return null;
     }
 
+    @Override
+    public IndustryDetailsResponse getIndustryDetails(UUID subEntityId) {
+        SubEntity subEntity = repository.findById(subEntityId).orElse(null);
+        if (subEntity != null) {
+            User connectedUser = userService.getConnectedUser();
+            double distance = DistanceCalculator.calculateDistance(connectedUser.getCoordinates().latitude().doubleValue(), connectedUser.getCoordinates().longitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue());
+            return new IndustryDetailsResponse(subEntityId, subEntity.getAvatarPath(), subEntity.getName(), subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(), subEntity.getModalityTypes(), distance, subEntity.getNumberOfLikes(), subEntity.isFeeDelivered(), subEntity.getNumberOfStars());
+        } else return null;
+    }
+
+    @Override
+    public AgriculturDetailsResponse getAgricultureDetails(UUID subEntityId) {
+        SubEntity subEntity = repository.findById(subEntityId).orElse(null);
+        if (subEntity != null) {
+            User connectedUser = userService.getConnectedUser();
+            double distance = DistanceCalculator.calculateDistance(connectedUser.getCoordinates().latitude().doubleValue(), connectedUser.getCoordinates().longitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue());
+            return new AgriculturDetailsResponse(subEntityId, subEntity.getAvatarPath(), subEntity.getName(), subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(), subEntity.getModalityTypes(), distance, subEntity.getNumberOfLikes(), subEntity.isFeeDelivered(), subEntity.getNumberOfStars());
+        } else return null;
+    }
+
     public List<BestSellerResponse> getBestSellers(Double salesThreshold) {
 
         Double globalTotalSales = orderRepository.findGlobalTotalSales();

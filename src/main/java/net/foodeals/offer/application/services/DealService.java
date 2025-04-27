@@ -3,6 +3,7 @@ package net.foodeals.offer.application.services;
 import java.util.List;
 import java.util.UUID;
 
+import net.foodeals.offer.application.dtos.responses.DealDetailsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,30 +21,7 @@ import net.foodeals.organizationEntity.domain.entities.SubEntity;
 
 public interface DealService extends CrudService<Deal, UUID, DealDto>{
 
-    Deal create(DealDto dto);
-
-    Deal update(UUID id, DealDto dto);
-
-    Deal findById(UUID id);
-
-    void delete(UUID id);
-    
-    List<Offer> findAllDealsOffers();
-    
-    List<Offer>  findAllHistoricsDealsOffers();
-    
-    String saveFile(MultipartFile file);
-
-	void deleteDeal(UUID id, String reason, String motif);
-	
-	
-	Page<Deal> getExpiredAndUnavailableDeals(Pageable pageable);
-
-	Deal relaunchDeal(@Valid RelaunchDealDto dto,UUID id);
-
-	Page<Deal> findDealPro(Pageable pageable);
-	
-	Deal createPro(DealProDto dealProDTO,String photoPath) ;
+    DealDetailsResponse getDetailsDeal(UUID id);
 	
 	
 }

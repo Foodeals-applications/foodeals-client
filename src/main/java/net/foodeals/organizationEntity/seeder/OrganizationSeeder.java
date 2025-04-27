@@ -201,6 +201,66 @@ public class OrganizationSeeder implements CommandLineRunner {
             createSupplement("Sauce mayonnaise", deal2);
             createSupplement("Sauce algerienne", deal2);
         }
+
+
+        /**
+         * Industry
+         */
+
+        /**
+         * Création indsutry
+         */
+
+        Activity activityIndustry = createActivity("Industriels");
+        User industryManager = createUser("Kamel", "Ltaief", "kamel.ltaiefa@delice.ma", "0650123456");
+        User subEntityIndustryManager = createUser("Mounir", "Ben Salha",
+                "mounir.bansalha@delice.ma", "0650865432");
+
+        Address industryMainAddress = createAddress("123 Charles Egaul ", "Casablanca", "20000", "Maroc");
+        OrganizationEntity delice = createOrganizationEntity("Delice", activityIndustry,
+                industryMainAddress,
+                industryManager);
+
+        Address subEntityIndustryAddress = createAddress("Qaurtie industriel Casa", "Casablanca", "20000", "Maroc");
+
+        List<SubEntityDomain> domainsIndustry = new ArrayList<>();
+        Optional<SubEntityDomain> domainIndustry = subEntityDomainRepository.findByName("Industriels");
+        domainsIndustry.add(domainIndustry.get());
+
+        SubEntity deliceCasa =
+                createSubEntity("Delice Casa", delice, subEntityIndustryManager,
+                       activityIndustry,
+                        subEntityIndustryAddress, 400, true, 4.8F,
+                        domainsIndustry);
+
+
+
+        /**
+         * Création agriculture
+         */
+
+        Activity activityAgriculture = createActivity("Agricultures");
+        User agricultureManager = createUser("Samir", "Hamdani",
+                "samir.hamdani@zalar-holding.ma", "0658123456");
+        User subEntityAgriculureManager = createUser("Wafa", "Moutawakil",
+                "wafa.moutawakil@zalar-holding.ma", "0659865432");
+
+        Address agricultureMainAddress = createAddress("15 rue agriculture ", "Casablanca", "20000", "Maroc");
+        OrganizationEntity zalar = createOrganizationEntity("Zalar Holding", activityAgriculture,
+                agricultureMainAddress,
+                agricultureManager);
+
+        Address subEntityAgrocultureAddress = createAddress("Qaurtie agriculture Casa", "Casablanca", "20000", "Maroc");
+
+        List<SubEntityDomain> domainsAgriculture = new ArrayList<>();
+        Optional<SubEntityDomain> domainAgriculture = subEntityDomainRepository.findByName("Agricultures");
+        domainsAgriculture.add(domainAgriculture.get());
+
+        SubEntity zalarCasa =
+                createSubEntity("Zalar Holding Casa", delice, subEntityAgriculureManager,
+                        activityAgriculture,
+                        subEntityAgrocultureAddress, 400, true, 4.8F,
+                        domainsAgriculture);
     }
 
     // Méthode pour créer une activité

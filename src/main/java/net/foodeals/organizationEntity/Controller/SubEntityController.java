@@ -71,6 +71,18 @@ public class SubEntityController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/industry/details/{id}")
+    public ResponseEntity<IndustryDetailsResponse> getIndustryDetails(@PathVariable UUID id) {
+        IndustryDetailsResponse response = subEntityService.getIndustryDetails(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/agriculture/details/{id}")
+        public ResponseEntity<AgriculturDetailsResponse> getAgricultureDetails(@PathVariable UUID id) {
+        AgriculturDetailsResponse response = subEntityService.getAgricultureDetails(id);
+        return ResponseEntity.ok(response);
+    }
+
     private String generatePhotoUrl(String name) {
         String baseUrl = "/images/"; // Votre domaine ou base d'URL
         String formattedName = name.trim().toLowerCase().replace(" ", "-"); // Transformation

@@ -88,6 +88,7 @@ public class OfferServiceImpl implements OfferService {
 		}).map(deal -> {
 			Map<String, Object> dealMap = new HashMap<>();
 			SubEntity subEntity = deal.getOffer().getSubEntity();
+			dealMap.put("dealId", deal.getId());
 			dealMap.put("price", deal.getPrice().amount());
 			dealMap.put("dealName", deal.getTitle());
 			dealMap.put("subEntityName", subEntity.getName());

@@ -47,6 +47,10 @@ public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntity
 
     BakeryDetailsResponse getBakeryDetails(UUID subEntityId);
 
+    IndustryDetailsResponse getIndustryDetails(UUID subEntityId);
+
+    AgriculturDetailsResponse getAgricultureDetails(UUID subEntityId);
+
 }
 
     
