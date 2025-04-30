@@ -89,6 +89,7 @@ public class OfferServiceImpl implements OfferService {
 			Map<String, Object> dealMap = new HashMap<>();
 			SubEntity subEntity = deal.getOffer().getSubEntity();
 			dealMap.put("dealId", deal.getId());
+			dealMap.put("dealPhoto", deal.getProduct().getProductImagePath());
 			dealMap.put("price", deal.getPrice().amount());
 			dealMap.put("dealName", deal.getTitle());
 			dealMap.put("subEntityName", subEntity.getName());
@@ -111,6 +112,7 @@ public class OfferServiceImpl implements OfferService {
 			Map<String, Object> boxMap = new HashMap<>();
 			SubEntity subEntity = box.getOffer().getSubEntity();
 			boxMap.put("name", box.getTitle());
+			boxMap.put("boxPhoto", box.getPhotoBoxPath());
 			boxMap.put("price", box.getOffer().getPrice().amount());
 			boxMap.put("organizationLogo", subEntity.getAvatarPath());
 			boxMap.put("quantity", box.getQuantity());

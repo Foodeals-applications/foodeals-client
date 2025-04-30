@@ -334,6 +334,12 @@ public class SubEntityServiceImpl implements SubEntityService {
         if (subEntity != null) {
             User connectedUser = userService.getConnectedUser();
             double distance = DistanceCalculator.calculateDistance(connectedUser.getCoordinates().latitude().doubleValue(), connectedUser.getCoordinates().longitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue());
+            List<Deal> deals = new ArrayList<>();
+            List<Offer> offers = offerRepository.getOffersBySubEntity(subEntity);
+            for (Offer offer : offers) {
+                deals.add(dealRepository.getDealByOfferId(offer.getId()));
+            }
+
             return new HotelDetailsResponse(subEntityId, subEntity.getAvatarPath(), subEntity.getName(), subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(), subEntity.getModalityTypes(), distance, subEntity.getNumberOfLikes(), subEntity.isFeeDelivered(), subEntity.getNumberOfStars());
         } else return null;
     }
