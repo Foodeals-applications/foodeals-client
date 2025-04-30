@@ -1,10 +1,13 @@
 package net.foodeals.offer.application.services.impl;
 
+import net.foodeals.common.Utils.TimeRemainingUtil;
 import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.entities.Offer;
 import net.foodeals.offer.application.dtos.requests.OfferRequest;
 import net.foodeals.offer.application.services.OfferService;
 import net.foodeals.offer.domain.entities.Box;
+import net.foodeals.offer.domain.entities.OpenTime;
+import net.foodeals.offer.domain.repositories.OfferRepository;
 import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
 import net.foodeals.organizationEntity.domain.entities.SubEntity;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityType;
@@ -28,6 +31,9 @@ public class OfferServiceImpl implements OfferService {
 
 	@Autowired
 	private BoxRepository boxRepository;
+
+	@Autowired
+	private OfferRepository offerRepository;
 
 	@Autowired
 	private OrganizationEntityRepository organizationEntityRepository;
@@ -132,7 +138,14 @@ public class OfferServiceImpl implements OfferService {
 			// Créer un map pour chaque subEntity contenant les informations de
 			// l'organisation et des offres
 			Map<String, Object> subEntityMap = new HashMap<>();
-
+			List<Offer> offers = offerRepository.getOffersBySubEntity(subEntity);
+			Deal deal=null;
+			String remaining=null;
+			if(!Objects.isNull(offers)&&offers.size()>0) {
+				deal = dealRepository.getDealByOfferId(offers.get(0).getId());
+				OpenTime openTime = offers.get(0).getOpenTime().get(0);
+				remaining = TimeRemainingUtil.getTimeRemaining(openTime.getDate(), openTime.getTo());
+			}
 			// Ajouter les informations de l'organisation associée au SubEntity
 			OrganizationEntity org = subEntity.getOrganizationEntity();
 			subEntityMap.put("subEntityId", subEntity.getId());
@@ -140,7 +153,11 @@ public class OfferServiceImpl implements OfferService {
 			subEntityMap.put("subEntityLogo", subEntity.getAvatarPath());
 			subEntityMap.put("organizationName", org.getName());
 			subEntityMap.put("organizationLogo", org.getAvatarPath());
-
+			subEntityMap.put("dealId", deal!=null ? deal.getId():null);
+			subEntityMap.put("dealPhoto",deal!=null ? deal.getProduct().getProductImagePath():null);
+			subEntityMap.put("price", deal!=null ? offers.get(0).getSalePrice().amount():null);
+			subEntityMap.put("numberOfUnit",deal!=null ? deal.getQuantity():0);
+			subEntityMap.put("remaining", remaining);
 			return subEntityMap;
 		}).collect(Collectors.toList());
 	}

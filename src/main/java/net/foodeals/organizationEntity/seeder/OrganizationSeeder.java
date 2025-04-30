@@ -77,6 +77,7 @@ public class OrganizationSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        SubEntity goldenTolipCasa = null;
         if (!organizationEntityRepository.findByName("Carrefour").isPresent()) {
 
             /**
@@ -157,9 +158,8 @@ public class OrganizationSeeder implements CommandLineRunner {
             Optional<SubEntityDomain> domainHotel = subEntityDomainRepository.findByName("Hôtels");
             domainsHotel.add(domainHotel.get());
 
-            SubEntity goldenTolipCasa =
-                    createSubEntity("Golden Tolip Casa", goldenTolip, subEntityHotelManager, activityHotel,
-                            subEntityHotelAddress, 400, false, 3.8f, domainsHotel);
+            goldenTolipCasa = createSubEntity("Golden Tolip Casa", goldenTolip, subEntityHotelManager, activityHotel,
+                    subEntityHotelAddress, 400, false, 3.8f, domainsHotel);
 
 
             /**
@@ -229,10 +229,9 @@ public class OrganizationSeeder implements CommandLineRunner {
 
         SubEntity deliceCasa =
                 createSubEntity("Delice Casa", delice, subEntityIndustryManager,
-                       activityIndustry,
+                        activityIndustry,
                         subEntityIndustryAddress, 400, true, 4.8F,
                         domainsIndustry);
-
 
 
         /**
@@ -261,6 +260,29 @@ public class OrganizationSeeder implements CommandLineRunner {
                         activityAgriculture,
                         subEntityAgrocultureAddress, 400, true, 4.8F,
                         domainsAgriculture);
+
+
+        // OFFERS & DEALS POUR HÔTEL (Golden Tolip)
+        Offer hotelOffer1 = createOffer(goldenTolipCasa, new BigDecimal("399.00"), new BigDecimal("299.00"));
+        createOpenTimes(hotelOffer1);
+
+        Product hotelProduct1 = createProduct(goldenTolipCasa, "Nuitée Standard", "Chambre standard avec petit déjeuner", new BigDecimal("299.00"), "Hôtels", 10);
+        Deal hotelDeal1 = createDealWithOfferAndProduct("Offre Nuitée", "Promotion sur chambre avec PDJ.", hotelOffer1, 1, DealStatus.AVAILABLE, Category.WHOLESALER_DAIRY_PRODUCTS, hotelProduct1);
+
+        // OFFERS & DEALS POUR INDUSTRIE (Délice)
+        Offer industryOffer1 = createOffer(deliceCasa, new BigDecimal("2500.00"), new BigDecimal("1999.00"));
+        createOpenTimes(industryOffer1);
+
+        Product industryProduct1 = createProduct(deliceCasa, "Pack industriel lait", "Lot de lait pour industrie agroalimentaire", new BigDecimal("1999.00"), "Industriels", 5);
+        Deal industryDeal1 = createDealWithOfferAndProduct("Pack Lait Industrie", "Remise sur gros volume lait", industryOffer1, 1, DealStatus.AVAILABLE, Category.DAIRY_PRODUCTS, industryProduct1);
+
+        // OFFERS & DEALS POUR AGRICULTURE (Zalar)
+        Offer agricultureOffer1 = createOffer(zalarCasa, new BigDecimal("1499.00"), new BigDecimal("999.00"));
+        createOpenTimes(agricultureOffer1);
+
+        Product agricultureProduct1 = createProduct(zalarCasa, "Pack Poulets Fermiers", "Volaille élevée en plein air", new BigDecimal("999.00"), "Agricultures", 15);
+        Deal agricultureDeal1 = createDealWithOfferAndProduct("Offre Poulets Bio", "Réduction sur élevage durable", agricultureOffer1, 1, DealStatus.AVAILABLE, Category.WHOLESALER_DAIRY_PRODUCTS, agricultureProduct1);
+
     }
 
     // Méthode pour créer une activité
@@ -361,6 +383,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     private Deal createDealWithOfferAndProduct(String title, String description, Offer offer, Integer quantity, DealStatus status, Category category, Product product) {
         Deal deal = new Deal();
         deal.setTitle(title);
+
         deal.setDescription(description);
         deal.setPrice(offer.getPrice());
         deal.setDealStatus(status);
@@ -376,6 +399,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     private Box createBoxWithOffer(String title, String description, Offer offer, BoxType type, BoxStatus status, Category category, Product product) {
         Box box = new Box(type);
         box.setTitle(title);
+        box.setPhotoBoxPath("/images/" + title.toLowerCase().replace(" ", "-") + ".png");
         box.setDescription(description);
         box.setOffer(offer);
         box.setBoxStatus(status);
