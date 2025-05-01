@@ -492,6 +492,84 @@ public class SubEntityServiceImpl implements SubEntityService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<HotelResponse> getListOfHotels(User user, double radius) {
+        List<SubEntity> hotels = subEntityRepository.findByDomaineName("Hôtels");
+
+        return hotels.stream()
+
+                .map(subEntity -> {
+                    double distance = DistanceCalculator.calculateDistance(
+                            user.getCoordinates().latitude().doubleValue(),
+                            user.getCoordinates().longitude().doubleValue(),
+                            subEntity.getCoordinates().latitude().doubleValue(),
+                            subEntity.getCoordinates().longitude().doubleValue() // <-- ici était l'erreur
+                    );
+                    return new HotelResponse(
+                            subEntity.getId(),
+                            subEntity.getAvatarPath(),
+                            subEntity.getCoverPath(),
+                            subEntity.getName(),
+                            distance,
+                            subEntity.getNumberOfLikes(),
+                            subEntity.getNumberOfStars()
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BakeryResponse> getListOfBakeries(User user, double radius) {
+        List<SubEntity> bakeries = subEntityRepository.findByDomaineName("Pâtisseries");
+
+        return bakeries.stream()
+
+                .map(subEntity -> {
+                    double distance = DistanceCalculator.calculateDistance(
+                            user.getCoordinates().latitude().doubleValue(),
+                            user.getCoordinates().longitude().doubleValue(),
+                            subEntity.getCoordinates().latitude().doubleValue(),
+                            subEntity.getCoordinates().longitude().doubleValue() // <-- ici était l'erreur
+                    );
+                    return new BakeryResponse(
+                            subEntity.getId(),
+                            subEntity.getAvatarPath(),
+                            subEntity.getCoverPath(),
+                            subEntity.getName(),
+                            distance,
+                            subEntity.getNumberOfLikes(),
+                            subEntity.getNumberOfStars()
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AgricultureResponse> getListOfAgrucultures(User user, double radius) {
+        List<SubEntity> agricultures = subEntityRepository.findByDomaineName("Agricultures");
+
+        return agricultures.stream()
+
+                .map(subEntity -> {
+                    double distance = DistanceCalculator.calculateDistance(
+                            user.getCoordinates().latitude().doubleValue(),
+                            user.getCoordinates().longitude().doubleValue(),
+                            subEntity.getCoordinates().latitude().doubleValue(),
+                            subEntity.getCoordinates().longitude().doubleValue() // <-- ici était l'erreur
+                    );
+                    return new AgricultureResponse(
+                            subEntity.getId(),
+                            subEntity.getAvatarPath(),
+                            subEntity.getCoverPath(),
+                            subEntity.getName(),
+                            distance,
+                            subEntity.getNumberOfLikes(),
+                            subEntity.getNumberOfStars()
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
 
     public List<BestSellerResponse> getBestSellers(Double salesThreshold) {
 

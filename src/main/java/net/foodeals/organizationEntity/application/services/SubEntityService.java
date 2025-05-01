@@ -54,6 +54,12 @@ public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntity
 
     List<RestaurantResponse> getListOfRestaurants(User user, double radius);
 
+    List<HotelResponse> getListOfHotels(User user, double radius);
+
+    List<BakeryResponse> getListOfBakeries(User user, double radius);
+
+    List<AgricultureResponse> getListOfAgrucultures(User user, double radius);
+
 }
 
     

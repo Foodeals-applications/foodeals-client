@@ -101,6 +101,27 @@ public class SubEntityController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/hotel/list")
+    public ResponseEntity<List<HotelResponse>> getListHotels(@RequestParam double radius) {
+        User connectedUser = userService.getConnectedUser();
+        List<HotelResponse>response=subEntityService.getListOfHotels(connectedUser, radius);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/bakery/list")
+    public ResponseEntity<List<BakeryResponse>> getListBakeries(@RequestParam double radius) {
+        User connectedUser = userService.getConnectedUser();
+        List<BakeryResponse>response=subEntityService.getListOfBakeries(connectedUser, radius);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/agriculture/list")
+    public ResponseEntity<List<AgricultureResponse>> getListAgricultures(@RequestParam double radius) {
+        User connectedUser = userService.getConnectedUser();
+        List<AgricultureResponse>response=subEntityService.getListOfAgrucultures(connectedUser, radius);
+        return ResponseEntity.ok(response);
+    }
+
     
     private String generatePhotoUrl(String name) {
         String baseUrl = "/images/"; // Votre domaine ou base d'URL
