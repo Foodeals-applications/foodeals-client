@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import net.foodeals.organizationEntity.application.dtos.responses.*;
 import net.foodeals.organizationEntity.application.services.SubEntityCategoryService;
 import net.foodeals.organizationEntity.application.services.SubEntityService;
+import net.foodeals.organizationEntity.domain.entities.SubEntity;
+import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
 import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
 import net.foodeals.user.application.services.UserService;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +34,14 @@ public class SubEntityController {
         return ResponseEntity.ok(response);
     }
 
+
+    @GetMapping("/domains/{subEntityId}")
+    public ResponseEntity<List<SubEntityDomain>> getDomainsBySubEntity(
+            @PathVariable UUID subEntityId) {
+        SubEntity subEntity = subEntityService.findById(subEntityId);
+        List<SubEntityDomain> response = subEntity.getSubEntityDomains();
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/by-sub-entity/{subEntityId}")
     public ResponseEntity<List<SubEntityProductCategoryResponse>> getSubEntityCategoriesBySubEntityId(

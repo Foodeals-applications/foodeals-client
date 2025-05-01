@@ -24,7 +24,9 @@ public interface ProductCategoryRepository extends BaseRepository<ProductCategor
 	
 	@Query("SELECT c FROM ProductCategory c WHERE c.slug = :slug AND c.deletedAt IS NULL")
     Optional<ProductCategory> findBySlug(String slug);
-	
+
+
+
 	
 	/*@Query("SELECT new net.foodeals.dto.CategoryWithOffersDTO(pc.name, pc.isFavorite) FROM ProductCategory pc WHERE pc.subentity.id = :subentityId")
     List<CategoryWithOffersDTO> getCategoriesWithActiveOffers(@Param("subentityId") UUID subentityId);
