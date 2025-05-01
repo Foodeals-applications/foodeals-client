@@ -8,6 +8,7 @@ import net.foodeals.organizationEntity.domain.entities.SubEntity;
 import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
 import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
 import net.foodeals.user.application.services.UserService;
+import net.foodeals.user.domain.entities.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -93,6 +94,14 @@ public class SubEntityController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/restaurant/list")
+    public ResponseEntity<List<RestaurantResponse>> getListRestaurant(@RequestParam double radius) {
+        User connectedUser = userService.getConnectedUser();
+        List<RestaurantResponse>response=subEntityService.getListOfRestaurants(connectedUser, radius);
+        return ResponseEntity.ok(response);
+    }
+
+    
     private String generatePhotoUrl(String name) {
         String baseUrl = "/images/"; // Votre domaine ou base d'URL
         String formattedName = name.trim().toLowerCase().replace(" ", "-"); // Transformation

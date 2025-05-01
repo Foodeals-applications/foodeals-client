@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.common.Utils.DistanceCalculator;
+import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.location.domain.entities.Address;
 import net.foodeals.location.domain.repositories.AddressRepository;
 import net.foodeals.location.domain.repositories.CityRepository;
@@ -86,6 +87,8 @@ public class SubEntityServiceImpl implements SubEntityService {
     private final DealRepository dealRepository;
     private final OrderRepository orderRepository;
     private final ModelMapper mapper;
+
+    private static final double EARTH_RADIUS = 6371.0;
 
     @Value("${upload.directory}")
     private String uploadDir;
@@ -462,6 +465,34 @@ public class SubEntityServiceImpl implements SubEntityService {
         } else return null;
     }
 
+    @Override
+    public List<RestaurantResponse> getListOfRestaurants(User user, double radius) {
+
+        List<SubEntity> restaurants = subEntityRepository.findByDomaineName("Restaurants");
+
+        return restaurants.stream()
+
+                .map(subEntity -> {
+                    double distance = DistanceCalculator.calculateDistance(
+                            user.getCoordinates().latitude().doubleValue(),
+                            user.getCoordinates().longitude().doubleValue(),
+                            subEntity.getCoordinates().latitude().doubleValue(),
+                            subEntity.getCoordinates().longitude().doubleValue() // <-- ici était l'erreur
+                    );
+                    return new RestaurantResponse(
+                            subEntity.getId(),
+                            subEntity.getAvatarPath(),
+                            subEntity.getCoverPath(),
+                            subEntity.getName(),
+                            distance,
+                            subEntity.getNumberOfLikes(),
+                            subEntity.getNumberOfStars()
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+
     public List<BestSellerResponse> getBestSellers(Double salesThreshold) {
 
         Double globalTotalSales = orderRepository.findGlobalTotalSales();
@@ -497,4 +528,15 @@ public class SubEntityServiceImpl implements SubEntityService {
         return 20.0;
     }
 
+
+    // Fonction pour calculer la distance entre deux points en utilisant la formule
+    // de Haversine
+    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2) + Math.cos(Math.toRadians(lat1))
+                * Math.cos(Math.toRadians(lat2)) * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return EARTH_RADIUS * c; // Retourne la distance en kilomètres
+    }
 }
