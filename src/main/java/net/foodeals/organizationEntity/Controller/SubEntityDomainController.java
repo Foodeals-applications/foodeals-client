@@ -5,6 +5,7 @@ import net.foodeals.organizationEntity.application.dtos.responses.SubEntityDomai
 import net.foodeals.organizationEntity.application.dtos.responses.SubEntityProductCategoryResponse;
 import net.foodeals.organizationEntity.application.services.SubEntityDomainService;
 import net.foodeals.organizationEntity.application.services.SubEntityProductCategoryService;
+import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +20,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SubEntityDomainController {
 
-    private final SubEntityProductCategoryService subEntityProductCategoryService;
     private final SubEntityDomainService subEntityDomainService;
 
 
@@ -29,10 +29,9 @@ public class SubEntityDomainController {
         return ResponseEntity.ok(subEntityDomainService.findAll());
     }
 
-    @GetMapping("/list-categories/{id}")
+    @GetMapping("/list-categories-by-domain/{id}")
     public ResponseEntity<List<SubEntityProductCategoryResponse>> getCategoriesOfDomains(@PathVariable UUID id) {
-
-        List<SubEntityProductCategoryResponse> responses = subEntityProductCategoryService.findBySubEntityDomainId(id);
+        List<SubEntityProductCategoryResponse> responses =subEntityDomainService.findSubEntityProductCategoriesBySubEntityDomain(id);
         return ResponseEntity.ok(responses);
     }
 }
