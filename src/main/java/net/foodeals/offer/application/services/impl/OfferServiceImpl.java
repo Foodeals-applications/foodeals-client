@@ -1,5 +1,6 @@
 package net.foodeals.offer.application.services.impl;
 
+import lombok.AllArgsConstructor;
 import net.foodeals.common.Utils.TimeRemainingUtil;
 import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.offer.application.dtos.requests.OfferRequest;
@@ -8,6 +9,7 @@ import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.entities.Offer;
 import net.foodeals.offer.domain.entities.OpenTime;
+import net.foodeals.offer.domain.enums.ModalityType;
 import net.foodeals.offer.domain.repositories.BoxRepository;
 import net.foodeals.offer.domain.repositories.DealRepository;
 import net.foodeals.offer.domain.repositories.OfferRepository;
@@ -15,6 +17,8 @@ import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
 import net.foodeals.organizationEntity.domain.entities.SubEntity;
 import net.foodeals.organizationEntity.domain.repositories.OrganizationEntityRepository;
 import net.foodeals.organizationEntity.domain.repositories.SubEntityRepository;
+import net.foodeals.user.application.services.UserService;
+import net.foodeals.user.domain.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class OfferServiceImpl implements OfferService {
 
     @Autowired
@@ -40,6 +45,12 @@ public class OfferServiceImpl implements OfferService {
     @Autowired
     private SubEntityRepository subEntityRepository;
 
+    @Autowired
+    private   UserService userService;
+
+
+
+
     // Rayon en kilomètres
     private static final double EARTH_RADIUS = 6371.0;
 
@@ -56,6 +67,7 @@ public class OfferServiceImpl implements OfferService {
 
     // Fonction pour obtenir la liste des offres et boxes les plus proches
     public Map<String, Object> getNears(double userLat, double userLon, double radius) {
+
         Map<String, Object> resultMap = new HashMap<>();
 
         // Récupérer les sous-entités liées à chaque type de partenaire
@@ -86,7 +98,7 @@ public class OfferServiceImpl implements OfferService {
     // Filtrer les deals en fonction de la distance
     private List<Map<String, Object>> getNewDeals(double userLat, double userLon, double radius) {
         List<Deal> deals = dealRepository.findAll();
-
+        User connectedUser = userService.getConnectedUser();
         return deals.stream().filter(deal -> {
             Coordinates coordinates = deal.getOffer().getSubEntity().getCoordinates();
             return calculateDistance(userLat, userLon, coordinates.latitude(), coordinates.longitude()) <= radius;
@@ -94,6 +106,7 @@ public class OfferServiceImpl implements OfferService {
             Map<String, Object> dealMap = new HashMap<>();
             SubEntity subEntity = deal.getOffer().getSubEntity();
             dealMap.put("dealId", deal.getId());
+            dealMap.put("favorite", connectedUser.getFavorisOffers().contains(deal.getOffer().getId()));
             dealMap.put("dealPhoto", deal.getProduct().getProductImagePath());
             dealMap.put("price", deal.getPrice().amount());
             dealMap.put("dealName", deal.getTitle());
@@ -101,6 +114,7 @@ public class OfferServiceImpl implements OfferService {
             dealMap.put("subEntityLogo", subEntity.getAvatarPath());
             dealMap.put("unit", deal.getDealUnityType());
             dealMap.put("date", deal.getCreatedAt());
+            dealMap.put("deliveryModality", deal.getOffer().getModalityTypes().contains(ModalityType.DELIVERY));
             // dealMap.put("delivery", deal.get); a verifier
             return dealMap;
         }).collect(Collectors.toList());
@@ -109,13 +123,15 @@ public class OfferServiceImpl implements OfferService {
     // Filtrer les boxes en fonction de la distance
     private List<Map<String, Object>> getBoxes(double userLat, double userLon, double radius) {
         List<Box> boxes = boxRepository.findAll();
-
+        User connectedUser = userService.getConnectedUser();
         return boxes.stream().filter(box -> {
             Coordinates coordinates = box.getOffer().getSubEntity().getCoordinates();
             return calculateDistance(userLat, userLon, coordinates.latitude(), coordinates.longitude()) <= radius;
         }).map(box -> {
             Map<String, Object> boxMap = new HashMap<>();
             SubEntity subEntity = box.getOffer().getSubEntity();
+            boxMap.put("boxId", box.getId());
+            boxMap.put("favorite", connectedUser.getFavorisOffers().contains(box.getOffer().getId()));
             boxMap.put("name", box.getTitle());
             boxMap.put("boxPhoto", box.getPhotoBoxPath());
             boxMap.put("price", box.getOffer().getPrice().amount());
@@ -174,10 +190,12 @@ public class OfferServiceImpl implements OfferService {
 
             hotelMap.put("hotelId", hotel.getId());
             hotelMap.put("logo", hotel.getAvatarPath());
+            hotelMap.put("cover", hotel.getCoverPath());
             hotelMap.put("hotelName", hotel.getName());
             hotelMap.put("nubmerOfLike", hotel.getNumberOfLikes());
             List<Map<String, Object>> hotelOffers = new ArrayList<>();
-            hotel.getOffers().forEach(offer -> {
+            List<Offer>offers=offerRepository.getOffersBySubEntity(hotel);
+            offers.forEach(offer -> {
                 Map<String, Object> offerMap = new HashMap<>();
                 offerMap.put("price", offer.getPrice().amount());
                 offerMap.put("date", offer.getCreatedAt());

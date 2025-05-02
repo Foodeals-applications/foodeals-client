@@ -52,13 +52,13 @@ public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntity
 
     AgriculturDetailsResponse getAgricultureDetails(UUID subEntityId);
 
-    List<RestaurantResponse> getListOfRestaurants(User user, double radius);
+    List<RestaurantResponse> getListOfRestaurants(User user);
 
-    List<HotelResponse> getListOfHotels(User user, double radius);
+    List<HotelResponse> getListOfHotels(User user);
 
-    List<BakeryResponse> getListOfBakeries(User user, double radius);
+    List<BakeryResponse> getListOfBakeries(User user);
 
-    List<AgricultureResponse> getListOfAgrucultures(User user, double radius);
+    List<AgricultureResponse> getListOfAgrucultures(User user);
 
 }
 

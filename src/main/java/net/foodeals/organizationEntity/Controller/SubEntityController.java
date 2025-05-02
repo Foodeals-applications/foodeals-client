@@ -95,30 +95,30 @@ public class SubEntityController {
     }
 
     @GetMapping("/restaurant/list")
-    public ResponseEntity<List<RestaurantResponse>> getListRestaurant(@RequestParam double radius) {
+    public ResponseEntity<List<RestaurantResponse>> getListRestaurant() {
         User connectedUser = userService.getConnectedUser();
-        List<RestaurantResponse>response=subEntityService.getListOfRestaurants(connectedUser, radius);
+        List<RestaurantResponse>response=subEntityService.getListOfRestaurants(connectedUser);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/hotel/list")
-    public ResponseEntity<List<HotelResponse>> getListHotels(@RequestParam double radius) {
+    public ResponseEntity<List<HotelResponse>> getListHotels() {
         User connectedUser = userService.getConnectedUser();
-        List<HotelResponse>response=subEntityService.getListOfHotels(connectedUser, radius);
+        List<HotelResponse>response=subEntityService.getListOfHotels(connectedUser);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/bakery/list")
-    public ResponseEntity<List<BakeryResponse>> getListBakeries(@RequestParam double radius) {
+    public ResponseEntity<List<BakeryResponse>> getListBakeries() {
         User connectedUser = userService.getConnectedUser();
-        List<BakeryResponse>response=subEntityService.getListOfBakeries(connectedUser, radius);
+        List<BakeryResponse>response=subEntityService.getListOfBakeries(connectedUser);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/agriculture/list")
-    public ResponseEntity<List<AgricultureResponse>> getListAgricultures(@RequestParam double radius) {
+    public ResponseEntity<List<AgricultureResponse>> getListAgricultures() {
         User connectedUser = userService.getConnectedUser();
-        List<AgricultureResponse>response=subEntityService.getListOfAgrucultures(connectedUser, radius);
+        List<AgricultureResponse>response=subEntityService.getListOfAgrucultures(connectedUser);
         return ResponseEntity.ok(response);
     }
 
