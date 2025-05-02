@@ -4,7 +4,6 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.common.Utils.DistanceCalculator;
-import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.location.domain.entities.Address;
 import net.foodeals.location.domain.repositories.AddressRepository;
 import net.foodeals.location.domain.repositories.CityRepository;
@@ -335,7 +334,32 @@ public class SubEntityServiceImpl implements SubEntityService {
     public HotelDetailsResponse getHotelDetails(UUID subEntityId) {
         SubEntity subEntity = repository.findById(subEntityId).orElse(null);
         if (subEntity != null) {
+            Integer totalSales = repository.getTotalSalesBySubEntity(subEntityId);
             User connectedUser = userService.getConnectedUser();
+
+            boolean isFavorite = likeRepository.existsBySubEntityIdAndUserId(subEntityId, connectedUser.getId());
+            List<String> categoriesWithOffers = categoryRepository.findActiveCategoryNamesBySubEntity(subEntityId);
+
+            // Produits en promotion
+            List<ProductOfferResponse> productsOnOffer = productRepository.findProductsWithActiveOffers(subEntityId);
+
+
+            // Produits triés par catégorie
+            // Produits triés par catégorie
+            List<CategoryProductsResponse> categorizedProducts = categoryRepository.findCategoriesBySubEntity(subEntityId).stream().map(category -> new CategoryProductsResponse(category.getName(), productRepository.findByCategoryAndSubEntity(category.getId(), subEntityId).stream().map(product -> {
+                // Récupérer les prix et autres informations à partir des boxes et deals
+                Double oldPrice = null;
+                Double newPrice = null;
+                // Deal : Si les offres de Box ne sont pas disponibles, vérifier les Deals
+                Optional<Deal> optionalDeal = dealRepository.findActiveDealByProduct(product.getId());
+                if (optionalDeal.isPresent()) {
+                    Deal deal = optionalDeal.get();
+                    oldPrice = deal.getOffer().getPrice().amount().doubleValue();
+                    newPrice = deal.getOffer().getSalePrice().amount().doubleValue();
+                }
+
+                return new ProductResponse(product.getId(), product.getProductImagePath(), product.getName(), product.getDescription(), new PriceResponse(oldPrice, newPrice), categoriesWithOffers, 0, subEntityId);
+            }).collect(Collectors.toList()))).collect(Collectors.toList());
             double distance = DistanceCalculator.calculateDistance(connectedUser.getCoordinates().latitude().doubleValue(), connectedUser.getCoordinates().longitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue());
             List<Deal> deals = new ArrayList<>();
 
@@ -358,9 +382,24 @@ public class SubEntityServiceImpl implements SubEntityService {
                     ))
                     .collect(Collectors.toList());
 
-            return new HotelDetailsResponse(subEntityId, subEntity.getName(),
-                    subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(),
-                    subEntity.getAvatarPath(),subEntity.getModalityTypes(), distance, subEntity.getNumberOfLikes(), subEntity.isFeeDelivered(), subEntity.getNumberOfStars(),dealsResponse);
+            return new HotelDetailsResponse
+                    (subEntityId,
+                            subEntity.getName(),
+                            subEntity.getAvatarPath(),
+                            subEntity.getCoverPath(),
+                            totalSales,
+                            subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(),
+                            subEntity.getModalityTypes(),
+                            distance,
+                            subEntity.getNumberOfLikes(),
+                            subEntity.isFeeDelivered(),
+                            subEntity.getNumberOfStars(),
+                            dealsResponse,
+                            categoriesWithOffers,
+                            productsOnOffer,
+                            categorizedProducts,
+                            isFavorite,
+                            subEntity.getCoordinates());
         }
         else return null;
     }
@@ -369,7 +408,35 @@ public class SubEntityServiceImpl implements SubEntityService {
     public RestaurantDetailsResponse getRestaurantDetails(UUID subEntityId) {
         SubEntity subEntity = repository.findById(subEntityId).orElse(null);
         if (subEntity != null) {
+
+            Integer totalSales = repository.getTotalSalesBySubEntity(subEntityId);
             User connectedUser = userService.getConnectedUser();
+
+            boolean isFavorite = likeRepository.existsBySubEntityIdAndUserId(subEntityId, connectedUser.getId());
+            List<String> categoriesWithOffers = categoryRepository.findActiveCategoryNamesBySubEntity(subEntityId);
+
+            // Produits en promotion
+            List<ProductOfferResponse> productsOnOffer = productRepository.findProductsWithActiveOffers(subEntityId);
+
+
+            // Produits triés par catégorie
+            // Produits triés par catégorie
+            List<CategoryProductsResponse> categorizedProducts = categoryRepository.findCategoriesBySubEntity(subEntityId).stream().map(category -> new CategoryProductsResponse(category.getName(), productRepository.findByCategoryAndSubEntity(category.getId(), subEntityId).stream().map(product -> {
+                // Récupérer les prix et autres informations à partir des boxes et deals
+                Double oldPrice = null;
+                Double newPrice = null;
+                // Deal : Si les offres de Box ne sont pas disponibles, vérifier les Deals
+                Optional<Deal> optionalDeal = dealRepository.findActiveDealByProduct(product.getId());
+                if (optionalDeal.isPresent()) {
+                    Deal deal = optionalDeal.get();
+                    oldPrice = deal.getOffer().getPrice().amount().doubleValue();
+                    newPrice = deal.getOffer().getSalePrice().amount().doubleValue();
+                }
+
+                return new ProductResponse(product.getId(), product.getProductImagePath(), product.getName(), product.getDescription(), new PriceResponse(oldPrice, newPrice), categoriesWithOffers, 0, subEntityId);
+            }).collect(Collectors.toList()))).collect(Collectors.toList());
+
+
             double distance = DistanceCalculator.calculateDistance(connectedUser.getCoordinates().latitude().doubleValue(), connectedUser.getCoordinates().longitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue());
             List<Deal> deals = new ArrayList<>();
             List<Offer> offers = offerRepository.getOffersBySubEntity(subEntity);
@@ -401,7 +468,23 @@ public class SubEntityServiceImpl implements SubEntityService {
                 );
             }).collect(Collectors.toList());
 
-            return new RestaurantDetailsResponse(subEntityId, subEntity.getAvatarPath(), subEntity.getName(), subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(), subEntity.getModalityTypes(), distance, subEntity.getNumberOfLikes(), subEntity.isFeeDelivered(), subEntity.getNumberOfStars(), dealsResponse);
+            return new RestaurantDetailsResponse(subEntityId,
+                    subEntity.getName(),
+                    subEntity.getAvatarPath(),
+                    subEntity.getCoverPath(),
+                    totalSales,
+                    subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(),
+                    subEntity.getModalityTypes(),
+                    distance,
+                    subEntity.getNumberOfLikes(),
+                    subEntity.isFeeDelivered(),
+                    subEntity.getNumberOfStars(),
+                    dealsResponse,
+                    categoriesWithOffers,
+                    productsOnOffer,
+                    categorizedProducts,
+                    isFavorite,
+                    subEntity.getCoordinates());
         } else return null;
     }
 
@@ -409,7 +492,33 @@ public class SubEntityServiceImpl implements SubEntityService {
     public BakeryDetailsResponse getBakeryDetails(UUID subEntityId) {
         SubEntity subEntity = repository.findById(subEntityId).orElse(null);
         if (subEntity != null) {
+            Integer totalSales = repository.getTotalSalesBySubEntity(subEntityId);
             User connectedUser = userService.getConnectedUser();
+
+            boolean isFavorite = likeRepository.existsBySubEntityIdAndUserId(subEntityId, connectedUser.getId());
+            List<String> categoriesWithOffers = categoryRepository.findActiveCategoryNamesBySubEntity(subEntityId);
+
+            // Produits en promotion
+            List<ProductOfferResponse> productsOnOffer = productRepository.findProductsWithActiveOffers(subEntityId);
+
+
+            // Produits triés par catégorie
+            // Produits triés par catégorie
+            List<CategoryProductsResponse> categorizedProducts = categoryRepository.findCategoriesBySubEntity(subEntityId).stream().map(category -> new CategoryProductsResponse(category.getName(), productRepository.findByCategoryAndSubEntity(category.getId(), subEntityId).stream().map(product -> {
+                // Récupérer les prix et autres informations à partir des boxes et deals
+                Double oldPrice = null;
+                Double newPrice = null;
+                // Deal : Si les offres de Box ne sont pas disponibles, vérifier les Deals
+                Optional<Deal> optionalDeal = dealRepository.findActiveDealByProduct(product.getId());
+                if (optionalDeal.isPresent()) {
+                    Deal deal = optionalDeal.get();
+                    oldPrice = deal.getOffer().getPrice().amount().doubleValue();
+                    newPrice = deal.getOffer().getSalePrice().amount().doubleValue();
+                }
+
+                return new ProductResponse(product.getId(), product.getProductImagePath(), product.getName(), product.getDescription(), new PriceResponse(oldPrice, newPrice), categoriesWithOffers, 0, subEntityId);
+            }).collect(Collectors.toList()))).collect(Collectors.toList());
+
             double distance = DistanceCalculator.calculateDistance(connectedUser.getCoordinates().latitude().doubleValue(), connectedUser.getCoordinates().longitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue());
             List<Deal> deals = new ArrayList<>();
             List<Offer> offers = offerRepository.getOffersBySubEntity(subEntity);
@@ -441,7 +550,24 @@ public class SubEntityServiceImpl implements SubEntityService {
                 );
             }).collect(Collectors.toList());
 
-            return new BakeryDetailsResponse(subEntityId, subEntity.getAvatarPath(), subEntity.getName(), subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(), subEntity.getModalityTypes(), distance, subEntity.getNumberOfLikes(), subEntity.isFeeDelivered(), subEntity.getNumberOfStars(), dealsResponse);
+            return new BakeryDetailsResponse
+                    (subEntityId,
+                            subEntity.getName(),
+                            subEntity.getAvatarPath(),
+                            subEntity.getCoverPath(),
+                            totalSales,
+                            subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(),
+                            subEntity.getModalityTypes(),
+                            distance,
+                            subEntity.getNumberOfLikes(),
+                            subEntity.isFeeDelivered(),
+                            subEntity.getNumberOfStars(),
+                            dealsResponse,
+                            categoriesWithOffers,
+                            productsOnOffer,
+                            categorizedProducts,
+                            isFavorite,
+                            subEntity.getCoordinates());
         } else return null;
     }
 
@@ -449,9 +575,52 @@ public class SubEntityServiceImpl implements SubEntityService {
     public IndustryDetailsResponse getIndustryDetails(UUID subEntityId) {
         SubEntity subEntity = repository.findById(subEntityId).orElse(null);
         if (subEntity != null) {
+            Integer totalSales = repository.getTotalSalesBySubEntity(subEntityId);
             User connectedUser = userService.getConnectedUser();
+
+            boolean isFavorite = likeRepository.existsBySubEntityIdAndUserId(subEntityId, connectedUser.getId());
+            List<String> categoriesWithOffers = categoryRepository.findActiveCategoryNamesBySubEntity(subEntityId);
+
+            // Produits en promotion
+            List<ProductOfferResponse> productsOnOffer = productRepository.findProductsWithActiveOffers(subEntityId);
+
+
+            // Produits triés par catégorie
+            // Produits triés par catégorie
+            List<CategoryProductsResponse> categorizedProducts = categoryRepository.findCategoriesBySubEntity(subEntityId).stream().map(category -> new CategoryProductsResponse(category.getName(), productRepository.findByCategoryAndSubEntity(category.getId(), subEntityId).stream().map(product -> {
+                // Récupérer les prix et autres informations à partir des boxes et deals
+                Double oldPrice = null;
+                Double newPrice = null;
+                // Deal : Si les offres de Box ne sont pas disponibles, vérifier les Deals
+                Optional<Deal> optionalDeal = dealRepository.findActiveDealByProduct(product.getId());
+                if (optionalDeal.isPresent()) {
+                    Deal deal = optionalDeal.get();
+                    oldPrice = deal.getOffer().getPrice().amount().doubleValue();
+                    newPrice = deal.getOffer().getSalePrice().amount().doubleValue();
+                }
+
+                return new ProductResponse(product.getId(), product.getProductImagePath(), product.getName(), product.getDescription(), new PriceResponse(oldPrice, newPrice), categoriesWithOffers, 0, subEntityId);
+            }).collect(Collectors.toList()))).collect(Collectors.toList());
             double distance = DistanceCalculator.calculateDistance(connectedUser.getCoordinates().latitude().doubleValue(), connectedUser.getCoordinates().longitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue());
-            return new IndustryDetailsResponse(subEntityId, subEntity.getAvatarPath(), subEntity.getName(), subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(), subEntity.getModalityTypes(), distance, subEntity.getNumberOfLikes(), subEntity.isFeeDelivered(), subEntity.getNumberOfStars());
+            return new IndustryDetailsResponse
+                    (subEntityId,
+                            subEntity.getName(),
+                            subEntity.getAvatarPath(),
+                            subEntity.getCoverPath(),
+                            totalSales,
+                            subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(),
+                            subEntity.getModalityTypes(),
+                            distance,
+                            subEntity.getNumberOfLikes(),
+                            subEntity.isFeeDelivered(),
+                            subEntity.getNumberOfStars(),
+                            null,
+                            categoriesWithOffers,
+                            productsOnOffer,
+                            categorizedProducts,
+                            isFavorite,
+                            subEntity.getCoordinates());
+
         } else return null;
     }
 
@@ -459,9 +628,51 @@ public class SubEntityServiceImpl implements SubEntityService {
     public AgriculturDetailsResponse getAgricultureDetails(UUID subEntityId) {
         SubEntity subEntity = repository.findById(subEntityId).orElse(null);
         if (subEntity != null) {
+            Integer totalSales = repository.getTotalSalesBySubEntity(subEntityId);
             User connectedUser = userService.getConnectedUser();
+
+            boolean isFavorite = likeRepository.existsBySubEntityIdAndUserId(subEntityId, connectedUser.getId());
+            List<String> categoriesWithOffers = categoryRepository.findActiveCategoryNamesBySubEntity(subEntityId);
+
+            // Produits en promotion
+            List<ProductOfferResponse> productsOnOffer = productRepository.findProductsWithActiveOffers(subEntityId);
+
+
+            // Produits triés par catégorie
+            // Produits triés par catégorie
+            List<CategoryProductsResponse> categorizedProducts = categoryRepository.findCategoriesBySubEntity(subEntityId).stream().map(category -> new CategoryProductsResponse(category.getName(), productRepository.findByCategoryAndSubEntity(category.getId(), subEntityId).stream().map(product -> {
+                // Récupérer les prix et autres informations à partir des boxes et deals
+                Double oldPrice = null;
+                Double newPrice = null;
+                // Deal : Si les offres de Box ne sont pas disponibles, vérifier les Deals
+                Optional<Deal> optionalDeal = dealRepository.findActiveDealByProduct(product.getId());
+                if (optionalDeal.isPresent()) {
+                    Deal deal = optionalDeal.get();
+                    oldPrice = deal.getOffer().getPrice().amount().doubleValue();
+                    newPrice = deal.getOffer().getSalePrice().amount().doubleValue();
+                }
+
+                return new ProductResponse(product.getId(), product.getProductImagePath(), product.getName(), product.getDescription(), new PriceResponse(oldPrice, newPrice), categoriesWithOffers, 0, subEntityId);
+            }).collect(Collectors.toList()))).collect(Collectors.toList());
             double distance = DistanceCalculator.calculateDistance(connectedUser.getCoordinates().latitude().doubleValue(), connectedUser.getCoordinates().longitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue(), subEntity.getCoordinates().latitude().doubleValue());
-            return new AgriculturDetailsResponse(subEntityId, subEntity.getAvatarPath(), subEntity.getName(), subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(), subEntity.getModalityTypes(), distance, subEntity.getNumberOfLikes(), subEntity.isFeeDelivered(), subEntity.getNumberOfStars());
+            return new AgriculturDetailsResponse
+                    (subEntityId,
+                            subEntity.getName(),
+                            subEntity.getAvatarPath(),
+                            subEntity.getCoverPath(),
+                            totalSales,
+                            subEntity.getAddress().getAddress() + "" + subEntity.getAddress().getCity().getName(),
+                            subEntity.getModalityTypes(),
+                            distance,
+                            subEntity.getNumberOfLikes(),
+                            subEntity.isFeeDelivered(),
+                            subEntity.getNumberOfStars(),
+                            null,
+                            categoriesWithOffers,
+                            productsOnOffer,
+                            categorizedProducts,
+                            isFavorite,
+                            subEntity.getCoordinates());
         } else return null;
     }
 

@@ -37,9 +37,9 @@ public interface ProductCategoryRepository extends BaseRepository<ProductCategor
 
 	@Query("""
         SELECT DISTINCT c.name
-        FROM ProductCategory c
-        JOIN c.products p
-        WHERE p.subEntity.id = :subEntityId
+        FROM SubEntityProductCategory c
+        JOIN c.subEntityDomain d
+        WHERE :subEntityId IN (SELECT subEntity.id FROM SubEntityProductCategory subEntity)
     """)
 	List<String> findActiveCategoryNamesBySubEntity(UUID subEntityId);
 
