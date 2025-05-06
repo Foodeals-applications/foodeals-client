@@ -14,6 +14,9 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.foodeals.offer.application.dtos.responses.BoxDetailsResponse;
+import net.foodeals.offer.application.dtos.responses.OpenTimeResponse;
+import net.foodeals.product.application.dtos.responses.SimilarProductResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -231,6 +234,46 @@ class BoxServiceImpl implements BoxService {
 	        relaunchHistoryRepository.save(relaunchHistory);  
 			return repository.save(box);
 		
+
+	}
+
+	@Override
+	public BoxDetailsResponse getBoxDetails(UUID id) {
+		Box box =findById(id);
+		return mapBoxToBoxDetailsResponse(box);
+	}
+
+	private BoxDetailsResponse mapBoxToBoxDetailsResponse(Box box) {
+		BoxDetailsResponse response = new BoxDetailsResponse();
+		response.setId(box.getId());
+		response.setPhotoPath(box.getPhotoBoxPath());
+		response.setTitle(box.getTitle());
+		response.setDescription(box.getDescription());
+		response.setNumberOfFeedback(box.getOffer().getNumberOfFeedBack());
+		response.setNumberOfStars(box.getOffer().getNumberOfStars());
+		response.setEstimatedDeliveryTime(0f);
+		List<OpenTime>openTimes=box.getOffer().getOpenTime();
+		List<OpenTimeResponse>openTimeResponses=new ArrayList<>();
+		for(OpenTime openTime:openTimes) {
+			openTimeResponses.add(new OpenTimeResponse(openTime.getId(),openTime.getDate(),openTime.getFrom(),openTime.getTo()));
+		}
+        response.setOpenTime(openTimeResponses);
+		response.setModalityTypes(box.getOffer().getModalityTypes());
+		List<Box> similarBoxes = repository.findSimilarBoxes(box.getId());
+
+		List<SimilarProductResponse>similarProducts =similarBoxes.stream()
+				.flatMap(b -> box.getProducts().stream())
+				.distinct() // éviter les doublons
+				.map(product -> new SimilarProductResponse(
+						product.getId(),
+						product.getName(),
+						box.getOffer().getSalePrice().amount(),
+						product.getProductImagePath() // adapte si c'est un champ différent
+				))
+				.collect(Collectors.toList());
+		response.setSimilarProductResponses(similarProducts);
+		response.setCategoryName(null);
+        return response;
 
 	}
 

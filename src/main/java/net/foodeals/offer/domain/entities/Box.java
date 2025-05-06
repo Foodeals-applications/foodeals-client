@@ -9,8 +9,10 @@ import net.foodeals.offer.domain.enums.BoxType;
 import net.foodeals.offer.domain.enums.Category;
 import net.foodeals.offer.domain.enums.PublishAs;
 import net.foodeals.offer.domain.enums.OfferType;
+import net.foodeals.product.domain.entities.Product;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,6 +54,15 @@ public class Box extends AbstractEntity<UUID> implements IOfferChoice {
 	
 	@Enumerated(EnumType.STRING)
 	private BoxStatus boxStatus ;
+
+	@ManyToMany
+	@JoinTable(
+			name = "box_products",
+			joinColumns = @JoinColumn(name = "box_id"),
+			inverseJoinColumns = @JoinColumn(name = "product_id")
+	)
+	private List<Product>products=new ArrayList<>();
+
 
 	@Override
 	public OfferType getOfferType() {

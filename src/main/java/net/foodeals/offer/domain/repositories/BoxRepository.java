@@ -12,6 +12,7 @@ import net.foodeals.common.contracts.BaseRepository;
 import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.enums.BoxStatus;
 import net.foodeals.offer.domain.enums.BoxType;
+import org.springframework.data.repository.query.Param;
 
 public interface BoxRepository extends BaseRepository<Box, UUID> {
 
@@ -35,6 +36,18 @@ public interface BoxRepository extends BaseRepository<Box, UUID> {
 
 
     Optional<Box> findByIdAndType(UUID id, BoxType type);
+
+
+    @Query("""
+        SELECT DISTINCT b
+        FROM Box b
+        JOIN b.products p
+        WHERE p IN (
+            SELECT p2 FROM Box b2 JOIN b2.products p2 WHERE b2.id = :boxId
+        )
+        AND b.id <> :boxId
+    """)
+    List<Box> findSimilarBoxes(@Param("boxId") UUID boxId);
 
 
 }

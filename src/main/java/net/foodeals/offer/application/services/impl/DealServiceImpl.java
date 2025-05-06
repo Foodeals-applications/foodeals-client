@@ -2,27 +2,28 @@ package net.foodeals.offer.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.foodeals.common.Utils.DistanceCalculator;
-import net.foodeals.common.Utils.PriceUtils;
 import net.foodeals.offer.application.dtos.requests.DealDto;
 import net.foodeals.offer.application.dtos.responses.DealDetailsResponse;
+import net.foodeals.offer.application.dtos.responses.OpenTimeResponse;
 import net.foodeals.offer.application.dtos.responses.SupplementDealResponse;
 import net.foodeals.offer.application.services.DealService;
 import net.foodeals.offer.domain.entities.Deal;
+import net.foodeals.offer.domain.entities.OpenTime;
 import net.foodeals.offer.domain.exceptions.DealNotFoundException;
 import net.foodeals.offer.domain.repositories.DealRepository;
 import net.foodeals.offer.domain.repositories.OpenTimeRepository;
+import net.foodeals.product.application.dtos.responses.SimilarProductResponse;
 import net.foodeals.product.application.services.ProductCategoryService;
 import net.foodeals.product.application.services.ProductService;
 import net.foodeals.product.application.services.ProductSubCategoryService;
 import net.foodeals.product.domain.repositories.SupplementRepository;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -86,7 +87,32 @@ class DealServiceImpl implements DealService {
 
 
     private DealDetailsResponse mapToDealDetailsResponse(Deal deal) {
-        User user = userService.getConnectedUser();
+        DealDetailsResponse dealDetailsResponse = mapDealToDealDetailsResponse(deal);
+        return dealDetailsResponse;
+    }
+
+
+    private DealDetailsResponse mapDealToDealDetailsResponse(Deal deal) {
+        DealDetailsResponse response = new DealDetailsResponse();
+        response.setId(deal.getId());
+        response.setPhotoPath(deal.getProduct().getProductImagePath());
+        response.setTitle(deal.getTitle());
+        response.setDescription(deal.getDescription());
+        response.setNumberOfFeedback(deal.getOffer().getNumberOfFeedBack());
+        response.setNumberOfStars(deal.getOffer().getNumberOfStars());
+        response.setEstimatedDeliveryTime(0f);
+        List<OpenTime> openTimes = deal.getOffer().getOpenTime();
+        List<OpenTimeResponse> openTimeResponses = new ArrayList<>();
+        for (OpenTime openTime : openTimes) {
+            openTimeResponses.add(new OpenTimeResponse(openTime.getId(), openTime.getDate(), openTime.getFrom(), openTime.getTo()));
+        }
+        response.setOpenTime(openTimeResponses);
+        response.setModalityTypes(deal.getOffer().getModalityTypes());
+        //List<Box> similarBoxes = new ArrayList<>();
+
+        List<SimilarProductResponse> similarProducts = new ArrayList<>();
+        response.setSimilarProductResponses(similarProducts);
+        response.setCategoryName(null);
         List<SupplementDealResponse> supplementResponses = deal.getSupplements().stream()
                 .map(supplement -> new SupplementDealResponse(
                         supplement.getId(),
@@ -94,14 +120,7 @@ class DealServiceImpl implements DealService {
                         supplement.getPrice(),
                         supplement.getSupplementImagePath()
                 )).collect(Collectors.toList());
-        DealDetailsResponse dealDetailsResponse = new DealDetailsResponse(deal.getId(),
-                deal.getTitle(), deal.getProduct().getName(), deal.getProduct().getProductImagePath(),
-                deal.getOffer().getSubEntity().getAddress().getAddress() + " "
-                        + deal.getOffer().getSubEntity().getAddress().getCity().getName(), deal.getOffer().getPrice().amount(),
-                deal.getOffer().getSalePrice().amount(), PriceUtils.calculatePercentageReduction(deal.getOffer().getPrice().amount(),
-                deal.getOffer().getSalePrice().amount()), DistanceCalculator.calculateDistance(user.getCoordinates().latitude(),
-                user.getCoordinates().longitude(), deal.getOffer().getSubEntity().getCoordinates().latitude(),
-                deal.getOffer().getSubEntity().getCoordinates().longitude()), supplementResponses);
-    return dealDetailsResponse;
+        return response;
+
     }
 }

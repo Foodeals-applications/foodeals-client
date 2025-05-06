@@ -78,6 +78,10 @@ public class Offer extends AbstractEntity<UUID> {
 	@ManyToOne
 	private SubEntity subEntity;
 
+	private Integer numberOfFeedBack ;
+
+	private Float numberOfStars;
+
 	public Offer() {
 	}
 

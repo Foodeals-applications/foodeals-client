@@ -1,23 +1,15 @@
 package net.foodeals.product.domain.entities;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.*;
+import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.organizationEntity.domain.entities.SubEntity;
 import org.hibernate.annotations.UuidGenerator;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import net.foodeals.common.models.AbstractEntity;
@@ -91,6 +83,9 @@ public class Product extends AbstractEntity<UUID> {
     private SubEntity subEntity ;
 
     private Integer stock= 0 ;
+
+    @ManyToMany
+    private List<Box>box=new ArrayList<>();
     
 
 }

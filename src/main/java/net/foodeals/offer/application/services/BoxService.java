@@ -2,6 +2,7 @@ package net.foodeals.offer.application.services;
 
 import net.foodeals.common.contracts.CrudService;
 import net.foodeals.offer.application.dtos.requests.BoxDto;
+import net.foodeals.offer.application.dtos.responses.BoxDetailsResponse;
 import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.entities.Offer;
 import net.foodeals.offer.domain.enums.BoxType;
@@ -41,6 +42,8 @@ public interface BoxService extends CrudService<Box, UUID, BoxDto>{
 	Box updateBox(UUID id, BoxDto updatedDto, BoxType type);
 	
 	Box relaunchBox(UUID id);
+
+	BoxDetailsResponse getBoxDetails(UUID id);
 
     
 }

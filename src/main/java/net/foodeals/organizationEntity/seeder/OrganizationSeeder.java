@@ -108,9 +108,9 @@ public class OrganizationSeeder implements CommandLineRunner {
             Product product3 = createProduct(carrefourMarket, "Buche de Noël", "Délicieux gâteau de Noël.", new BigDecimal("15.99"), "Supermarchés", 6);
 
             // Ajout d'Offers, Deals et Boxes
-            Offer carrefourOffer1 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("49.99"));
+            Offer carrefourOffer1 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("49.99"),32,4.2f);
             createOpenTimes(carrefourOffer1);
-            Offer carrefourOffer2 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("59.99"));
+            Offer carrefourOffer2 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("59.99"),20,3.2f);
             createOpenTimes(carrefourOffer2);
             // Deals associés aux produits
             createDealWithOfferAndProduct("Promo Carrefour Market", "Réduction pommes bio.", carrefourOffer1, 1, DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, product1);
@@ -186,9 +186,9 @@ public class OrganizationSeeder implements CommandLineRunner {
                             subEntityRestaurantAddress, 400, true, 4.8F, domainsRestaurant);
 
 
-            Offer kfcOffer1 = createOffer(kfcCasa, new BigDecimal("129.99"), new BigDecimal("89.99"));
+            Offer kfcOffer1 = createOffer(kfcCasa, new BigDecimal("129.99"), new BigDecimal("89.99"),8,3.3f);
             createOpenTimes(kfcOffer1);
-            Offer kfcOffer2 = createOffer(kfcCasa, new BigDecimal("139.99"), new BigDecimal("89.99"));
+            Offer kfcOffer2 = createOffer(kfcCasa, new BigDecimal("139.99"), new BigDecimal("89.99"),10,5f);
             createOpenTimes(kfcOffer2);
 
             Product productKfc1 = createProduct(kfcCasa, "Tinders", "Tinders Kabab.", new BigDecimal("5.99"), "Restaurants", 20);
@@ -263,21 +263,21 @@ public class OrganizationSeeder implements CommandLineRunner {
 
 
         // OFFERS & DEALS POUR HÔTEL (Golden Tolip)
-        Offer hotelOffer1 = createOffer(goldenTolipCasa, new BigDecimal("399.00"), new BigDecimal("299.00"));
+        Offer hotelOffer1 = createOffer(goldenTolipCasa, new BigDecimal("399.00"), new BigDecimal("299.00"),12,4.0f);
         createOpenTimes(hotelOffer1);
 
         Product hotelProduct1 = createProduct(goldenTolipCasa, "Nuitée Standard", "Chambre standard avec petit déjeuner", new BigDecimal("299.00"), "Hôtels", 10);
         Deal hotelDeal1 = createDealWithOfferAndProduct("Offre Nuitée", "Promotion sur chambre avec PDJ.", hotelOffer1, 1, DealStatus.AVAILABLE, Category.WHOLESALER_DAIRY_PRODUCTS, hotelProduct1);
 
         // OFFERS & DEALS POUR INDUSTRIE (Délice)
-        Offer industryOffer1 = createOffer(deliceCasa, new BigDecimal("2500.00"), new BigDecimal("1999.00"));
+        Offer industryOffer1 = createOffer(deliceCasa, new BigDecimal("2500.00"), new BigDecimal("1999.00"),7,4f);
         createOpenTimes(industryOffer1);
 
         Product industryProduct1 = createProduct(deliceCasa, "Pack industriel lait", "Lot de lait pour industrie agroalimentaire", new BigDecimal("1999.00"), "Industriels", 5);
         Deal industryDeal1 = createDealWithOfferAndProduct("Pack Lait Industrie", "Remise sur gros volume lait", industryOffer1, 1, DealStatus.AVAILABLE, Category.DAIRY_PRODUCTS, industryProduct1);
 
         // OFFERS & DEALS POUR AGRICULTURE (Zalar)
-        Offer agricultureOffer1 = createOffer(zalarCasa, new BigDecimal("1499.00"), new BigDecimal("999.00"));
+        Offer agricultureOffer1 = createOffer(zalarCasa, new BigDecimal("1499.00"), new BigDecimal("999.00"),6,4.9f);
         createOpenTimes(agricultureOffer1);
 
         Product agricultureProduct1 = createProduct(zalarCasa, "Pack Poulets Fermiers", "Volaille élevée en plein air", new BigDecimal("999.00"), "Agricultures", 15);
@@ -364,7 +364,11 @@ public class OrganizationSeeder implements CommandLineRunner {
     }
 
     // Méthode pour créer une offre
-    private Offer createOffer(SubEntity subEntity, BigDecimal salePrice, BigDecimal price) {
+    private Offer createOffer(SubEntity subEntity,
+                              BigDecimal salePrice,
+                              BigDecimal price,
+                              Integer numberOfFeedback,
+                              Float numberOfStars) {
         Offer offer = new Offer();
         offer.setSubEntity(subEntity);
         offer.setPrice(new Price(price, Currency.getInstance("MAD")));
@@ -372,6 +376,8 @@ public class OrganizationSeeder implements CommandLineRunner {
         offer.setModalityPaiement(ModalityPaiement.CASH);
         offer.setDeliveryFee(5L);
         offer.setModalityTypes(List.of(ModalityType.AT_PLACE, ModalityType.DELIVERY, ModalityType.PICKUP));
+        offer.setNumberOfStars(numberOfStars);
+        offer.setNumberOfFeedBack(numberOfFeedback);
         return offerRepository.save(offer);
     }
 
@@ -396,7 +402,14 @@ public class OrganizationSeeder implements CommandLineRunner {
     }
 
     // Méthode pour créer une box associée à un produit
-    private Box createBoxWithOffer(String title, String description, Offer offer, BoxType type, BoxStatus status, Category category, Product product) {
+    private Box createBoxWithOffer(String title,
+                                   String description,
+                                   Offer offer,
+                                   BoxType type,
+                                   BoxStatus status,
+                                   Category category,
+                                   Product product
+                                   ) {
         Box box = new Box(type);
         box.setTitle(title);
         box.setPhotoBoxPath("/images/" + title.toLowerCase().replace(" ", "-") + ".png");
@@ -407,6 +420,7 @@ public class OrganizationSeeder implements CommandLineRunner {
         box.setCategory(category);
         box.setQuantity(50); // Exemple : nombre de produits
         box.setReason("Offre spéciale."); // Exemple : raison
+        box.setProducts(List.of(product));
         return boxRepository.save(box);
     }
 
