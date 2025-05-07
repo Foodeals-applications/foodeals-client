@@ -1,6 +1,8 @@
 package net.foodeals.offer.application.services.impl;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,13 +11,18 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import net.foodeals.offer.application.dtos.responses.BoxDetailsResponse;
+import net.foodeals.offer.application.dtos.responses.DealDetailsResponse;
 import net.foodeals.offer.application.dtos.responses.OpenTimeResponse;
+import net.foodeals.offer.application.dtos.responses.SimilarDealResponse;
+import net.foodeals.offer.application.dtos.responses.SupplementDealResponse;
 import net.foodeals.product.application.dtos.responses.SimilarProductResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -32,6 +39,7 @@ import net.foodeals.offer.application.dtos.requests.BoxDto;
 import net.foodeals.offer.application.dtos.requests.OpenTimeDto;
 import net.foodeals.offer.application.services.BoxService;
 import net.foodeals.offer.domain.entities.Box;
+import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.entities.IOfferChoice;
 import net.foodeals.offer.domain.entities.ModifiyHistory;
 import net.foodeals.offer.domain.entities.Offer;
@@ -49,6 +57,7 @@ import net.foodeals.offer.domain.repositories.RelaunchHistoryRepository;
 import net.foodeals.offer.domain.valueObject.Offerable;
 import net.foodeals.product.application.services.ProductService;
 import net.foodeals.user.application.services.UserService;
+import net.foodeals.user.domain.entities.User;
 
 @Service
 @Transactional
@@ -244,36 +253,45 @@ class BoxServiceImpl implements BoxService {
 	}
 
 	private BoxDetailsResponse mapBoxToBoxDetailsResponse(Box box) {
-		BoxDetailsResponse response = new BoxDetailsResponse();
-		response.setId(box.getId());
-		response.setPhotoPath(box.getPhotoBoxPath());
-		response.setTitle(box.getTitle());
-		response.setDescription(box.getDescription());
-		response.setNumberOfFeedback(box.getOffer().getNumberOfFeedBack());
-		response.setNumberOfStars(box.getOffer().getNumberOfStars());
-		response.setEstimatedDeliveryTime(0f);
-		List<OpenTime>openTimes=box.getOffer().getOpenTime();
-		List<OpenTimeResponse>openTimeResponses=new ArrayList<>();
-		for(OpenTime openTime:openTimes) {
-			openTimeResponses.add(new OpenTimeResponse(openTime.getId(),openTime.getDate(),openTime.getFrom(),openTime.getTo()));
-		}
-        response.setOpenTime(openTimeResponses);
-		response.setModalityTypes(box.getOffer().getModalityTypes());
-		List<Box> similarBoxes = repository.findSimilarBoxes(box.getId());
+		 User user = userService.getConnectedUser();
+	        BoxDetailsResponse response = new BoxDetailsResponse();
+	        response.setId(box.getId());
+	        response.setPhotoPath(box.getPhotoBoxPath());
+	        response.setTitle(box.getTitle());
+	        response.setDescription(box.getDescription());
+	        response.setNumberOfFeedback(box.getOffer().getNumberOfFeedBack());
+	        response.setNumberOfStars(box.getOffer().getNumberOfStars());
+	        response.setReviews((response.getNumberOfFeedback() / response.getNumberOfStars()));
+	        response.setEstimatedDeliveryTime(0f);
+	        List<OpenTime> openTimes = box.getOffer().getOpenTime();
+	        List<OpenTimeResponse> openTimeResponses = new ArrayList<>();
+	        for (OpenTime openTime : openTimes) {
+	            openTimeResponses.add(new OpenTimeResponse(openTime.getId(), openTime.getDate(), openTime.getFrom(), openTime.getTo()));
+	        }
+	        response.setOpenTime(openTimeResponses);
+	        response.setModalityTypes(box.getOffer().getModalityTypes());
+	        response.setCategoryName(null);
+	        response.setAddress(box.getOffer().getSubEntity().getAddress().getAddress() + " "
+	                + box.getOffer().getSubEntity().getAddress().getCity().getName());
+	        response.setFavorite(user.getFavorisOffers().contains(box.getOffer()));
 
-		List<SimilarProductResponse>similarProducts =similarBoxes.stream()
-				.flatMap(b -> box.getProducts().stream())
-				.distinct() // éviter les doublons
-				.map(product -> new SimilarProductResponse(
-						product.getId(),
-						product.getName(),
-						box.getOffer().getSalePrice().amount(),
-						product.getProductImagePath() // adapte si c'est un champ différent
-				))
-				.collect(Collectors.toList());
-		response.setSimilarProductResponses(similarProducts);
-		response.setCategoryName(null);
-        return response;
+	        BigDecimal oldPrice = box.getOffer().getPrice().amount();
+	        BigDecimal newPrice = box.getOffer().getSalePrice().amount();
+
+	        response.setNewPrice(newPrice);
+	        response.setOldPrice(oldPrice);
+
+	        if (oldPrice != null && oldPrice.compareTo(BigDecimal.ZERO) > 0) {
+	            BigDecimal discount = oldPrice.subtract(newPrice)
+	                    .divide(oldPrice, 2, RoundingMode.HALF_UP) // pour obtenir un ratio avec 2 décimales
+	                    .multiply(BigDecimal.valueOf(100));
+
+	            response.setDiscount(discount.intValue()); // convertit en Integer
+	        } else {
+	            response.setDiscount(0);
+	        }
+
+	        return response;
 
 	}
 

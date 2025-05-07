@@ -6,9 +6,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.foodeals.offer.application.dtos.requests.CartRequest;
 import net.foodeals.offer.application.dtos.responses.CartItemResponse;
 import net.foodeals.offer.application.dtos.responses.CartResponse;
+import net.foodeals.offer.domain.entities.Box;
+import net.foodeals.offer.domain.repositories.BoxRepository;
 import net.foodeals.product.domain.entities.Product;
+import net.foodeals.product.domain.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -30,15 +34,33 @@ public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final DealRepository dealRepository;
+    private final BoxRepository boxRepository;
+    private final ProductRepository productRepository;
 
     @Override
-    public Cart addDealToCart(Integer userId, UUID dealId, int quantity) {
+    public Cart addToCart(Integer userId, CartRequest request) {
 
         Cart cart = cartRepository.findByUserId(userId).orElse(new Cart(userId));
+        Deal deal=null;
+        Box box=null;
+        Product product=null;
+        CartItem cartItem=null;
+        if(request.getDealId() != null) {
+            deal = dealRepository.findById(request.getDealId()).orElseThrow(() -> new IllegalArgumentException("Deal not found"));
+            cartItem = new CartItem(cart, deal, request.getQuantity(),request.getModalityType());
+        }
 
-        Deal deal = dealRepository.findById(dealId).orElseThrow(() -> new IllegalArgumentException("Deal not found"));
+        if(request.getBoxId() != null) {
+            box = boxRepository.findById(request.getBoxId()).orElseThrow(() -> new IllegalArgumentException("Box not found"));
+            cartItem = new CartItem(cart,box, request.getQuantity(),request.getModalityType());
+        }
 
-        CartItem cartItem = new CartItem(cart, deal, quantity);
+        if(request.getProductId() != null) {
+             product= productRepository.findById(request.getProductId()).orElseThrow(() -> new IllegalArgumentException("Box not found"));
+             cartItem = new CartItem(cart,product, request.getQuantity(),request.getModalityType());
+        }
+
+
         cart.getItems().add(cartItem);
 
         cartRepository.save(cart);

@@ -2,16 +2,10 @@ package net.foodeals.product.domain.entities;
 
 import java.util.UUID;
 
+import jakarta.persistence.*;
+import net.foodeals.product.domain.enums.SupplementCategory;
 import org.hibernate.annotations.UuidGenerator;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import net.foodeals.common.models.AbstractEntity;
@@ -40,6 +34,9 @@ public class Supplement extends AbstractEntity<UUID> {
    
     @ManyToOne(fetch = FetchType.LAZY)
     private Deal deal;
+
+    @Enumerated(EnumType.STRING)
+    private SupplementCategory supplementCategory ;
 
     public Supplement() {
     }

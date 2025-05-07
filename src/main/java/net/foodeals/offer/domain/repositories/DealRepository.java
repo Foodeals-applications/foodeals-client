@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.foodeals.product.domain.entities.ProductCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -48,6 +49,13 @@ public interface DealRepository extends BaseRepository<Deal, UUID> {
 
 	@Query("SELECT d FROM Deal d WHERE d.product.id IN :productIds")
 	List<Deal> findActiveDealsByProductIds(@Param("productIds") List<UUID> productIds);
+
+	@Query("""
+                SELECT d FROM Deal d
+                WHERE d.product.category.name = :productCategory
+                AND d.id <> :dealId
+            """)
+	List<Deal> findSimilarDealsByProductCategory(UUID dealId, String productCategory);
 
 
 }

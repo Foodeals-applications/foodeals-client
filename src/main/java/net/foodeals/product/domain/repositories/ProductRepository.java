@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 
 import net.foodeals.common.contracts.BaseRepository;
 import net.foodeals.common.contracts.SlugRepository;
+import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
 import net.foodeals.product.application.dtos.responses.ProductWithOfferDTO;
 import net.foodeals.product.domain.entities.Product;
 

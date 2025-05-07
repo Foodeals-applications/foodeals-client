@@ -25,16 +25,19 @@ import net.foodeals.organizationEntity.domain.entities.Activity;
 import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
 import net.foodeals.organizationEntity.domain.entities.SubEntity;
 import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
+import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
 import net.foodeals.organizationEntity.domain.entities.enums.EntityType;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityStatus;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityType;
 import net.foodeals.organizationEntity.domain.repositories.ActivityRepository;
 import net.foodeals.organizationEntity.domain.repositories.OrganizationEntityRepository;
 import net.foodeals.organizationEntity.domain.repositories.SubEntityDomainRepository;
+import net.foodeals.organizationEntity.domain.repositories.SubEntityProductCategoryRepository;
 import net.foodeals.organizationEntity.domain.repositories.SubEntityRepository;
 import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.entities.ProductCategory;
 import net.foodeals.product.domain.entities.Supplement;
+import net.foodeals.product.domain.enums.SupplementCategory;
 import net.foodeals.product.domain.repositories.ProductCategoryRepository;
 import net.foodeals.product.domain.repositories.ProductRepository;
 import net.foodeals.product.domain.repositories.SupplementRepository;
@@ -69,8 +72,9 @@ public class OrganizationSeeder implements CommandLineRunner {
     private final BoxRepository boxRepository;
     private final OfferRepository offerRepository;
     private final ProductRepository productRepository;
-    private final SubEntityDomainRepository subEntityDomainRepository;
     private final ProductCategoryRepository productCategoryRepository;
+    private final SubEntityDomainRepository subEntityDomainRepository;
+    private final SubEntityProductCategoryRepository subEntityProductCategoryRepository;
     private final OrderRepository orderRepository;
     private final TransactionRepository transactionRepository;
     private final OpenTimeRepository openTimeRepository;
@@ -103,9 +107,9 @@ public class OrganizationSeeder implements CommandLineRunner {
 
 
             // Ajout de produits associés à la sous-entité
-            Product product1 = createProduct(carrefourMarket, "Pommes Bio", "Pommes fraîches et biologiques.", new BigDecimal("5.99"), "Supermarchés", 20);
-            Product product2 = createProduct(carrefourMarket, "Lait entier", "Bouteille de lait entier 1L.", new BigDecimal("1.99"), "Supermarchés", 10);
-            Product product3 = createProduct(carrefourMarket, "Buche de Noël", "Délicieux gâteau de Noël.", new BigDecimal("15.99"), "Supermarchés", 6);
+            Product product1 = createProduct(carrefourMarket, "Pommes Bio", "Pommes fraîches et biologiques.", new BigDecimal("5.99"), "Produits laitiers", 20);
+            Product product2 = createProduct(carrefourMarket, "Lait entier", "Bouteille de lait entier 1L.", new BigDecimal("1.99"), "Produits laitiers", 10);
+            Product product3 = createProduct(carrefourMarket, "Buche de Noël", "Délicieux gâteau de Noël.", new BigDecimal("15.99"), "Produits laitiers", 6);
 
             // Ajout d'Offers, Deals et Boxes
             Offer carrefourOffer1 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("49.99"),32,4.2f);
@@ -113,9 +117,11 @@ public class OrganizationSeeder implements CommandLineRunner {
             Offer carrefourOffer2 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("59.99"),20,3.2f);
             createOpenTimes(carrefourOffer2);
             // Deals associés aux produits
-            createDealWithOfferAndProduct("Promo Carrefour Market", "Réduction pommes bio.", carrefourOffer1, 1, DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, product1);
-            createDealWithOfferAndProduct("Promotion Noël Carrefour", "Offre spéciale sur le gâteau de Noël.", carrefourOffer2, 2, DealStatus.AVAILABLE, Category.FROZEN_PRODUCTS, product3);
-
+            Deal pommeDeal=  createDealWithOfferAndProduct("Promo Carrefour Market", "Réduction pommes bio.", carrefourOffer1, 1, DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, product1);
+            Deal noelDeal =createDealWithOfferAndProduct("Promotion Noël Carrefour", "Offre spéciale sur le gâteau de Noël.", carrefourOffer2, 2, DealStatus.AVAILABLE, Category.FROZEN_PRODUCTS, product3);
+            
+            createSupplement("Pomme",SupplementCategory.SUPPLEMENTS, pommeDeal);
+            createSupplement("Lait",SupplementCategory.SUPPLEMENTS, noelDeal);
             // Boxes associées aux offres
             createBoxWithOffer("Box Carrefour Market", "Box avec lait et autres produits.", carrefourOffer1, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.DAIRY_PRODUCTS, product2);
             createBoxWithOffer("Box Spéciale Noël", "Box garnie pour Noël avec gâteaux.", carrefourOffer2, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.FROZEN_PRODUCTS, product3);
@@ -191,15 +197,15 @@ public class OrganizationSeeder implements CommandLineRunner {
             Offer kfcOffer2 = createOffer(kfcCasa, new BigDecimal("139.99"), new BigDecimal("89.99"),10,5f);
             createOpenTimes(kfcOffer2);
 
-            Product productKfc1 = createProduct(kfcCasa, "Tinders", "Tinders Kabab.", new BigDecimal("5.99"), "Restaurants", 20);
-            Product productKfc2 = createProduct(kfcCasa, "Chicken wings", "Box chings wings.", new BigDecimal("1.99"), "Restaurants", 10);
-            Deal deal1 = createDealWithOfferAndProduct("23 wings magics", "Réduction spéciale.", kfcOffer1, 1, DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, productKfc1);
-            Deal deal2 = createDealWithOfferAndProduct("Deux tinders achétes un gratuit", "Offre spéciale étudiant.", kfcOffer2, 2, DealStatus.AVAILABLE, Category.FROZEN_PRODUCTS, productKfc2);
-            createSupplement("Coca", deal1);
-            createSupplement("Fanta", deal1);
+            Product productKfc1 = createProduct(kfcCasa, "Tinders", "Tinders Kabab.", new BigDecimal("5.99"), "Fast Food", 20);
+            Product productKfc2 = createProduct(kfcCasa, "Chicken wings", "Box chings wings.", new BigDecimal("1.99"), "Fast Food", 10);
+            Deal dealWings = createDealWithOfferAndProduct("23 wings magics", "Réduction spéciale.", kfcOffer1, 1, DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, productKfc1);
+            Deal dealTinders = createDealWithOfferAndProduct("Deux tinders achétes un gratuit", "Offre spéciale étudiant.", kfcOffer2, 2, DealStatus.AVAILABLE, Category.FROZEN_PRODUCTS, productKfc2);
+            createSupplement("Coca",SupplementCategory.DRINK, dealWings);
+            createSupplement("Fanta",SupplementCategory.DRINK, dealWings);
 
-            createSupplement("Sauce mayonnaise", deal2);
-            createSupplement("Sauce algerienne", deal2);
+            createSupplement("Sauce mayonnaise",SupplementCategory.SAUCE, dealTinders);
+            createSupplement("Sauce algerienne",SupplementCategory.SAUCE, dealTinders);
         }
 
 
@@ -235,8 +241,7 @@ public class OrganizationSeeder implements CommandLineRunner {
 
 
         /**
-         * Création agriculture
-         */
+         * Création agriculture         */
 
         Activity activityAgriculture = createActivity("Agricultures");
         User agricultureManager = createUser("Samir", "Hamdani",
@@ -266,7 +271,7 @@ public class OrganizationSeeder implements CommandLineRunner {
         Offer hotelOffer1 = createOffer(goldenTolipCasa, new BigDecimal("399.00"), new BigDecimal("299.00"),12,4.0f);
         createOpenTimes(hotelOffer1);
 
-        Product hotelProduct1 = createProduct(goldenTolipCasa, "Nuitée Standard", "Chambre standard avec petit déjeuner", new BigDecimal("299.00"), "Hôtels", 10);
+        Product hotelProduct1 = createProduct(goldenTolipCasa, "Nuitée Standard", "Chambre standard avec petit déjeuner", new BigDecimal("299.00"), "Hôtels 4 étoiles", 10);
         Deal hotelDeal1 = createDealWithOfferAndProduct("Offre Nuitée", "Promotion sur chambre avec PDJ.", hotelOffer1, 1, DealStatus.AVAILABLE, Category.WHOLESALER_DAIRY_PRODUCTS, hotelProduct1);
 
         // OFFERS & DEALS POUR INDUSTRIE (Délice)
@@ -347,19 +352,19 @@ public class OrganizationSeeder implements CommandLineRunner {
         product.setDescription(description);
         product.setPrice(new Price(price, Currency.getInstance("MAD")));
         product.setSubEntity(subEntity); // Associer explicitement le produit à la sous-entité
-        ProductCategory productCategory = productCategoryRepository.findByName(category).orElse(null);
+        ProductCategory productCategory= productCategoryRepository.findByName(category).orElse(null);
         product.setCategory(productCategory);
         product.setStock(stock);
         return productRepository.save(product);
     }
 
-    private Supplement createSupplement(String name, Deal deal) {
+    private Supplement createSupplement(String name,SupplementCategory category, Deal deal) {
         Supplement supplement = new Supplement();
         supplement.setName(name);
         supplement.setSupplementImagePath("/images/" + name.toLowerCase().replace(" ", "-") + ".png");
         supplement.setPrice(new Price(new BigDecimal("50"), Currency.getInstance("MAD")));
         supplement.setDeal(deal);
-
+        supplement.setSupplementCategory(category);
         return supplementRepository.save(supplement);
     }
 

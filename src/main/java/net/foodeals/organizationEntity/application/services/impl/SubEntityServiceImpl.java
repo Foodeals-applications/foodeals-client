@@ -451,7 +451,8 @@ public class SubEntityServiceImpl implements SubEntityService {
                                 supplement.getId(),
                                 supplement.getName(),
                                 supplement.getPrice(),
-                                supplement.getSupplementImagePath()
+                                supplement.getSupplementImagePath(),
+                                supplement.getSupplementCategory()
                         ))
                         .collect(Collectors.toList());
 
@@ -533,7 +534,8 @@ public class SubEntityServiceImpl implements SubEntityService {
                                 supplement.getId(),
                                 supplement.getName(),
                                 supplement.getPrice(),
-                                supplement.getSupplementImagePath()
+                                supplement.getSupplementImagePath(),
+                                supplement.getSupplementCategory()
                         ))
                         .collect(Collectors.toList());
 

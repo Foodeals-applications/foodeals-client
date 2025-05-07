@@ -16,5 +16,7 @@ public interface SubEntityProductCategoryRepository extends BaseRepository<SubEn
             "JOIN sec.subEntityDomain sd " +
             "WHERE sec.subEntityDomain.id = :domainId")
     List<SubEntityProductCategory> findBySubEntityDomainId(@Param("domainId") UUID domainId);
+    
+    SubEntityProductCategory findByName(String name);
 
 }

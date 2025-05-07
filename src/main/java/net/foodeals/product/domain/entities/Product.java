@@ -8,6 +8,8 @@ import java.util.UUID;
 import jakarta.persistence.*;
 import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.organizationEntity.domain.entities.SubEntity;
+import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
+
 import org.hibernate.annotations.UuidGenerator;
 
 import lombok.Getter;

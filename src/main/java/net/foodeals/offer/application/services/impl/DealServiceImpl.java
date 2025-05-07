@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import net.foodeals.offer.application.dtos.requests.DealDto;
 import net.foodeals.offer.application.dtos.responses.DealDetailsResponse;
 import net.foodeals.offer.application.dtos.responses.OpenTimeResponse;
+import net.foodeals.offer.application.dtos.responses.SimilarDealResponse;
 import net.foodeals.offer.application.dtos.responses.SupplementDealResponse;
 import net.foodeals.offer.application.services.DealService;
 import net.foodeals.offer.domain.entities.Deal;
@@ -18,14 +19,15 @@ import net.foodeals.product.application.services.ProductService;
 import net.foodeals.product.application.services.ProductSubCategoryService;
 import net.foodeals.product.domain.repositories.SupplementRepository;
 import net.foodeals.user.application.services.UserService;
+import net.foodeals.user.domain.entities.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -93,6 +95,7 @@ class DealServiceImpl implements DealService {
 
 
     private DealDetailsResponse mapDealToDealDetailsResponse(Deal deal) {
+        User user = userService.getConnectedUser();
         DealDetailsResponse response = new DealDetailsResponse();
         response.setId(deal.getId());
         response.setPhotoPath(deal.getProduct().getProductImagePath());
@@ -100,6 +103,7 @@ class DealServiceImpl implements DealService {
         response.setDescription(deal.getDescription());
         response.setNumberOfFeedback(deal.getOffer().getNumberOfFeedBack());
         response.setNumberOfStars(deal.getOffer().getNumberOfStars());
+        response.setReviews((response.getNumberOfFeedback() / response.getNumberOfStars()));
         response.setEstimatedDeliveryTime(0f);
         List<OpenTime> openTimes = deal.getOffer().getOpenTime();
         List<OpenTimeResponse> openTimeResponses = new ArrayList<>();
@@ -108,18 +112,51 @@ class DealServiceImpl implements DealService {
         }
         response.setOpenTime(openTimeResponses);
         response.setModalityTypes(deal.getOffer().getModalityTypes());
-        //List<Box> similarBoxes = new ArrayList<>();
-
-        List<SimilarProductResponse> similarProducts = new ArrayList<>();
-        response.setSimilarProductResponses(similarProducts);
         response.setCategoryName(null);
-        List<SupplementDealResponse> supplementResponses = deal.getSupplements().stream()
+        response.setAddress(deal.getOffer().getSubEntity().getAddress().getAddress() + " "
+                + deal.getOffer().getSubEntity().getAddress().getCity().getName());
+        response.setFavorite(user.getFavorisOffers().contains(deal.getOffer()));
+
+        BigDecimal oldPrice = deal.getOffer().getPrice().amount();
+        BigDecimal newPrice = deal.getOffer().getSalePrice().amount();
+
+        response.setNewPrice(newPrice);
+        response.setOldPrice(oldPrice);
+
+        if (oldPrice != null && oldPrice.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal discount = oldPrice.subtract(newPrice)
+                    .divide(oldPrice, 2, RoundingMode.HALF_UP) // pour obtenir un ratio avec 2 décimales
+                    .multiply(BigDecimal.valueOf(100));
+
+            response.setDiscount(discount.intValue()); // convertit en Integer
+        } else {
+            response.setDiscount(0);
+        }
+
+        Map<String, List<SupplementDealResponse>> supplementResponses = deal.getSupplements().stream()
                 .map(supplement -> new SupplementDealResponse(
                         supplement.getId(),
                         supplement.getName(),
                         supplement.getPrice(),
-                        supplement.getSupplementImagePath()
-                )).collect(Collectors.toList());
+                        supplement.getSupplementImagePath(),
+                        supplement.getSupplementCategory()
+                ))
+                .collect(Collectors.groupingBy(
+                        res -> res.supplementCategory().name(), // clé = nom de l'enum en String
+                        LinkedHashMap::new,                                // optionnel : garde l'ordre d'insertion
+                        Collectors.toList()
+                ));
+        response.setSupplementResponses(supplementResponses);
+
+        List<Deal>deals=repository.findSimilarDealsByProductCategory(deal.getId(),deal.getProduct().getCategory().getName());
+        List<SimilarDealResponse>similarDealResponses=deals.stream().map(
+                d->new SimilarDealResponse(d.getId(),
+                        d.getTitle(),
+                        d.getProduct().getProductImagePath(),
+                        d.getOffer().getSalePrice().amount(),
+                        d.getOffer().getPrice().amount())
+        ).collect(Collectors.toList());
+        response.setSimilarDeals(similarDealResponses);
         return response;
 
     }
