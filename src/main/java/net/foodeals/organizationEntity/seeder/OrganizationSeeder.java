@@ -1,5 +1,17 @@
 package net.foodeals.organizationEntity.seeder;
 
+import java.math.BigDecimal;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Currency;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.common.valueOjects.Price;
@@ -11,21 +23,30 @@ import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.entities.Offer;
 import net.foodeals.offer.domain.entities.OpenTime;
-import net.foodeals.offer.domain.enums.*;
+import net.foodeals.offer.domain.enums.BoxStatus;
+import net.foodeals.offer.domain.enums.BoxType;
+import net.foodeals.offer.domain.enums.Category;
+import net.foodeals.offer.domain.enums.DealStatus;
+import net.foodeals.offer.domain.enums.ModalityPaiement;
+import net.foodeals.offer.domain.enums.ModalityType;
+import net.foodeals.offer.domain.enums.PublishAs;
 import net.foodeals.offer.domain.repositories.BoxRepository;
 import net.foodeals.offer.domain.repositories.DealRepository;
 import net.foodeals.offer.domain.repositories.OfferRepository;
 import net.foodeals.offer.domain.repositories.OpenTimeRepository;
 import net.foodeals.order.domain.entities.Order;
 import net.foodeals.order.domain.entities.Transaction;
-import net.foodeals.order.domain.enums.*;
+import net.foodeals.order.domain.enums.OrderSource;
+import net.foodeals.order.domain.enums.OrderStatus;
+import net.foodeals.order.domain.enums.OrderType;
+import net.foodeals.order.domain.enums.TransactionStatus;
+import net.foodeals.order.domain.enums.TransactionType;
 import net.foodeals.order.domain.repositories.OrderRepository;
 import net.foodeals.order.domain.repositories.TransactionRepository;
 import net.foodeals.organizationEntity.domain.entities.Activity;
 import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
 import net.foodeals.organizationEntity.domain.entities.SubEntity;
 import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
-import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
 import net.foodeals.organizationEntity.domain.entities.enums.EntityType;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityStatus;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityType;
@@ -44,19 +65,12 @@ import net.foodeals.product.domain.repositories.SupplementRepository;
 import net.foodeals.user.domain.entities.User;
 import net.foodeals.user.domain.repositories.UserRepository;
 import net.foodeals.user.domain.valueObjects.Name;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalTime;
-import java.util.*;
 
 
 @Component
 @RequiredArgsConstructor
 @Transactional
-@org.springframework.core.annotation.Order(5)
+@org.springframework.core.annotation.Order(6)
 public class OrganizationSeeder implements CommandLineRunner {
 
     private final OrganizationEntityRepository organizationEntityRepository;
@@ -107,9 +121,15 @@ public class OrganizationSeeder implements CommandLineRunner {
 
 
             // Ajout de produits associés à la sous-entité
-            Product product1 = createProduct(carrefourMarket, "Pommes Bio", "Pommes fraîches et biologiques.", new BigDecimal("5.99"), "Produits laitiers", 20);
-            Product product2 = createProduct(carrefourMarket, "Lait entier", "Bouteille de lait entier 1L.", new BigDecimal("1.99"), "Produits laitiers", 10);
-            Product product3 = createProduct(carrefourMarket, "Buche de Noël", "Délicieux gâteau de Noël.", new BigDecimal("15.99"), "Produits laitiers", 6);
+            Product product1 = createProduct(carrefourMarket, 
+            		"Pommes Bio", 
+            		"Pommes fraîches et biologiques.",
+            		new BigDecimal("5.99"), 
+            		"Supermarchés", 20);
+            Product product2 = createProduct(carrefourMarket, "Lait entier",
+            		"Bouteille de lait entier 1L.", new BigDecimal("1.99"), "Supermarchés", 10);
+            Product product3 = createProduct(carrefourMarket, "Buche de Noël", 
+            		"Délicieux gâteau de Noël.", new BigDecimal("15.99"), "Supermarchés", 6);
 
             // Ajout d'Offers, Deals et Boxes
             Offer carrefourOffer1 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("49.99"),32,4.2f);
@@ -197,8 +217,10 @@ public class OrganizationSeeder implements CommandLineRunner {
             Offer kfcOffer2 = createOffer(kfcCasa, new BigDecimal("139.99"), new BigDecimal("89.99"),10,5f);
             createOpenTimes(kfcOffer2);
 
-            Product productKfc1 = createProduct(kfcCasa, "Tinders", "Tinders Kabab.", new BigDecimal("5.99"), "Fast Food", 20);
-            Product productKfc2 = createProduct(kfcCasa, "Chicken wings", "Box chings wings.", new BigDecimal("1.99"), "Fast Food", 10);
+            Product productKfc1 = createProduct(kfcCasa, "Tinders", "Tinders Kabab.",
+            		new BigDecimal("5.99"), "Restaurants", 20);
+            Product productKfc2 = createProduct(kfcCasa, "Chicken wings", 
+            		"Box chings wings.", new BigDecimal("1.99"), "Restaurants", 10);
             Deal dealWings = createDealWithOfferAndProduct("23 wings magics", "Réduction spéciale.", kfcOffer1, 1, DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, productKfc1);
             Deal dealTinders = createDealWithOfferAndProduct("Deux tinders achétes un gratuit", "Offre spéciale étudiant.", kfcOffer2, 2, DealStatus.AVAILABLE, Category.FROZEN_PRODUCTS, productKfc2);
             createSupplement("Coca",SupplementCategory.DRINK, dealWings);
@@ -271,7 +293,9 @@ public class OrganizationSeeder implements CommandLineRunner {
         Offer hotelOffer1 = createOffer(goldenTolipCasa, new BigDecimal("399.00"), new BigDecimal("299.00"),12,4.0f);
         createOpenTimes(hotelOffer1);
 
-        Product hotelProduct1 = createProduct(goldenTolipCasa, "Nuitée Standard", "Chambre standard avec petit déjeuner", new BigDecimal("299.00"), "Hôtels 4 étoiles", 10);
+        Product hotelProduct1 = createProduct(goldenTolipCasa, "Nuitée Standard", 
+        		"Chambre standard avec petit déjeuner", new BigDecimal("299.00"), 
+        		"Hôtels", 10);
         Deal hotelDeal1 = createDealWithOfferAndProduct("Offre Nuitée", "Promotion sur chambre avec PDJ.", hotelOffer1, 1, DealStatus.AVAILABLE, Category.WHOLESALER_DAIRY_PRODUCTS, hotelProduct1);
 
         // OFFERS & DEALS POUR INDUSTRIE (Délice)

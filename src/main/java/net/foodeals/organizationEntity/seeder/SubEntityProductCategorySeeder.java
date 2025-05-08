@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Order(4)
+@Order(5)
 @Component
 @RequiredArgsConstructor
 @Transactional
