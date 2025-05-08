@@ -1,12 +1,12 @@
 package net.foodeals.notification.application.dtos.responses;
 
-import java.util.Date;
-import java.util.UUID;
+import java.util.List;
 
-import lombok.*;
-import net.foodeals.notification.domain.enums.NotificationStatus;
-import net.foodeals.notification.domain.enums.TypeRequest;
-import net.foodeals.user.application.dtos.responses.UserResponse;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @NoArgsConstructor
@@ -16,8 +16,10 @@ import net.foodeals.user.application.dtos.responses.UserResponse;
 public class NotificationSettingsResponse {
 
 	private boolean calendarReminders;
-	private boolean pushNotifications;
-	private boolean importantUpdates;
-	private boolean promotions;
+    private boolean pushNotifications;
+    private boolean importantUpdates;
+    private boolean promotions;
+    private boolean notificationBoxSurprise;
+    private List<String> remindMe;
 
 }

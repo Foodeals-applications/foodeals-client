@@ -34,6 +34,8 @@ public class NotificationSettingsServiceImpl implements NotificationSettingsServ
         existing.setPushNotifications(newSettings.isPushNotifications());
         existing.setImportantUpdates(newSettings.isImportantUpdates());
         existing.setPromotions(newSettings.isPromotions());
+        existing.setNotificationBoxSurprise(newSettings.isNotificationBoxSurprise());
+        existing.setRemindMe(newSettings.getRemindMe());
         return repository.save(existing);
     }
 

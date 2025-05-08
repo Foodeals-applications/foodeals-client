@@ -24,7 +24,8 @@ public class NotificationSettingsController {
         User user = userService.getConnectedUser();
         NotificationSettings notificationSettings = service.getSettingsForUser(user);
         NotificationSettingsResponse notificationSettingsResponse = new NotificationSettingsResponse(notificationSettings.isCalendarReminders(),
-                notificationSettings.isPushNotifications(), notificationSettings.isImportantUpdates(), notificationSettings.isPromotions());
+                notificationSettings.isPushNotifications(), notificationSettings.isImportantUpdates(), notificationSettings.isPromotions(),
+                notificationSettings.isNotificationBoxSurprise(),notificationSettings.getRemindMe());
         return ResponseEntity.ok(notificationSettingsResponse);
     }
 
@@ -34,7 +35,8 @@ public class NotificationSettingsController {
         User user = userService.getConnectedUser();
         NotificationSettings notificationSettings = service.updateSettings(user, newSettings);
         NotificationSettingsResponse notificationSettingsResponse = new NotificationSettingsResponse(notificationSettings.isCalendarReminders(),
-                notificationSettings.isPushNotifications(), notificationSettings.isImportantUpdates(), notificationSettings.isPromotions());
+                notificationSettings.isPushNotifications(), notificationSettings.isImportantUpdates(), notificationSettings.isPromotions(),notificationSettings.isNotificationBoxSurprise(),
+                notificationSettings.getRemindMe());
         return ResponseEntity.ok(notificationSettingsResponse);
     }
 
@@ -44,7 +46,8 @@ public class NotificationSettingsController {
         User user = userService.getConnectedUser();
         NotificationSettings notificationSettings = service.resetSettings(user);
         NotificationSettingsResponse notificationSettingsResponse = new NotificationSettingsResponse(notificationSettings.isCalendarReminders(),
-                notificationSettings.isPushNotifications(), notificationSettings.isImportantUpdates(), notificationSettings.isPromotions());
+                notificationSettings.isPushNotifications(), notificationSettings.isImportantUpdates(), notificationSettings.isPromotions(),notificationSettings.isNotificationBoxSurprise(),
+                notificationSettings.getRemindMe());
         return ResponseEntity.ok(notificationSettingsResponse);
     }
 }
