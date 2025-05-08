@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -27,5 +28,26 @@ public class SubEntityProductCategoryServiceImpl implements SubEntityProductCate
             subEntityProductCategoryResponse.setName(subEntityProductCategory.getName());
         }
         return subEntityProductCategoryResponses;
+        
+     
     }
+
+    @Override
+    public List<SubEntityProductCategoryResponse> findAll() {
+        return subEntityProductCategoryRepository.findAll().stream()
+            .map(category -> new SubEntityProductCategoryResponse(
+                category.getId(),
+                generatePhotoUrl(category.getName()),
+                category.getName()
+            ))
+            .collect(Collectors.toList());
+    }
+    
+    
+    private String generatePhotoUrl(String name) {
+        String baseUrl = "/images/"; // Votre domaine ou base d'URL
+        String formattedName = name.trim().toLowerCase().replace(" ", "-"); // Transformation
+        return baseUrl + formattedName + ".jpg"; // Exemple d'extension .jpg
+    }
+
 }

@@ -33,8 +33,15 @@ public class SubEntityDomainServiceImpl implements SubEntityDomainService {
         SubEntityDomain subEntityDomain = subEntityDomainRepository.findById(id).orElse(null);
         List<SubEntityProductCategoryResponse> subEntityProductCategories = new ArrayList<>();
         for (SubEntityProductCategory subEntityProductCategory : subEntityDomain.getSubEntityProductCategories()) {
-            subEntityProductCategories.add(new SubEntityProductCategoryResponse(subEntityProductCategory.getId(), "", subEntityProductCategory.getName()));
+            subEntityProductCategories.add(new SubEntityProductCategoryResponse(subEntityProductCategory.getId(), generatePhotoUrl(subEntityProductCategory.getName()),subEntityProductCategory.getName()));
         }
         return subEntityProductCategories;
     }
+    
+    private String generatePhotoUrl(String name) {
+        String baseUrl = "/images/"; // Votre domaine ou base d'URL
+        String formattedName = name.trim().toLowerCase().replace(" ", "-"); // Transformation
+        return baseUrl + formattedName + ".jpg"; // Exemple d'extension .jpg
+    }
+
 }

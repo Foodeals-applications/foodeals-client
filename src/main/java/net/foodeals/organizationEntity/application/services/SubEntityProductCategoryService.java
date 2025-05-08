@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface SubEntityProductCategoryService {
 
     List<SubEntityProductCategoryResponse> findBySubEntityDomainId(UUID domainId);
+    List<SubEntityProductCategoryResponse> findAll();
 }
