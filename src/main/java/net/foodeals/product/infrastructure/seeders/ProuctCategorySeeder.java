@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import net.foodeals.product.domain.entities.ProductCategory;
 import net.foodeals.product.domain.repositories.ProductCategoryRepository;
 
-@Order(3)
+@Order(4)
 @Component
 @RequiredArgsConstructor
 public class ProuctCategorySeeder implements CommandLineRunner {

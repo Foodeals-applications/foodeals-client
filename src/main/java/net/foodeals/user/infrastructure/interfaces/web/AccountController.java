@@ -13,6 +13,7 @@ import net.foodeals.offer.domain.entities.Offer;
 import net.foodeals.offer.domain.repositories.DealRepository;
 import net.foodeals.user.application.dtos.responses.FavorisOfferPartenerResponse;
 import net.foodeals.user.application.dtos.responses.FavorisOfferResponse;
+import net.foodeals.user.application.dtos.responses.InfosProfileResponse;
 import net.foodeals.user.application.services.UserService;
 import net.foodeals.user.domain.entities.User;
 import net.foodeals.user.domain.repositories.UserRepository;
@@ -75,5 +76,10 @@ public class AccountController {
     @GetMapping("/favoris/partners-offers")
     public ResponseEntity<List<FavorisOfferPartenerResponse>>getListFavorisOffersPartnersList(){
         return ResponseEntity.status(HttpStatus.OK).body(userService.getListFavorisOffersPartners());
+    }
+    
+    @GetMapping("/infos-profile")
+    public ResponseEntity<InfosProfileResponse>getInfosProfile(){
+    	return  ResponseEntity.status(HttpStatus.OK).body(userService.getInfosProfile());
     }
 }

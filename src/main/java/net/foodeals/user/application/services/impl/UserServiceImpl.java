@@ -14,6 +14,8 @@ import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.repositories.ProductRepository;
 import net.foodeals.user.application.dtos.responses.FavorisOfferPartenerResponse;
 import net.foodeals.user.application.dtos.responses.FavorisOfferResponse;
+import net.foodeals.user.application.dtos.responses.InfosProfileResponse;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
@@ -180,6 +182,23 @@ class UserServiceImpl implements UserService {
 		}
 
 		return favorisOfferPartenerResponse;
+	}
+	@Override
+	public InfosProfileResponse getInfosProfile() {
+		User user =getConnectedUser();
+		if(user!=null) {
+		   InfosProfileResponse response=new InfosProfileResponse(user.getId(),
+				   user.getAvatarPath(),
+				   user.getName(),
+				   user.getEmail(),
+				   user.getPhone(), 
+				   user.getAddress().getCountry().getName(), 
+				   user.getAddress().getCity().getName(),
+				   user.getAddress().getZip(),
+				   user.getDateOfBirth())	;
+		   return response;
+		}
+		return null;
 	}
 
 

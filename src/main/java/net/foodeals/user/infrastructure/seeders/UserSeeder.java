@@ -19,6 +19,9 @@ import net.foodeals.user.domain.enums.UserStatus;
 import net.foodeals.user.domain.repositories.RoleRepository;
 import net.foodeals.user.domain.repositories.UserRepository;
 import net.foodeals.user.domain.valueObjects.Name;
+
+import java.time.LocalDate;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,7 +30,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Transactional
-@Order(2)
+@Order(3)
 public class UserSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -73,6 +76,7 @@ public class UserSeeder implements CommandLineRunner {
         user.setCoordinates(coordinates);
         Address address = createAddress("Rue Moussa Bnou Noussair", "Quartier Gauthier", "20000", coordinates);
         user.setAddress(address);
+        user.setDateOfBirth(LocalDate.of(1990, 12, 5));
         return userRepository.save(user);
     }
 
@@ -89,7 +93,8 @@ public class UserSeeder implements CommandLineRunner {
         StateRequest stateRequest = new StateRequest("Casablanca", "102436", country.getId());
         State state = this.stateService.create(stateRequest);
         country.getStates().add(state);
-        this.countryService.save(country);
+        country =this.countryService.save(country);
+        newAddress.setCountry(country);
 
         City city = cityRepository.findByName("Casablanca");
         newAddress.setCity(city);

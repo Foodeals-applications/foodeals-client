@@ -23,7 +23,7 @@ import net.foodeals.location.domain.repositories.RegionRepository;
 @Component
 @RequiredArgsConstructor
 @Transactional
-@Order(3)
+@Order(1)
 public class CityAndRegionEntitySeeder implements CommandLineRunner {
 
 	@Autowired

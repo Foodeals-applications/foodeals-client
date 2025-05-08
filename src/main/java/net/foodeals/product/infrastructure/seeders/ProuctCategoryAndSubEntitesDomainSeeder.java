@@ -12,7 +12,7 @@ import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
 import net.foodeals.organizationEntity.domain.repositories.SubEntityDomainRepository;
 import net.foodeals.product.domain.repositories.ProductCategoryRepository;
 
-@Order(4)
+@Order(5)
 @Component
 @RequiredArgsConstructor
 public class ProuctCategoryAndSubEntitesDomainSeeder implements CommandLineRunner {

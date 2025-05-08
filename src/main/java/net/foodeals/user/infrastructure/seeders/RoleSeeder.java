@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Seeder
-@Order(1)
+@Order(2)
 @RequiredArgsConstructor
 public class RoleSeeder implements CommandLineRunner {
 	private final RoleRepository roleRepository;

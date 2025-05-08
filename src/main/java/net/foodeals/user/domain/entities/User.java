@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 
 import static java.lang.Math.*;
 
+import java.time.LocalDate;
+
 /**
  * User
  */
@@ -106,6 +108,9 @@ public class User extends AbstractEntity<Integer> implements UserDetails {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<CoveredZones> coveredZones = new ArrayList();
+    
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
 
 
     @Enumerated(EnumType.STRING)
@@ -320,6 +325,7 @@ public class User extends AbstractEntity<Integer> implements UserDetails {
         this.favorisOffers = favorisOffers;
     }
 
+    
 
     public Integer calculDistanceOfDeliveryBoy(User deliveryBoy, Coordinates positionUserConnected) {
         if (positionUserConnected.latitude() == null || positionUserConnected.longitude() == null ||
@@ -344,6 +350,14 @@ public class User extends AbstractEntity<Integer> implements UserDetails {
     public void setDistanceOfDeliveryBoy(Integer distanceOfDeliveryBoy) {
         this.distanceOfDeliveryBoy = distanceOfDeliveryBoy;
     }
+
+	public void setDateOfBirth(LocalDate dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
+	}
+
+	public void setFavorisOffers(List<Offer> favorisOffers) {
+		this.favorisOffers = favorisOffers;
+	}
 
 
 }

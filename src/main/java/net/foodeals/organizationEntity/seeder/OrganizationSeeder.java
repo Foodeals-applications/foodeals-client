@@ -70,7 +70,7 @@ import net.foodeals.user.domain.valueObjects.Name;
 @Component
 @RequiredArgsConstructor
 @Transactional
-@org.springframework.core.annotation.Order(6)
+@org.springframework.core.annotation.Order(7)
 public class OrganizationSeeder implements CommandLineRunner {
 
     private final OrganizationEntityRepository organizationEntityRepository;
