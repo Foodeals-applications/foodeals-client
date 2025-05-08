@@ -37,6 +37,7 @@ public class CartController {
 		if(cart==null){
 			return ResponseEntity.noContent().build();
 		}
+		
 		CartResponse cartResponse = cartService.toCartResponse(cart);
 		return ResponseEntity.ok(cartResponse);
 	}

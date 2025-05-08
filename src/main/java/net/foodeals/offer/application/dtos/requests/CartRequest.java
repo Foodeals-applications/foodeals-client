@@ -16,8 +16,6 @@ public class CartRequest {
 
     private UUID boxId;
 
-    private UUID productId;
-
     private int quantity;
 
     private ModalityType modalityType;

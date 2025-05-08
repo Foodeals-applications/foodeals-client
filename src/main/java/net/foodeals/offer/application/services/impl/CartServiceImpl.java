@@ -31,138 +31,173 @@ import net.foodeals.offer.domain.repositories.DealRepository;
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
 
-    private final CartRepository cartRepository;
-    private final CartItemRepository cartItemRepository;
-    private final DealRepository dealRepository;
-    private final BoxRepository boxRepository;
-    private final ProductRepository productRepository;
+	private final CartRepository cartRepository;
+	private final CartItemRepository cartItemRepository;
+	private final DealRepository dealRepository;
+	private final BoxRepository boxRepository;
+	private final ProductRepository productRepository;
 
-    @Override
-    public Cart addToCart(Integer userId, CartRequest request) {
+	@Override
+	public Cart addToCart(Integer userId, CartRequest request) {
 
-        Cart cart = cartRepository.findByUserId(userId).orElse(new Cart(userId));
-        Deal deal=null;
-        Box box=null;
-        Product product=null;
-        CartItem cartItem=null;
-        if(request.getDealId() != null) {
-            deal = dealRepository.findById(request.getDealId()).orElseThrow(() -> new IllegalArgumentException("Deal not found"));
-            cartItem = new CartItem(cart, deal, request.getQuantity(),request.getModalityType());
-        }
+		Cart cart = cartRepository.findByUserId(userId).orElse(new Cart(userId));
+		Deal deal = null;
+		Box box = null;
+		CartItem cartItem = null;
+		if (request.getDealId() != null) {
+			deal = dealRepository.findById(request.getDealId())
+					.orElseThrow(() -> new IllegalArgumentException("Deal not found"));
+			cartItem = new CartItem(cart, deal, request.getQuantity(), request.getModalityType());
+		}
 
-        if(request.getBoxId() != null) {
-            box = boxRepository.findById(request.getBoxId()).orElseThrow(() -> new IllegalArgumentException("Box not found"));
-            cartItem = new CartItem(cart,box, request.getQuantity(),request.getModalityType());
-        }
+		if (request.getBoxId() != null) {
+			box = boxRepository.findById(request.getBoxId())
+					.orElseThrow(() -> new IllegalArgumentException("Box not found"));
+			cartItem = new CartItem(cart, box, request.getQuantity(), request.getModalityType());
+		}
 
-        if(request.getProductId() != null) {
-             product= productRepository.findById(request.getProductId()).orElseThrow(() -> new IllegalArgumentException("Box not found"));
-             cartItem = new CartItem(cart,product, request.getQuantity(),request.getModalityType());
-        }
+		cart.getItems().add(cartItem);
 
+		cartRepository.save(cart);
+		return cart;
+	}
 
-        cart.getItems().add(cartItem);
+	@Override
+	public Cart getCartByUser(Integer userId) {
+		return cartRepository.findByUserId(userId).orElse(null);
+	}
 
-        cartRepository.save(cart);
-        return cart;
-    }
+	public void clearCart(Integer userId) {
+		Cart cart = cartRepository.findByUserId(userId)
+				.orElseThrow(() -> new IllegalArgumentException("Cart not found"));
+		cartItemRepository.deleteAll(cart.getItems());
+		cart.setItems(null);
+		;
+		cart = cartRepository.save(cart);
 
-    @Override
-    public Cart getCartByUser(Integer userId) {
-        return cartRepository.findByUserId(userId).orElse(null);
-    }
+	}
 
-    public void clearCart(Integer userId) {
-        Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
-        cartItemRepository.deleteAll(cart.getItems());
-        cart.setItems(null);
-        ;
-        cart = cartRepository.save(cart);
+	@Override
+	public void deleteAllDealsByOrganizationFromCart(UUID organizationId) {
 
+		List<Cart> carts = cartRepository.findAll();
 
-    }
+		for (Cart cart : carts) {
 
-    @Override
-    public void deleteAllDealsByOrganizationFromCart(UUID organizationId) {
+			List<CartItem> itemsToRemove = cart.getItems().stream()
+					.filter(cartItem -> cartItem.getDeal() != null && cartItem.getDeal().getCreator() != null
+							&& organizationId.equals(cartItem.getDeal().getCreator().getId()))
+					.toList();
 
-        List<Cart> carts = cartRepository.findAll();
+			cart.getItems().removeAll(itemsToRemove);
 
-        for (Cart cart : carts) {
+			cartItemRepository.deleteAll(itemsToRemove);
+		}
 
-            List<CartItem> itemsToRemove = cart.getItems().stream()
-                    .filter(cartItem -> cartItem.getDeal() != null && cartItem.getDeal().getCreator() != null
-                            && organizationId.equals(cartItem.getDeal().getCreator().getId()))
-                    .toList();
+	}
 
-            cart.getItems().removeAll(itemsToRemove);
+	@Override
+	public void deleteSingleDealByOrganizationFromCart(UUID organizationId, UUID dealId) {
 
-            cartItemRepository.deleteAll(itemsToRemove);
-        }
+		List<Cart> carts = cartRepository.findAll();
 
-    }
+		for (Cart cart : carts) {
 
-    @Override
-    public void deleteSingleDealByOrganizationFromCart(UUID organizationId, UUID dealId) {
+			CartItem itemToRemove = cart.getItems().stream()
+					.filter(cartItem -> cartItem.getDeal() != null && cartItem.getDeal().getCreator() != null
+							&& organizationId.equals(cartItem.getDeal().getCreator().getId())
+							&& dealId.equals(cartItem.getDeal().getId()))
+					.findFirst().orElse(null);
 
-        List<Cart> carts = cartRepository.findAll();
+			if (itemToRemove != null) {
 
-        for (Cart cart : carts) {
+				cart.getItems().remove(itemToRemove);
 
-            CartItem itemToRemove = cart.getItems().stream()
-                    .filter(cartItem -> cartItem.getDeal() != null
-                            && cartItem.getDeal().getCreator() != null
-                            && organizationId.equals(cartItem.getDeal().getCreator().getId())
-                            && dealId.equals(cartItem.getDeal().getId()))
-                    .findFirst()
-                    .orElse(null);
+				cartItemRepository.delete(itemToRemove);
+			}
+		}
+	}
 
-            if (itemToRemove != null) {
+	@Override
+	public Deal updatePrice(UUID id, BigDecimal newPrice) {
+		Deal dealPro = dealRepository.findById(id).orElseThrow(() -> new RuntimeException("DealPro not found"));
+		dealPro.setPrice(new Price(newPrice, Currency.getInstance("MAD")));
+		return dealRepository.save(dealPro);
+	}
 
-                cart.getItems().remove(itemToRemove);
+	public CartResponse toCartResponse(Cart cart) {
+		Long deliveryCost = 0L;
 
+		double totalDeliveryFee = cart.getItems().stream().mapToDouble(cartItem -> {
+			if (cartItem.getDeal() != null && cartItem.getDeal().getOffer() != null) {
+				return cartItem.getDeal().getOffer().getDeliveryFee() * cartItem.getDeal().getQuantity();
+			} else if (cartItem.getBox() != null && cartItem.getBox().getOffer() != null) {
+				return cartItem.getBox().getOffer().getDeliveryFee() * cartItem.getBox().getQuantity();
+			}
+			return 0.0;
+		}).sum();
 
-                cartItemRepository.delete(itemToRemove);
-            }
-        }
-    }
+		double totalPrice = cart.getItems().stream().mapToDouble(cartItem -> {
+			if (cartItem.getDeal() != null && cartItem.getDeal().getOffer() != null
+					&& cartItem.getDeal().getOffer().getSalePrice() != null
+					&& cartItem.getDeal().getOffer().getSalePrice().amount() != null) {
+				return cartItem.getDeal().getOffer().getSalePrice().amount().doubleValue();
+			} else if (cartItem.getBox() != null && cartItem.getBox().getOffer() != null
+					&& cartItem.getBox().getOffer().getSalePrice() != null
+					&& cartItem.getBox().getOffer().getSalePrice().amount() != null) {
+				return cartItem.getBox().getOffer().getSalePrice().amount().doubleValue();
+			}
+			return 0.0;
+		}).sum();
 
-    @Override
-    public Deal updatePrice(UUID id, BigDecimal newPrice) {
-        Deal dealPro = dealRepository.findById(id).orElseThrow(() -> new RuntimeException("DealPro not found"));
-        dealPro.setPrice(new Price(newPrice, Currency.getInstance("MAD")));
-        return dealRepository.save(dealPro);
-    }
+		List<CartItemResponse> cartItemResponses = cart.getItems().stream().map(this::toCartItemResponse)
+				.collect(Collectors.toList());
 
+		return new CartResponse(deliveryCost, totalDeliveryFee, cartItemResponses);
 
-    public  CartResponse toCartResponse(Cart cart) {
+	}
 
-        Long deliveryCost = 0L;
-        double totalDeliveryFee = cart.getItems().stream()
-                .mapToDouble(cartItem -> cartItem.getDeal().getOffer().getDeliveryFee() * cartItem.getDeal().getQuantity())
-                .sum();
+	public CartItemResponse toCartItemResponse(CartItem cartItem) {
+		String name = null;
+		String imagePath = null;
+		double price = 0.0;
+		String providerName = null;
+		String providerAvatar = null;
+		int quantity = cartItem.getQuantity();
 
-        double totalPrice = cart.getItems().stream()
-                .mapToDouble(cartItem -> cartItem.getDeal().getOffer().getSalePrice().amount().doubleValue())
-                .sum();
+		if (cartItem.getDeal() != null && cartItem.getDeal().getOffer() != null) {
+			Product product = cartItem.getDeal().getProduct();
+			if (product != null) {
+				name = product.getName();
+				imagePath = product.getProductImagePath();
+			}
+			if (cartItem.getDeal().getOffer().getSalePrice() != null
+					&& cartItem.getDeal().getOffer().getSalePrice().amount() != null) {
+				price = cartItem.getDeal().getOffer().getSalePrice().amount().doubleValue();
+			}
+			if (cartItem.getDeal().getOffer().getSubEntity() != null) {
+				providerName = cartItem.getDeal().getOffer().getSubEntity().getName();
+				providerAvatar = cartItem.getDeal().getOffer().getSubEntity().getAvatarPath();
+			}
+		} else if (cartItem.getBox() != null && cartItem.getBox().getOffer() != null) {
+			name = cartItem.getBox().getTitle(); // Assurez-vous que Box a un nom
+			imagePath = cartItem.getBox().getPhotoBoxPath(); // Assurez-vous que Box a une image
+			if (cartItem.getBox().getOffer().getSalePrice() != null
+					&& cartItem.getBox().getOffer().getSalePrice().amount() != null) {
+				price = cartItem.getBox().getOffer().getSalePrice().amount().doubleValue();
+			}
+			if (cartItem.getBox().getOffer().getSubEntity() != null) {
+				providerName = cartItem.getBox().getOffer().getSubEntity().getName();
+				providerAvatar = cartItem.getBox().getOffer().getSubEntity().getAvatarPath();
+			}
+		} else if (cartItem.getProduct() != null) {
+			Product product = cartItem.getProduct();
+			name = product.getName();
+			imagePath = product.getProductImagePath();
+			// À adapter si Product contient des infos de prix et de fournisseur
+		}
 
-        cart.getItems().stream()
-                .mapToDouble(cartItem -> cartItem.getDeal().getOffer().getSalePrice().amount().doubleValue())
-                .sum();
-        List<CartItemResponse> cartItemResponses = cart.getItems().stream()
-                .map(cartItem -> toCartItemResponse(cartItem)) // use map instead of forEach to return a new list
-                .collect(Collectors.toList());
-        return new CartResponse(deliveryCost, totalDeliveryFee, cartItemResponses);
-    }
-
-
-    public CartItemResponse toCartItemResponse(CartItem cartItem) {
-        Product product = cartItem.getDeal().getProduct();
-        CartItemResponse cartItemResponse = new CartItemResponse(product.getName(), product.getProductImagePath(),
-                cartItem.getDeal().getOffer().getSalePrice().amount().doubleValue(), cartItem.getDeal().getOffer().getSubEntity().getName(),
-                cartItem.getDeal().getOffer().getSubEntity().getAvatarPath(), cartItem.getDeal().getQuantity());
-        return cartItemResponse;
-    }
-
+		return new CartItemResponse(name, imagePath, price, providerName, providerAvatar, quantity);
+	}
 
 }
