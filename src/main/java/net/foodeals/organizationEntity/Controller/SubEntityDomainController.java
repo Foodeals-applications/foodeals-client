@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.organizationEntity.application.dtos.responses.CategoryWithDealCountResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.SubEntityDomainResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.SubEntityProductCategoryResponse;
 import net.foodeals.organizationEntity.application.services.SubEntityDomainService;
@@ -42,4 +43,9 @@ public class SubEntityDomainController {
         return ResponseEntity.ok(responses);
     }
     
+    @GetMapping("/subentity/{id}/all-categories")
+    public ResponseEntity<List<CategoryWithDealCountResponse>> getAllCategoriesBySubEntity(@PathVariable UUID id) {
+        List<CategoryWithDealCountResponse> responses = subEntityProductCategoryService.getCategoriesWithDealCountBySubEntity(id);
+        return ResponseEntity.ok(responses);
+    }
 }

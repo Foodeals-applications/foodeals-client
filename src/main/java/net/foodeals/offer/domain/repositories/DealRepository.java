@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 import net.foodeals.common.contracts.BaseRepository;
 import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.enums.DealStatus;
+import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
 
 public interface DealRepository extends BaseRepository<Deal, UUID> {
 
@@ -56,6 +57,17 @@ public interface DealRepository extends BaseRepository<Deal, UUID> {
                 AND d.id <> :dealId
             """)
 	List<Deal> findSimilarDealsByProductCategory(UUID dealId, String productCategory);
+	
+	
+	@Query("""
+		    SELECT COUNT(d) FROM Deal d
+		    JOIN d.offer o
+		    JOIN o.subEntity se
+		    JOIN se.subEntityDomains sed
+		    JOIN sed.subEntityProductCategories c
+		    WHERE c = :category
+		""")
+		long countDealsByCategory(@Param("category") SubEntityProductCategory category);
 
 
 }
