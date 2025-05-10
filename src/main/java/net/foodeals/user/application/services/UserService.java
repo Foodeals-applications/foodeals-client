@@ -2,6 +2,7 @@ package net.foodeals.user.application.services;
 
 import net.foodeals.common.contracts.CrudService;
 import net.foodeals.common.valueOjects.Coordinates;
+import net.foodeals.user.application.dtos.requests.InfosProfileRequest;
 import net.foodeals.user.application.dtos.requests.UserRequest;
 import net.foodeals.user.application.dtos.responses.FavorisOfferPartenerResponse;
 import net.foodeals.user.application.dtos.responses.FavorisOfferResponse;
@@ -28,4 +29,6 @@ public interface UserService extends CrudService<User, Integer, UserRequest> {
     List<FavorisOfferPartenerResponse> getListFavorisOffersPartners();
     
     InfosProfileResponse getInfosProfile();
+    
+    InfosProfileResponse updateInfosProfile(InfosProfileRequest request);
 }

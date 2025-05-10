@@ -2,6 +2,7 @@ package net.foodeals.offer.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.common.Utils.DistanceCalculator;
 import net.foodeals.offer.application.dtos.requests.DealDto;
 import net.foodeals.offer.application.dtos.responses.DealDetailsResponse;
 import net.foodeals.offer.application.dtos.responses.OpenTimeResponse;
@@ -101,7 +102,12 @@ class DealServiceImpl implements DealService {
         response.setPhotoPath(deal.getProduct().getProductImagePath());
         response.setTitle(deal.getTitle());
         response.setDescription(deal.getDescription());
+        double distance = DistanceCalculator.calculateDistance(user.getCoordinates().latitude().doubleValue(),
+        		user.getCoordinates().longitude().doubleValue(),
+        	deal.getOffer().getSubEntity().getCoordinates().latitude().doubleValue(),
+        	deal.getOffer().getSubEntity().getCoordinates().latitude().doubleValue());
         response.setNumberOfFeedback(deal.getOffer().getNumberOfFeedBack());
+        response.setDistance(distance);
         response.setNumberOfStars(deal.getOffer().getNumberOfStars());
         response.setReviews((response.getNumberOfFeedback() / response.getNumberOfStars()));
         response.setEstimatedDeliveryTime(0f);

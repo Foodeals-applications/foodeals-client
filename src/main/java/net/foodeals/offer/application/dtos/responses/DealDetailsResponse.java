@@ -23,6 +23,7 @@ public class DealDetailsResponse {
 	private String title;
 	private String description;
 	private Integer quantity;
+	private double distance;
 	private Integer numberOfFeedback;
 	private Float numberOfStars;
 	private Float reviews;

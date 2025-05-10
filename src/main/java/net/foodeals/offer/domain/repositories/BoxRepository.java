@@ -48,6 +48,9 @@ public interface BoxRepository extends BaseRepository<Box, UUID> {
         AND b.id <> :boxId
     """)
     List<Box> findSimilarBoxes(@Param("boxId") UUID boxId);
+    
+    @Query("SELECT DISTINCT b FROM Box b JOIN b.products p WHERE p.id IN :productIds AND b.id <> :boxId")
+    List<Box> findSimilarBoxesByProductIds(List<UUID> productIds, UUID boxId);
 
 
 }

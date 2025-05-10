@@ -26,6 +26,13 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.common.valueOjects.Coordinates;
+import net.foodeals.location.domain.entities.Address;
+import net.foodeals.location.domain.entities.City;
+import net.foodeals.location.domain.entities.Country;
+import net.foodeals.location.domain.repositories.AddressRepository;
+import net.foodeals.location.domain.repositories.CityRepository;
+import net.foodeals.location.domain.repositories.CountryRepository;
+import net.foodeals.user.application.dtos.requests.InfosProfileRequest;
 import net.foodeals.user.application.dtos.requests.UserRequest;
 import net.foodeals.user.application.services.UserService;
 import net.foodeals.user.domain.entities.User;
@@ -39,6 +46,9 @@ class UserServiceImpl implements UserService {
 
 	private final UserRepository repository;
 	private final DealRepository dealRepository;
+	private final CountryRepository countryRepository;
+	private final CityRepository cityRepository;
+	private final AddressRepository addressRepository;
 
 	@Value("${upload.directory}")
 	private String uploadDir;
@@ -187,6 +197,40 @@ class UserServiceImpl implements UserService {
 	public InfosProfileResponse getInfosProfile() {
 		User user =getConnectedUser();
 		if(user!=null) {
+		   InfosProfileResponse response=new InfosProfileResponse(user.getId(),
+				   user.getAvatarPath(),
+				   user.getName(),
+				   user.getEmail(),
+				   user.getPhone(), 
+				   user.getAddress().getCountry().getName(), 
+				   user.getAddress().getCity().getName(),
+				   user.getAddress().getZip(),
+				   user.getDateOfBirth())	;
+		   return response;
+		}
+		return null;
+	}
+	@Override
+	public InfosProfileResponse updateInfosProfile(InfosProfileRequest request) {
+		
+		User user =getConnectedUser();
+		if(user!=null) {
+		   user.setAvatarPath(request.getAvatarPath());
+		   user.setName(request.getName());
+		   user.setEmail(request.getEmailAddress());
+		   user.setPhone(request.getPhone());
+		   Country country=countryRepository.findByName(request.getCountryName());
+		   Address address=user.getAddress();
+		   if(country!=null) {
+			   address.setCountry(country);
+		   }
+		   City city =cityRepository.findByName(request.getCityName());
+		   if(city!=null) {
+			   address.setCity(city);
+		   }
+		   address.setZip(request.getZip());
+		   user.setDateOfBirth(request.getBirdhayDay());
+		   user=repository.saveAndFlush(user);
 		   InfosProfileResponse response=new InfosProfileResponse(user.getId(),
 				   user.getAvatarPath(),
 				   user.getName(),

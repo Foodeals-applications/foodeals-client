@@ -11,6 +11,7 @@ import net.foodeals.location.domain.entities.Address;
 import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.entities.Offer;
 import net.foodeals.offer.domain.repositories.DealRepository;
+import net.foodeals.user.application.dtos.requests.InfosProfileRequest;
 import net.foodeals.user.application.dtos.responses.FavorisOfferPartenerResponse;
 import net.foodeals.user.application.dtos.responses.FavorisOfferResponse;
 import net.foodeals.user.application.dtos.responses.InfosProfileResponse;
@@ -81,5 +82,10 @@ public class AccountController {
     @GetMapping("/infos-profile")
     public ResponseEntity<InfosProfileResponse>getInfosProfile(){
     	return  ResponseEntity.status(HttpStatus.OK).body(userService.getInfosProfile());
+    }
+    
+    @PutMapping("/infos-profile/update")
+    public ResponseEntity<InfosProfileResponse>getInfosProfile(@RequestBody InfosProfileRequest request){
+    	return  ResponseEntity.status(HttpStatus.OK).body(userService.updateInfosProfile(request));
     }
 }

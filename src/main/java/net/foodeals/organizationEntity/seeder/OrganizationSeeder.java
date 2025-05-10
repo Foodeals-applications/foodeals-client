@@ -130,6 +130,12 @@ public class OrganizationSeeder implements CommandLineRunner {
             		"Bouteille de lait entier 1L.", new BigDecimal("1.99"), "Supermarchés", 10);
             Product product3 = createProduct(carrefourMarket, "Buche de Noël", 
             		"Délicieux gâteau de Noël.", new BigDecimal("15.99"), "Supermarchés", 6);
+            
+            Product product4 = createProduct(carrefourMarket, 
+            		"Lait entier fraise", 
+            		"Pommes fraîches et biologiques.",
+            		new BigDecimal("5.99"), 
+            		"Supermarchés", 20);
 
             // Ajout d'Offers, Deals et Boxes
             Offer carrefourOffer1 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("49.99"),32,4.2f);
@@ -140,12 +146,15 @@ public class OrganizationSeeder implements CommandLineRunner {
             Deal pommeDeal=  createDealWithOfferAndProduct("Promo Carrefour Market", "Réduction pommes bio.", carrefourOffer1, 1, DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, product1);
             Deal noelDeal =createDealWithOfferAndProduct("Promotion Noël Carrefour", "Offre spéciale sur le gâteau de Noël.", carrefourOffer2, 2, DealStatus.AVAILABLE, Category.FROZEN_PRODUCTS, product3);
             
-            createSupplement("Pomme",SupplementCategory.SUPPLEMENTS, pommeDeal);
-            createSupplement("Lait",SupplementCategory.SUPPLEMENTS, noelDeal);
+            
+            
             // Boxes associées aux offres
-            createBoxWithOffer("Box Carrefour Market", "Box avec lait et autres produits.", carrefourOffer1, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.DAIRY_PRODUCTS, product2);
-            createBoxWithOffer("Box Spéciale Noël", "Box garnie pour Noël avec gâteaux.", carrefourOffer2, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.FROZEN_PRODUCTS, product3);
+            Box box1=createBoxWithOffer("Box Carrefour Market", "Box avec lait et autres produits.", carrefourOffer1, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.DAIRY_PRODUCTS, product2);
+            Box box2=createBoxWithOffer("Box Carrefour Market 2", "Box avec lait Fraises et autres produits.", carrefourOffer1, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.DAIRY_PRODUCTS, product4);
+            Box box3=createBoxWithOffer("Box Spéciale Noël", "Box garnie pour Noël avec gâteaux.", carrefourOffer2, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.FROZEN_PRODUCTS, product3);
 
+            createSupplement("Lait",SupplementCategory.SUPPLEMENTS, noelDeal,box1);
+            
             System.out.println("Seed terminé pour Carrefour, ses produits, Deals et Boxes.");
 
             // MIG : Ajout des Orders
@@ -223,11 +232,11 @@ public class OrganizationSeeder implements CommandLineRunner {
             		"Box chings wings.", new BigDecimal("1.99"), "Restaurants", 10);
             Deal dealWings = createDealWithOfferAndProduct("23 wings magics", "Réduction spéciale.", kfcOffer1, 1, DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, productKfc1);
             Deal dealTinders = createDealWithOfferAndProduct("Deux tinders achétes un gratuit", "Offre spéciale étudiant.", kfcOffer2, 2, DealStatus.AVAILABLE, Category.FROZEN_PRODUCTS, productKfc2);
-            createSupplement("Coca",SupplementCategory.DRINK, dealWings);
-            createSupplement("Fanta",SupplementCategory.DRINK, dealWings);
+            createSupplement("Coca",SupplementCategory.DRINK, dealWings,null);
+            createSupplement("Fanta",SupplementCategory.DRINK, dealWings,null);
 
-            createSupplement("Sauce mayonnaise",SupplementCategory.SAUCE, dealTinders);
-            createSupplement("Sauce algerienne",SupplementCategory.SAUCE, dealTinders);
+            createSupplement("Sauce mayonnaise",SupplementCategory.SAUCE, dealTinders,null);
+            createSupplement("Sauce algerienne",SupplementCategory.SAUCE, dealTinders,null);
         }
 
 
@@ -382,12 +391,13 @@ public class OrganizationSeeder implements CommandLineRunner {
         return productRepository.save(product);
     }
 
-    private Supplement createSupplement(String name,SupplementCategory category, Deal deal) {
+    private Supplement createSupplement(String name,SupplementCategory category, Deal deal,Box box) {
         Supplement supplement = new Supplement();
         supplement.setName(name);
         supplement.setSupplementImagePath("/images/" + name.toLowerCase().replace(" ", "-") + ".png");
         supplement.setPrice(new Price(new BigDecimal("50"), Currency.getInstance("MAD")));
         supplement.setDeal(deal);
+        supplement.setBox(box);
         supplement.setSupplementCategory(category);
         return supplementRepository.save(supplement);
     }
@@ -438,6 +448,7 @@ public class OrganizationSeeder implements CommandLineRunner {
                                    BoxStatus status,
                                    Category category,
                                    Product product
+                                 
                                    ) {
         Box box = new Box(type);
         box.setTitle(title);

@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.foodeals.common.models.AbstractEntity;
 import net.foodeals.common.valueOjects.Price;
+import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.entities.Deal;
 
 @Entity
@@ -34,6 +35,9 @@ public class Supplement extends AbstractEntity<UUID> {
    
     @ManyToOne(fetch = FetchType.LAZY)
     private Deal deal;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Box box;
 
     @Enumerated(EnumType.STRING)
     private SupplementCategory supplementCategory ;

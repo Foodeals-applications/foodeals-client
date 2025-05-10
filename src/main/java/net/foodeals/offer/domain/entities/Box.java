@@ -10,6 +10,8 @@ import net.foodeals.offer.domain.enums.Category;
 import net.foodeals.offer.domain.enums.PublishAs;
 import net.foodeals.offer.domain.enums.OfferType;
 import net.foodeals.product.domain.entities.Product;
+import net.foodeals.product.domain.entities.Supplement;
+
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
@@ -62,6 +64,10 @@ public class Box extends AbstractEntity<UUID> implements IOfferChoice {
 			inverseJoinColumns = @JoinColumn(name = "product_id")
 	)
 	private List<Product>products=new ArrayList<>();
+	
+	
+	@OneToMany(mappedBy = "box", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Supplement> supplements;
 
 
 	@Override

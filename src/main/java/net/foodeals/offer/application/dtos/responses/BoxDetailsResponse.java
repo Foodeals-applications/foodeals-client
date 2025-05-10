@@ -22,6 +22,7 @@ public class BoxDetailsResponse {
 	private String title;
 	private String description;
 	private Integer quantity;
+	private double distance;
 	private Integer numberOfFeedback;
 	private Float numberOfStars;
 	private Float reviews;
@@ -34,6 +35,9 @@ public class BoxDetailsResponse {
 	private BigDecimal oldPrice;
 	private BigDecimal newPrice;
 	private Integer discount;
+	private Map<String ,List<SupplementBoxResponse>> supplementResponses;
+	private List<SimilarBoxResponse>similarBoxResponses;
+	
 	
 }
 

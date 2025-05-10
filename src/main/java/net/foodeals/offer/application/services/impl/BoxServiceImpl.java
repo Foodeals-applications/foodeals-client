@@ -18,12 +18,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import net.foodeals.offer.application.dtos.responses.BoxDetailsResponse;
-import net.foodeals.offer.application.dtos.responses.DealDetailsResponse;
-import net.foodeals.offer.application.dtos.responses.OpenTimeResponse;
-import net.foodeals.offer.application.dtos.responses.SimilarDealResponse;
-import net.foodeals.offer.application.dtos.responses.SupplementDealResponse;
-import net.foodeals.product.application.dtos.responses.SimilarProductResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -35,11 +29,16 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.common.Utils.DistanceCalculator;
 import net.foodeals.offer.application.dtos.requests.BoxDto;
 import net.foodeals.offer.application.dtos.requests.OpenTimeDto;
+import net.foodeals.offer.application.dtos.responses.BoxDetailsResponse;
+import net.foodeals.offer.application.dtos.responses.OpenTimeResponse;
+import net.foodeals.offer.application.dtos.responses.SimilarBoxResponse;
+import net.foodeals.offer.application.dtos.responses.SupplementBoxResponse;
+import net.foodeals.offer.application.dtos.responses.SupplementDealResponse;
 import net.foodeals.offer.application.services.BoxService;
 import net.foodeals.offer.domain.entities.Box;
-import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.entities.IOfferChoice;
 import net.foodeals.offer.domain.entities.ModifiyHistory;
 import net.foodeals.offer.domain.entities.Offer;
@@ -56,6 +55,7 @@ import net.foodeals.offer.domain.repositories.OpenTimeRepository;
 import net.foodeals.offer.domain.repositories.RelaunchHistoryRepository;
 import net.foodeals.offer.domain.valueObject.Offerable;
 import net.foodeals.product.application.services.ProductService;
+import net.foodeals.product.domain.entities.Product;
 import net.foodeals.user.application.services.UserService;
 import net.foodeals.user.domain.entities.User;
 
@@ -258,8 +258,14 @@ class BoxServiceImpl implements BoxService {
 	        response.setId(box.getId());
 	        response.setPhotoPath(box.getPhotoBoxPath());
 	        response.setTitle(box.getTitle());
+	        response.setQuantity(box.getQuantity());
 	        response.setDescription(box.getDescription());
+	        double distance = DistanceCalculator.calculateDistance(user.getCoordinates().latitude().doubleValue(),
+	        		user.getCoordinates().longitude().doubleValue(),
+	        	box.getOffer().getSubEntity().getCoordinates().latitude().doubleValue(),
+	        	box.getOffer().getSubEntity().getCoordinates().latitude().doubleValue());
 	        response.setNumberOfFeedback(box.getOffer().getNumberOfFeedBack());
+	        response.setDistance(distance);
 	        response.setNumberOfStars(box.getOffer().getNumberOfStars());
 	        response.setReviews((response.getNumberOfFeedback() / response.getNumberOfStars()));
 	        response.setEstimatedDeliveryTime(0f);
@@ -290,6 +296,39 @@ class BoxServiceImpl implements BoxService {
 	        } else {
 	            response.setDiscount(0);
 	        }
+	        
+	
+	        
+	        List<UUID> productIds = box.getProducts()
+                    .stream()
+                    .map(Product::getId)
+                    .toList();
+	        List<Box>boxs=repository.findSimilarBoxesByProductIds(productIds, box.getId());
+	        List<SimilarBoxResponse>similarDealResponses=boxs.stream().map(
+	                b->new SimilarBoxResponse(b.getId(),
+	                        b.getTitle(),
+	                        b.getPhotoBoxPath(),
+	                        b.getOffer().getSalePrice().amount(),
+	                        b.getOffer().getPrice().amount())
+	        ).collect(Collectors.toList());
+	        response.setSimilarBoxResponses(similarDealResponses);
+	        
+	        Map<String, List<SupplementBoxResponse>> supplementResponses = box.getSupplements().stream()
+	                .map(supplement -> new SupplementBoxResponse(
+	                        supplement.getId(),
+	                        supplement.getName(),
+	                        supplement.getPrice(),
+	                        supplement.getSupplementImagePath(),
+	                        supplement.getSupplementCategory()
+	                ))
+	                .collect(Collectors.groupingBy(
+	                        res -> res.supplementCategory().name(), // clé = nom de l'enum en String
+	                        LinkedHashMap::new,                                // optionnel : garde l'ordre d'insertion
+	                        Collectors.toList()
+	                ));
+	        response.setSupplementResponses(supplementResponses);
+	      
+	        response.setSupplementResponses(supplementResponses);
 
 	        return response;
 

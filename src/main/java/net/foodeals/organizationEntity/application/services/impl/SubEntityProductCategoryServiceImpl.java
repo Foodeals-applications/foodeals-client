@@ -35,19 +35,28 @@ public class SubEntityProductCategoryServiceImpl implements SubEntityProductCate
     @Override
     public List<SubEntityProductCategoryResponse> findAll() {
         return subEntityProductCategoryRepository.findAll().stream()
-            .map(category -> new SubEntityProductCategoryResponse(
-                category.getId(),
-                generatePhotoUrl(category.getName()),
-                category.getName()
-            ))
-            .collect(Collectors.toList());
+            .collect(Collectors.collectingAndThen(
+                Collectors.toMap(
+                    category -> category.getName(), // clé : nom
+                    category -> category,          // valeur
+                    (c1, c2) -> c1                 // en cas de doublon, garder le 1er
+                ),
+                map -> map.values().stream()
+                    .map(category -> new SubEntityProductCategoryResponse(
+                        category.getId(),
+                        generatePhotoUrl(category.getName()),
+                        category.getName()
+                    ))
+                    .collect(Collectors.toList())
+            ));
     }
-    
     
     private String generatePhotoUrl(String name) {
         String baseUrl = "/images/"; // Votre domaine ou base d'URL
         String formattedName = name.trim().toLowerCase().replace(" ", "-"); // Transformation
         return baseUrl + formattedName + ".jpg"; // Exemple d'extension .jpg
     }
+    
+    
 
 }
