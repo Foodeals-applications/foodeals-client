@@ -1,6 +1,7 @@
 package net.foodeals.offer.application.services.impl;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
 import java.util.UUID;
@@ -10,6 +11,7 @@ import net.foodeals.offer.application.dtos.requests.CartRequest;
 import net.foodeals.offer.application.dtos.responses.CartItemResponse;
 import net.foodeals.offer.application.dtos.responses.CartResponse;
 import net.foodeals.offer.domain.entities.Box;
+import net.foodeals.offer.domain.enums.ModalityPaiement;
 import net.foodeals.offer.domain.repositories.BoxRepository;
 import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.repositories.ProductRepository;
@@ -166,6 +168,7 @@ public class CartServiceImpl implements CartService {
 		double price = 0.0;
 		String providerName = null;
 		String providerAvatar = null;
+        List<ModalityPaiement>modalityPaiements=new ArrayList<>();
 		int quantity = cartItem.getQuantity();
 
 		if (cartItem.getDeal() != null && cartItem.getDeal().getOffer() != null) {
@@ -184,6 +187,7 @@ public class CartServiceImpl implements CartService {
 			if (cartItem.getDeal().getOffer().getSubEntity() != null) {
 				providerName = cartItem.getDeal().getOffer().getSubEntity().getName();
 				providerAvatar = cartItem.getDeal().getOffer().getSubEntity().getAvatarPath();
+                modalityPaiements = cartItem.getDeal().getOffer().getSubEntity().getModalityPaiements();
 			}
 		} else if (cartItem.getBox() != null && cartItem.getBox().getOffer() != null) {
 			name = cartItem.getBox().getTitle(); // Assurez-vous que Box a un nom
@@ -196,6 +200,7 @@ public class CartServiceImpl implements CartService {
 			if (cartItem.getBox().getOffer().getSubEntity() != null) {
 				providerName = cartItem.getBox().getOffer().getSubEntity().getName();
 				providerAvatar = cartItem.getBox().getOffer().getSubEntity().getAvatarPath();
+                modalityPaiements = cartItem.getDeal().getOffer().getSubEntity().getModalityPaiements();
 			}
 		} else if (cartItem.getProduct() != null) {
 			Product product = cartItem.getProduct();
@@ -207,7 +212,8 @@ public class CartServiceImpl implements CartService {
 			// À adapter si Product contient des infos de prix et de fournisseur
 		}
 
-		return new CartItemResponse(name, description,imagePath, totalProducts,price,oldPrice, providerName, providerAvatar, quantity);
+		return new CartItemResponse(name, description,imagePath, totalProducts,price,oldPrice, providerName,
+             modalityPaiements,   providerAvatar, quantity);
 	}
 
 }

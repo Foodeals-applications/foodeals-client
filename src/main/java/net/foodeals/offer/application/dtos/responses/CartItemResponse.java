@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.foodeals.offer.domain.enums.ModalityPaiement;
+
+import java.util.List;
 
 @Setter
 @Getter
@@ -24,6 +27,8 @@ public class CartItemResponse {
     private double price ;
 
     private String subEntityName;
+
+    private List<ModalityPaiement> modalityPaiementList;
 
     private String subEntityPhotoUrl;
 
