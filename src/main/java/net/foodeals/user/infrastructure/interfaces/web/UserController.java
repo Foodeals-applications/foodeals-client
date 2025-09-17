@@ -39,9 +39,9 @@ public class UserController {
 	@GetMapping("/nearby")
 	public ResponseEntity<Map<String, Object>> getNears(@RequestParam double latitude, @RequestParam double longitude,
 			@RequestParam double radius) {
-
-		Map<String, Object> result = offerService.getNears(latitude, longitude, radius);
-
+        User user=service.getConnectedUser();
+		Map<String, Object> result = offerService.getNears(user.getCoordinates().latitude(),
+                user.getCoordinates().longitude(), radius);
 		return ResponseEntity.ok(result);
 	}
 

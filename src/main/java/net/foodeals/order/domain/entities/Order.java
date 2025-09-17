@@ -92,6 +92,8 @@ public class Order extends AbstractEntity<UUID> {
 	private OrderSource orderSource;
 	
 	private boolean seen ;
+	
+	private boolean donation;
 
 	public Order() {
 	}

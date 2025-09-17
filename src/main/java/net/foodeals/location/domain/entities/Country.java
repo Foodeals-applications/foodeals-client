@@ -23,7 +23,6 @@ public class Country extends AbstractEntity<UUID> {
 
     private String name;
 
-    private String code;
 
     @OneToMany(mappedBy = "country", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
@@ -32,13 +31,13 @@ public class Country extends AbstractEntity<UUID> {
     public Country() {
     }
 
-    public Country(String name, String code) {
+    public Country(String name) {
         this.name = name;
-        this.code = code;
+       
     }
 
-    public static Country create(String name, String code) {
-        return new Country(name, code);
+    public static Country create(String name) {
+        return new Country(name);
     }
 
     public Country setId(UUID id) {
@@ -51,10 +50,7 @@ public class Country extends AbstractEntity<UUID> {
         return this;
     }
 
-    public Country setCode(String code) {
-        this.code = code;
-        return this;
-    }
+   
 
     public Country setStates(List<State> states) {
         this.states = states;

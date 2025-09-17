@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.*;
-import net.foodeals.offer.domain.enums.ModalityType;
+import net.foodeals.offer.domain.enums.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -19,9 +19,6 @@ import net.foodeals.offer.domain.entities.DonorInfo;
 import net.foodeals.offer.domain.entities.Offer;
 import net.foodeals.offer.domain.entities.PublisherI;
 import net.foodeals.offer.domain.entities.ReceiverInfo;
-import net.foodeals.offer.domain.enums.DonationReceiverType;
-import net.foodeals.offer.domain.enums.DonorType;
-import net.foodeals.offer.domain.enums.PublisherType;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityStatus;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityType;
 import net.foodeals.user.domain.entities.User;
@@ -102,6 +99,9 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
 
     @Enumerated(EnumType.STRING)
     private List<ModalityType>modalityTypes;
+
+    @Enumerated(EnumType.STRING)
+    private List<ModalityPaiement>modalityPaiements;
 
     private String email;
 

@@ -32,7 +32,7 @@ public class LocationModelMapperConfig {
 	public void configure() {
 		mapper.addConverter(context -> {
 			final Country country = context.getSource();
-			return new CountryResponse(country.getId(), country.getName(), country.getCode());
+			return new CountryResponse(country.getId(), country.getName());
 		}, Country.class, CountryResponse.class);
 
 		mapper.addConverter(context -> {

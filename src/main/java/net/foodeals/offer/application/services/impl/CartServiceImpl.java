@@ -159,7 +159,10 @@ public class CartServiceImpl implements CartService {
 
 	public CartItemResponse toCartItemResponse(CartItem cartItem) {
 		String name = null;
+        String description=null;
 		String imagePath = null;
+        Integer totalProducts=null;
+        double oldPrice = 0.0;
 		double price = 0.0;
 		String providerName = null;
 		String providerAvatar = null;
@@ -168,12 +171,15 @@ public class CartServiceImpl implements CartService {
 		if (cartItem.getDeal() != null && cartItem.getDeal().getOffer() != null) {
 			Product product = cartItem.getDeal().getProduct();
 			if (product != null) {
+                totalProducts++;
 				name = product.getName();
-				imagePath = product.getProductImagePath();
+                description=product.getDescription();
+                imagePath = product.getProductImagePath();
 			}
 			if (cartItem.getDeal().getOffer().getSalePrice() != null
 					&& cartItem.getDeal().getOffer().getSalePrice().amount() != null) {
 				price = cartItem.getDeal().getOffer().getSalePrice().amount().doubleValue();
+                oldPrice = cartItem.getDeal().getOffer().getSalePrice().amount().doubleValue();
 			}
 			if (cartItem.getDeal().getOffer().getSubEntity() != null) {
 				providerName = cartItem.getDeal().getOffer().getSubEntity().getName();
@@ -185,6 +191,7 @@ public class CartServiceImpl implements CartService {
 			if (cartItem.getBox().getOffer().getSalePrice() != null
 					&& cartItem.getBox().getOffer().getSalePrice().amount() != null) {
 				price = cartItem.getBox().getOffer().getSalePrice().amount().doubleValue();
+                oldPrice = cartItem.getBox().getOffer().getPrice().amount().doubleValue();
 			}
 			if (cartItem.getBox().getOffer().getSubEntity() != null) {
 				providerName = cartItem.getBox().getOffer().getSubEntity().getName();
@@ -192,12 +199,15 @@ public class CartServiceImpl implements CartService {
 			}
 		} else if (cartItem.getProduct() != null) {
 			Product product = cartItem.getProduct();
+            totalProducts++;
 			name = product.getName();
 			imagePath = product.getProductImagePath();
+            description=product.getDescription();
+
 			// À adapter si Product contient des infos de prix et de fournisseur
 		}
 
-		return new CartItemResponse(name, imagePath, price, providerName, providerAvatar, quantity);
+		return new CartItemResponse(name, description,imagePath, totalProducts,price,oldPrice, providerName, providerAvatar, quantity);
 	}
 
 }
