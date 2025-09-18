@@ -19,4 +19,14 @@ public class CartRequest {
     private int quantity;
 
     private ModalityType modalityType;
+
+    private String timeSlot;
+
+    private String addressSubEntity;
+
+    private String note ;
+
+    private boolean isDonation;
+
+    private boolean showInfoDonation;
 }

@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import net.foodeals.order.domain.entities.Coupon;
+import net.foodeals.order.domain.repositories.CouponRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,10 +94,12 @@ public class OrganizationSeeder implements CommandLineRunner {
     private final OrderRepository orderRepository;
     private final TransactionRepository transactionRepository;
     private final OpenTimeRepository openTimeRepository;
+    private final CouponRepository couponRepository;
 
     @Override
     public void run(String... args) throws Exception {
         SubEntity goldenTolipCasa = null;
+        SubEntity kfcCasa = null;
         if (!organizationEntityRepository.findByName("Carrefour").isPresent()) {
 
             /**
@@ -215,9 +219,8 @@ public class OrganizationSeeder implements CommandLineRunner {
             Optional<SubEntityDomain> domainRestaurant = subEntityDomainRepository.findByName("Restaurants");
             domainsRestaurant.add(domainRestaurant.get());
 
-            SubEntity kfcCasa =
-                    createSubEntity("KFC Casa", kfc, subEntityRestaurantManager, activityRestaurant,
-                            subEntityRestaurantAddress, 400, true, 4.8F, domainsRestaurant);
+            kfcCasa = createSubEntity("KFC Casa", kfc, subEntityRestaurantManager, activityRestaurant,
+                    subEntityRestaurantAddress, 400, true, 4.8F, domainsRestaurant);
 
 
             Offer kfcOffer1 = createOffer(kfcCasa, new BigDecimal("129.99"), new BigDecimal("89.99"), 8, 3.3f);
@@ -248,15 +251,15 @@ public class OrganizationSeeder implements CommandLineRunner {
          */
 
         Activity activityIndustry = createActivity("Industriels");
-        User industryManager =null ;
+        User industryManager = null;
         if (!userRepository.findByEmail("kamel.ltaiefa@delice.ma").isPresent()) {
             industryManager = createUser("Kamel", "Ltaief", "kamel.ltaiefa@delice.ma", "0650123456");
 
         }
 
-        User subEntityIndustryManager =null;
-        if(!userRepository.findByEmail("mounir.bansalha@delice.ma").isPresent()){
-            subEntityIndustryManager=  createUser("Mounir", "Ben Salha",
+        User subEntityIndustryManager = null;
+        if (!userRepository.findByEmail("mounir.bansalha@delice.ma").isPresent()) {
+            subEntityIndustryManager = createUser("Mounir", "Ben Salha",
                     "mounir.bansalha@delice.ma", "0650865432");
         }
 
@@ -329,6 +332,8 @@ public class OrganizationSeeder implements CommandLineRunner {
         Product agricultureProduct1 = createProduct(zalarCasa, "Pack Poulets Fermiers", "Volaille élevée en plein air", new BigDecimal("999.00"), "Agricultures", 15);
         Deal agricultureDeal1 = createDealWithOfferAndProduct("Offre Poulets Bio", "Réduction sur élevage durable", agricultureOffer1, 1, DealStatus.AVAILABLE, Category.WHOLESALER_DAIRY_PRODUCTS, agricultureProduct1);
 
+        createCoupon(kfcCasa, "CARREFOUR10", 10f, new Date(System.currentTimeMillis() + 86400000L), true);   // Enabled, expire demain
+        createCoupon(kfcCasa, "CARREFOUR20", 20f,new Date(System.currentTimeMillis() - 86400000L), false); // Disabled, expire demain
     }
 
     // Méthode pour créer une activité
@@ -525,6 +530,17 @@ public class OrganizationSeeder implements CommandLineRunner {
                 TransactionType.CASH,
                 order
         );
+    }
+
+    private Coupon createCoupon(SubEntity subEntity, String code, Float discount, Date endsAt, boolean isEnabled) {
+        Coupon coupon = new Coupon();
+        coupon.setCode(code);
+        coupon.setName(code);
+        coupon.setDiscount(discount);
+        coupon.setEndsAt(endsAt);
+        coupon.setIsEnabled(isEnabled);
+        coupon.setSubEntity(subEntity);
+        return couponRepository.save(coupon);
     }
 
 }

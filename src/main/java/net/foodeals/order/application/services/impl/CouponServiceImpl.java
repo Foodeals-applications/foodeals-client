@@ -10,8 +10,10 @@ import net.foodeals.order.domain.repositories.CouponRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -66,5 +68,14 @@ public class CouponServiceImpl implements CouponService {
         final Coupon coupon = findById(id);
         coupon.toggleIsEnabled();
         return repository.save(coupon);
+    }
+
+
+    public Page findAllEnabled(Pageable pageable) {
+        return repository.findAllByIsEnabledTrue(pageable);
+    }
+
+    public Page findAllExpired(Pageable pageable) {
+        return repository.findAllByEndsAtBefore(new Date(),pageable);
     }
 }

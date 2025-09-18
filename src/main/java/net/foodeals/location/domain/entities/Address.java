@@ -3,6 +3,7 @@ package net.foodeals.location.domain.entities;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import net.foodeals.location.domain.enums.AddressType;
 import org.hibernate.annotations.UuidGenerator;
@@ -66,12 +67,15 @@ public class Address extends AbstractEntity<UUID> {
     private Country country ;
 
     @OneToMany(mappedBy = "shippingAddress", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Order> orders;
 
     @OneToOne(mappedBy = "address",fetch = FetchType.LAZY)
+    @JsonIgnore
     private OrganizationEntity organizationEntity;
 
     @OneToOne(mappedBy = "address",fetch = FetchType.LAZY)
+    @JsonIgnore
     private SubEntity subEntity;
 
 	public Address(String address, Coordinates coordinates, City city, Region region,Country country) {

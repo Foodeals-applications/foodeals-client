@@ -25,6 +25,8 @@ public class Coupon extends AbstractEntity<UUID> {
 
     private String code;
 
+    private String name;
+
     private Float discount;
 
     @ManyToOne(fetch = FetchType.LAZY)

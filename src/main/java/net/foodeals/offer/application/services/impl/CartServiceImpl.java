@@ -42,7 +42,14 @@ public class CartServiceImpl implements CartService {
 	@Override
 	public Cart addToCart(Integer userId, CartRequest request) {
 
-		Cart cart = cartRepository.findByUserId(userId).orElse(new Cart(userId));
+		Cart cart = null;
+        if(!cartRepository.findByUserId(userId).isPresent()){
+            cart=new Cart(userId);
+            cart.setDonation(request.isDonation());
+            cart.setShowInfoDonation(request.isShowInfoDonation());
+            cart.setTimeSlot(request.getTimeSlot());
+            cart.setSubEntityAddress(request.getAddressSubEntity());
+        }
 		Deal deal = null;
 		Box box = null;
 		CartItem cartItem = null;
@@ -168,6 +175,7 @@ public class CartServiceImpl implements CartService {
 		double price = 0.0;
 		String providerName = null;
 		String providerAvatar = null;
+        String address=null;
         List<ModalityPaiement>modalityPaiements=new ArrayList<>();
 		int quantity = cartItem.getQuantity();
 
@@ -187,6 +195,7 @@ public class CartServiceImpl implements CartService {
 			if (cartItem.getDeal().getOffer().getSubEntity() != null) {
 				providerName = cartItem.getDeal().getOffer().getSubEntity().getName();
 				providerAvatar = cartItem.getDeal().getOffer().getSubEntity().getAvatarPath();
+                address=cartItem.getDeal().getOffer().getSubEntity().getAddress().getAddress()+ ""+cartItem.getDeal().getOffer().getSubEntity().getAddress().getCity().getName();
                 modalityPaiements = cartItem.getDeal().getOffer().getSubEntity().getModalityPaiements();
 			}
 		} else if (cartItem.getBox() != null && cartItem.getBox().getOffer() != null) {
@@ -200,7 +209,9 @@ public class CartServiceImpl implements CartService {
 			if (cartItem.getBox().getOffer().getSubEntity() != null) {
 				providerName = cartItem.getBox().getOffer().getSubEntity().getName();
 				providerAvatar = cartItem.getBox().getOffer().getSubEntity().getAvatarPath();
-                modalityPaiements = cartItem.getDeal().getOffer().getSubEntity().getModalityPaiements();
+                address=cartItem.getBox().getOffer().getSubEntity().getAddress().getAddress()+ ""+cartItem.getBox().
+                        getOffer().getSubEntity().getAddress().getCity().getName();
+                modalityPaiements = cartItem.getBox().getOffer().getSubEntity().getModalityPaiements();
 			}
 		} else if (cartItem.getProduct() != null) {
 			Product product = cartItem.getProduct();

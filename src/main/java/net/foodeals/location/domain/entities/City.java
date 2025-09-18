@@ -31,6 +31,7 @@ public class City extends AbstractEntity<UUID> {
 
     private String code;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private State state;
 
@@ -38,8 +39,10 @@ public class City extends AbstractEntity<UUID> {
     @JsonIgnore
     private List<Address> addresses;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "city", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private  List<Region> regions = new ArrayList<>();
-    
+
+    @JsonIgnore
     private Coordinates coordinates;
 }

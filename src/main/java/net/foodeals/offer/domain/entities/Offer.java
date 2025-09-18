@@ -1,5 +1,6 @@
 package net.foodeals.offer.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -55,15 +56,19 @@ public class Offer extends AbstractEntity<UUID> {
 	private Offerable offerable;
 
 	@OneToMany(fetch=FetchType.LAZY, mappedBy = "offer", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Order> orders = new ArrayList<>();
+	@JsonIgnore
+    private List<Order> orders = new ArrayList<>();
 
 	@Transient
+    @JsonIgnore
 	private IOfferChoice offerChoice;
 
 	@Embedded
+    @JsonIgnore
 	private PublisherInfo publisherInfo;
 
 	@Transient
+    @JsonIgnore
 	private PublisherI publisherI;
 
 	@Enumerated(EnumType.STRING)

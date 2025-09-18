@@ -7,6 +7,7 @@ import net.foodeals.order.application.dtos.responses.CouponResponse;
 import net.foodeals.order.application.services.CouponService;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,7 @@ public class CouponController {
                 .map(coupon -> mapper.map(coupon, CouponResponse.class));
         return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<CouponResponse> getById(@PathVariable UUID id) {
@@ -63,6 +65,28 @@ public class CouponController {
         final CouponResponse response = mapper.map(
                 service.toggleIsEnabled(id),
                 CouponResponse.class);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/enabled")
+    public ResponseEntity<Page<CouponResponse>> getAllEnabled(
+            @RequestParam(defaultValue = "0") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+
+        Page<CouponResponse> response = service.findAllEnabled(PageRequest.of(pageNum, pageSize))
+                .map(coupon -> mapper.map(coupon, CouponResponse.class));
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/expired")
+    public ResponseEntity<Page<CouponResponse>> getAllExpired(
+            @RequestParam(defaultValue = "0") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+
+        Page<CouponResponse> response = service.findAllExpired(PageRequest.of(pageNum, pageSize))
+                .map(coupon -> mapper.map(coupon, CouponResponse.class));
+
         return ResponseEntity.ok(response);
     }
 }

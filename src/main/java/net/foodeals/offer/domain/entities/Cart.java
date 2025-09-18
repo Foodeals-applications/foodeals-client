@@ -33,6 +33,14 @@ public class Cart extends AbstractEntity<UUID>{
     @Column(nullable = false)
     private Integer userId;
 
+    private String timeSlot;
+
+    private String subEntityAddress;
+
+    private boolean isDonation;
+
+    private boolean showInfoDonation;
+
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CartItem> items=new ArrayList<>();
 

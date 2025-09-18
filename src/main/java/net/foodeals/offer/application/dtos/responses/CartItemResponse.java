@@ -28,6 +28,7 @@ public class CartItemResponse {
 
     private String subEntityName;
 
+
     private List<ModalityPaiement> modalityPaiementList;
 
     private String subEntityPhotoUrl;

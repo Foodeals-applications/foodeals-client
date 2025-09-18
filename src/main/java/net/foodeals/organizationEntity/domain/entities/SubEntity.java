@@ -38,6 +38,7 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
     private String name;
 
     @Enumerated(EnumType.STRING)
+
     private SubEntityType type;
 
     @Column(name = "avatar_path")
@@ -47,15 +48,18 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
     private String coverPath;
 
     @Column(name = "iframe", length = 800)
+    @JsonIgnore
     private String iFrame;
 
     @Embedded
     private Coordinates coordinates;
 
     @OneToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
     private User manager;
 
     @ManyToOne(optional = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private OrganizationEntity organizationEntity;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -63,6 +67,7 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
     private List<Activity> activities = new ArrayList<>();
 
     @OneToMany(mappedBy = "subEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<User> users = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -91,16 +96,20 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
 //
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Offer> offers = new ArrayList<>();
 
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Solution> solutions = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
+    @JsonIgnore
     private List<ModalityType>modalityTypes;
 
     @Enumerated(EnumType.STRING)
+    @JsonIgnore
     private List<ModalityPaiement>modalityPaiements;
 
     private String email;
@@ -123,6 +132,7 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
     private List<SubEntityDomain> subEntityDomains = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
+    @JsonIgnore
     private SubEntityStatus subEntityStatus;
 
 
