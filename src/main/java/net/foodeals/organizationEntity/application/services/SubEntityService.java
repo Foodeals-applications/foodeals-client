@@ -25,6 +25,8 @@ public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntity
 
     void deleteSubEntity(UUID id, String reason, String motif);
 
+    public List<StoreMapDTO> getStoresOnMap();
+
     Page<SubEntity> filterSubEntities(Instant startDate, Instant endDate, String raisonSociale, UUID managerId,
                                       String email, String phone, UUID cityId, UUID solutionId,
                                       Pageable pageable);

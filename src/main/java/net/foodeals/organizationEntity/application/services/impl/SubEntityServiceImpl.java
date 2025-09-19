@@ -830,4 +830,19 @@ public class SubEntityServiceImpl implements SubEntityService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return EARTH_RADIUS * c; // Retourne la distance en kilomètres
     }
+
+
+    public List<StoreMapDTO> getStoresOnMap() {
+        return subEntityRepository.findAll()
+                .stream()
+                .filter(sub -> sub.getCoordinates() != null)
+                .map(sub -> new StoreMapDTO(
+                        sub.getId(),
+                        sub.getName(),
+                        sub.getAvatarPath(),
+                        sub.getCoordinates().latitude(),
+                        sub.getCoordinates().longitude()
+                ))
+                .collect(Collectors.toList());
+    }
 }

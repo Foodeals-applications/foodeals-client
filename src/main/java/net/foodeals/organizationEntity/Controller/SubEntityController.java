@@ -122,6 +122,10 @@ public class SubEntityController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/stores/map")
+    public List<StoreMapDTO> getStoresOnMap() {
+        return subEntityService.getStoresOnMap();
+    }
     
     private String generatePhotoUrl(String name) {
         String baseUrl = "/images/"; // Votre domaine ou base d'URL

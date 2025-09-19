@@ -1,20 +1,8 @@
 package net.foodeals.organizationEntity.seeder;
 
-import java.math.BigDecimal;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Currency;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import net.foodeals.order.domain.entities.Coupon;
-import net.foodeals.order.domain.repositories.CouponRepository;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import lombok.RequiredArgsConstructor;
+import net.foodeals.banner.domain.entities.Banner;
+import net.foodeals.banner.domain.repositories.BannerRepository;
 import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.common.valueOjects.Price;
 import net.foodeals.location.domain.entities.Address;
@@ -25,24 +13,16 @@ import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.entities.Offer;
 import net.foodeals.offer.domain.entities.OpenTime;
-import net.foodeals.offer.domain.enums.BoxStatus;
-import net.foodeals.offer.domain.enums.BoxType;
-import net.foodeals.offer.domain.enums.Category;
-import net.foodeals.offer.domain.enums.DealStatus;
-import net.foodeals.offer.domain.enums.ModalityPaiement;
-import net.foodeals.offer.domain.enums.ModalityType;
-import net.foodeals.offer.domain.enums.PublishAs;
+import net.foodeals.offer.domain.enums.*;
 import net.foodeals.offer.domain.repositories.BoxRepository;
 import net.foodeals.offer.domain.repositories.DealRepository;
 import net.foodeals.offer.domain.repositories.OfferRepository;
 import net.foodeals.offer.domain.repositories.OpenTimeRepository;
+import net.foodeals.order.domain.entities.Coupon;
 import net.foodeals.order.domain.entities.Order;
 import net.foodeals.order.domain.entities.Transaction;
-import net.foodeals.order.domain.enums.OrderSource;
-import net.foodeals.order.domain.enums.OrderStatus;
-import net.foodeals.order.domain.enums.OrderType;
-import net.foodeals.order.domain.enums.TransactionStatus;
-import net.foodeals.order.domain.enums.TransactionType;
+import net.foodeals.order.domain.enums.*;
+import net.foodeals.order.domain.repositories.CouponRepository;
 import net.foodeals.order.domain.repositories.OrderRepository;
 import net.foodeals.order.domain.repositories.TransactionRepository;
 import net.foodeals.organizationEntity.domain.entities.Activity;
@@ -52,11 +32,7 @@ import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
 import net.foodeals.organizationEntity.domain.entities.enums.EntityType;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityStatus;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityType;
-import net.foodeals.organizationEntity.domain.repositories.ActivityRepository;
-import net.foodeals.organizationEntity.domain.repositories.OrganizationEntityRepository;
-import net.foodeals.organizationEntity.domain.repositories.SubEntityDomainRepository;
-import net.foodeals.organizationEntity.domain.repositories.SubEntityProductCategoryRepository;
-import net.foodeals.organizationEntity.domain.repositories.SubEntityRepository;
+import net.foodeals.organizationEntity.domain.repositories.*;
 import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.entities.ProductCategory;
 import net.foodeals.product.domain.entities.Supplement;
@@ -67,6 +43,13 @@ import net.foodeals.product.domain.repositories.SupplementRepository;
 import net.foodeals.user.domain.entities.User;
 import net.foodeals.user.domain.repositories.UserRepository;
 import net.foodeals.user.domain.valueObjects.Name;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalTime;
+import java.util.*;
 
 
 @Component
@@ -95,6 +78,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     private final TransactionRepository transactionRepository;
     private final OpenTimeRepository openTimeRepository;
     private final CouponRepository couponRepository;
+    private final BannerRepository bannerRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -333,7 +317,15 @@ public class OrganizationSeeder implements CommandLineRunner {
         Deal agricultureDeal1 = createDealWithOfferAndProduct("Offre Poulets Bio", "Réduction sur élevage durable", agricultureOffer1, 1, DealStatus.AVAILABLE, Category.WHOLESALER_DAIRY_PRODUCTS, agricultureProduct1);
 
         createCoupon(kfcCasa, "CARREFOUR10", 10f, new Date(System.currentTimeMillis() + 86400000L), true);   // Enabled, expire demain
-        createCoupon(kfcCasa, "CARREFOUR20", 20f,new Date(System.currentTimeMillis() - 86400000L), false); // Disabled, expire demain
+        createCoupon(kfcCasa, "CARREFOUR20", 20f, new Date(System.currentTimeMillis() - 86400000L), false); // Disabled, expire demain
+
+        createBanner(
+                "https://cdn.monsite.com/banner1.jpg",
+                "https://promo.monsite.com");
+
+        createBanner(
+                "https://cdn.monsite.com/banner2.jpg",
+                "https://offre.monsite.com");
     }
 
     // Méthode pour créer une activité
@@ -386,7 +378,7 @@ public class OrganizationSeeder implements CommandLineRunner {
         subEntity.setFeeDelivered(feeDelivered);
         subEntity.setNumberOfStars(numberOfStars);
         subEntity.setModalityTypes(List.of(ModalityType.AT_PLACE, ModalityType.DELIVERY, ModalityType.PICKUP));
-        subEntity.setModalityPaiements(List.of(ModalityPaiement.CASH,ModalityPaiement.CARD));
+        subEntity.setModalityPaiements(List.of(ModalityPaiement.CASH, ModalityPaiement.CARD));
         return subEntityRepository.save(subEntity);
     }
 
@@ -541,6 +533,23 @@ public class OrganizationSeeder implements CommandLineRunner {
         coupon.setIsEnabled(isEnabled);
         coupon.setSubEntity(subEntity);
         return couponRepository.save(coupon);
+    }
+
+
+    private void createBanner(String imageUrl, String link) {
+        // Vérifie si la bannière existe déjà (pour éviter doublons)
+        boolean exists = bannerRepository
+                .findAll()
+                .stream()
+                .anyMatch(b -> b.getImageUrl().equals(imageUrl) && b.getLink().equals(link));
+
+        if (!exists) {
+            Banner banner = new Banner(imageUrl, link);
+            bannerRepository.save(banner);
+            System.out.println("✅ Banner créée : " + link);
+        } else {
+            System.out.println("ℹ️ Bannière déjà existante : " + link);
+        }
     }
 
 }
