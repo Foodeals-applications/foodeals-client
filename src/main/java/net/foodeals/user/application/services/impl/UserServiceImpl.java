@@ -10,12 +10,14 @@ import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.entities.Offer;
 import net.foodeals.offer.domain.repositories.DealRepository;
 import net.foodeals.offer.domain.repositories.OfferRepository;
+import net.foodeals.order.domain.entities.Order;
 import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.repositories.ProductRepository;
 import net.foodeals.user.application.dtos.responses.FavorisOfferPartenerResponse;
 import net.foodeals.user.application.dtos.responses.FavorisOfferResponse;
 import net.foodeals.user.application.dtos.responses.InfosProfileResponse;
 
+import net.foodeals.user.application.dtos.responses.UserStatisticsResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
@@ -130,7 +132,34 @@ class UserServiceImpl implements UserService {
 		return new ArrayList<>() ;
 	}
 
-	@Override
+    @Override
+    public UserStatisticsResponse getStatistics() {
+        User user = getConnectedUser();
+
+        double savedAmount = 0.0;
+        int productsSaved = 0;
+        double co2Saved = 0.0;
+
+        for (Order order : user.getOrders()) {
+            Offer offer = order.getOffer();
+            if (offer == null) continue;
+
+            double originalPrice = offer.getPrice() != null ? offer.getPrice().amount().doubleValue() : 0.0;
+            double salePrice = offer.getSalePrice() != null ? offer.getSalePrice().amount().doubleValue() : originalPrice;
+
+            int quantity = order.getQuantity() != null ? order.getQuantity() : 1;
+
+            savedAmount += (originalPrice - salePrice) * quantity;
+            productsSaved += quantity;
+        }
+
+        // Exemple : chaque produit sauvé = 0.41 kg de CO2 évité
+        co2Saved = productsSaved * 0.41;
+
+        return new UserStatisticsResponse(savedAmount, productsSaved, co2Saved);
+    }
+
+    @Override
 	public List<FavorisOfferPartenerResponse> getListFavorisOffersPartners() {
 		User user = getConnectedUser();
 		if(Objects.isNull(user.getFavorisOffers())) {

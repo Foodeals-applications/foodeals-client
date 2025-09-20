@@ -7,6 +7,7 @@ import net.foodeals.user.application.dtos.requests.UserRequest;
 import net.foodeals.user.application.dtos.responses.FavorisOfferPartenerResponse;
 import net.foodeals.user.application.dtos.responses.FavorisOfferResponse;
 import net.foodeals.user.application.dtos.responses.InfosProfileResponse;
+import net.foodeals.user.application.dtos.responses.UserStatisticsResponse;
 import net.foodeals.user.domain.entities.User;
 
 import java.util.List;
@@ -25,6 +26,8 @@ public interface UserService extends CrudService<User, Integer, UserRequest> {
 	User setPositionClient(Integer id ,Coordinates coordinates,int raduis);
 
     List<FavorisOfferResponse> getListFavorisOffers();
+
+    public UserStatisticsResponse getStatistics();
 
     List<FavorisOfferPartenerResponse> getListFavorisOffersPartners();
     

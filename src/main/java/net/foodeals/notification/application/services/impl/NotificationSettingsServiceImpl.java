@@ -2,9 +2,13 @@ package net.foodeals.notification.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.notification.application.dtos.responses.NotificationCountResponse;
 import net.foodeals.notification.application.services.NotificationSettingsService;
 import net.foodeals.notification.domain.entity.NotificationSettings;
+import net.foodeals.notification.domain.enums.TypeRequest;
+import net.foodeals.notification.domain.repositories.NotificationRepository;
 import net.foodeals.notification.domain.repositories.NotificationSettingsRepository;
+import net.foodeals.user.application.services.UserService;
 import net.foodeals.user.domain.entities.User;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +20,8 @@ public class NotificationSettingsServiceImpl implements NotificationSettingsServ
 
 
     private final NotificationSettingsRepository repository;
+    private final NotificationRepository notificationRepository;
+    private final UserService userService;
 
     @Override
     public NotificationSettings getSettingsForUser(User user) {
@@ -47,5 +53,16 @@ public class NotificationSettingsServiceImpl implements NotificationSettingsServ
         settings.setImportantUpdates(false);
         settings.setPromotions(false);
         return repository.save(settings);
+    }
+
+
+    public NotificationCountResponse getNotificationCounts() {
+        User user = userService.getConnectedUser();
+
+        long donations = notificationRepository.countByUserAndTypeRequest(user, TypeRequest.DONATION);
+        long favorites = notificationRepository.countByUserAndTypeRequest(user, TypeRequest.FAVORITE);
+        long coupons = notificationRepository.countByUserAndTypeRequest(user, TypeRequest.COUPON);
+
+        return new NotificationCountResponse(donations, favorites, coupons);
     }
 }

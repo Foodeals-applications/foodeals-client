@@ -2,6 +2,7 @@ package net.foodeals.notification.infrastructure.interfaces.web;
 
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.notification.application.dtos.responses.NotificationCountResponse;
 import net.foodeals.notification.application.dtos.responses.NotificationSettingsResponse;
 import net.foodeals.notification.application.services.NotificationSettingsService;
 import net.foodeals.notification.domain.entity.NotificationSettings;
@@ -18,6 +19,11 @@ public class NotificationSettingsController {
     private final NotificationSettingsService service;
     private final UserService userService;
 
+
+    @GetMapping("/counts")
+    public NotificationCountResponse getCounts() {
+        return service.getNotificationCounts();
+    }
 
     @GetMapping
     public ResponseEntity<NotificationSettingsResponse> getNotificationSettings() {

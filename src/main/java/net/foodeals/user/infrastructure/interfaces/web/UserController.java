@@ -3,6 +3,7 @@ package net.foodeals.user.infrastructure.interfaces.web;
 import java.util.List;
 import java.util.Map;
 
+import net.foodeals.user.application.dtos.responses.UserStatisticsResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,6 +45,11 @@ public class UserController {
                 user.getCoordinates().longitude(), radius);
 		return ResponseEntity.ok(result);
 	}
+
+    @GetMapping("/me/statistics")
+    public UserStatisticsResponse getMyStatistics() {
+        return service.getStatistics();
+    }
 
 	@GetMapping("/store-count")
 	public ResponseEntity<List<Map<String, Object>>> getStoreCountByDomains() {
