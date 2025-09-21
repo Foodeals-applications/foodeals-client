@@ -53,6 +53,17 @@ public enum Category {
 		return name;
 	}
 
+    public static Category fromString(String str) {
+        if (str == null) return null;
+        String normalized = str.trim().replace(" ", "_").toUpperCase();
+        for (Category c : values()) {
+            if (c.name().equals(normalized)) {
+                return c;
+            }
+        }
+        return null; // ou lever exception personnalisée
+    }
+
 	public static List<CategoryPair> getCategoryPairs() {
 		List<CategoryPair> pairs = new ArrayList();
 		for (Category category : values()) {

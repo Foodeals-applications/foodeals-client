@@ -2,7 +2,9 @@ package net.foodeals.offer.application.services;
 
 import net.foodeals.common.contracts.CrudService;
 import net.foodeals.offer.application.dtos.requests.BoxDto;
+import net.foodeals.offer.application.dtos.responses.BoxCategory;
 import net.foodeals.offer.application.dtos.responses.BoxDetailsResponse;
+import net.foodeals.offer.application.dtos.responses.BoxListResponse;
 import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.entities.Offer;
 import net.foodeals.offer.domain.enums.BoxType;
@@ -31,7 +33,11 @@ public interface BoxService extends CrudService<Box, UUID, BoxDto>{
 	
 	String saveFile(MultipartFile file);
 
-	void deleteBox(UUID id, String reason, String motif);
+    public BoxListResponse getBoxes(int page, int limit, String categoryStr);
+
+    public List<BoxCategory> getAllCategories();
+
+    void deleteBox(UUID id, String reason, String motif);
 	
 	Page<Box> getExpiredAndUnavailableBoxs(Pageable pageable,BoxType type);
 

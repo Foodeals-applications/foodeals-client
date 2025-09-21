@@ -18,6 +18,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.foodeals.offer.application.dtos.responses.*;
+import net.foodeals.offer.domain.enums.Category;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -32,11 +34,6 @@ import lombok.RequiredArgsConstructor;
 import net.foodeals.common.Utils.DistanceCalculator;
 import net.foodeals.offer.application.dtos.requests.BoxDto;
 import net.foodeals.offer.application.dtos.requests.OpenTimeDto;
-import net.foodeals.offer.application.dtos.responses.BoxDetailsResponse;
-import net.foodeals.offer.application.dtos.responses.OpenTimeResponse;
-import net.foodeals.offer.application.dtos.responses.SimilarBoxResponse;
-import net.foodeals.offer.application.dtos.responses.SupplementBoxResponse;
-import net.foodeals.offer.application.dtos.responses.SupplementDealResponse;
 import net.foodeals.offer.application.services.BoxService;
 import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.entities.IOfferChoice;
@@ -166,7 +163,43 @@ class BoxServiceImpl implements BoxService {
 		return file.getOriginalFilename();
 	}
 
-	@Override
+    @Override
+    public BoxListResponse getBoxes(int page, int limit, String categoryStr) {
+        PageRequest pageable = PageRequest.of(page - 1, limit);
+
+        List<Box> boxes;
+        long totalCount;
+
+        if (!"all".equalsIgnoreCase(categoryStr)) {
+            Category category = Category.fromString(categoryStr);
+            if (category != null) {
+                var pageResult = repository.findByCategory(category, pageable);
+                boxes = pageResult.getContent();
+                totalCount = pageResult.getTotalElements();
+            } else {
+                boxes = List.of();
+                totalCount = 0;
+            }
+        } else {
+            var pageResult = repository.findAll(pageable);
+            boxes = pageResult.getContent();
+            totalCount = pageResult.getTotalElements();
+        }
+
+        boolean hasMore = page * limit < totalCount;
+
+        return new BoxListResponse(boxes, totalCount, hasMore);
+    }
+
+    @Override
+    public List<BoxCategory> getAllCategories() {
+        return Category.getCategoryPairs()
+                .stream()
+                .map(pair -> new BoxCategory(pair.getValue(), pair.getName()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
 	public void deleteBox(UUID id, String reason, String motif) {
 		Box box = findById(id);
 		if (!Objects.isNull(box)) {

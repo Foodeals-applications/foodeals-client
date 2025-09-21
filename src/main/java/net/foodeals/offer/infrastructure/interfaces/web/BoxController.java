@@ -1,5 +1,7 @@
 package net.foodeals.offer.infrastructure.interfaces.web;
+import net.foodeals.offer.application.dtos.responses.BoxCategory;
 import net.foodeals.offer.application.dtos.responses.BoxDetailsResponse;
+import net.foodeals.offer.application.dtos.responses.BoxListResponse;
 import net.foodeals.offer.application.dtos.responses.CartResponse;
 import net.foodeals.offer.application.services.BoxService;
 import net.foodeals.offer.domain.entities.Box;
@@ -33,6 +35,20 @@ public class BoxController {
                                                 @RequestParam(defaultValue = "10") Integer pageSize) {
         List<Offer>offers= boxService.findOffersByBoxType(BoxType.MYSTERY_BOX);
         return ResponseEntity.ok(offers);
+    }
+
+    @GetMapping("/list")
+    public BoxListResponse listBoxes(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "all") String category
+    ) {
+        return boxService.getBoxes(page, limit, category);
+    }
+
+    @GetMapping("/categories")
+    public List<BoxCategory> listCategories() {
+        return boxService.getAllCategories();
     }
 
 

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.foodeals.offer.domain.enums.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -51,6 +52,9 @@ public interface BoxRepository extends BaseRepository<Box, UUID> {
     
     @Query("SELECT DISTINCT b FROM Box b JOIN b.products p WHERE p.id IN :productIds AND b.id <> :boxId")
     List<Box> findSimilarBoxesByProductIds(List<UUID> productIds, UUID boxId);
+
+
+    Page<Box> findByCategory(Category category, Pageable pageable);
 
 
 }
