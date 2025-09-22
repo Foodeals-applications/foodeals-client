@@ -7,12 +7,17 @@ import lombok.Setter;
 import net.foodeals.offer.domain.enums.ModalityPaiement;
 
 import java.util.List;
+import java.util.UUID;
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class CartItemResponse {
+
+    private UUID idItem ;
+
+    private UUID productId;
 
     private String productName ;
 

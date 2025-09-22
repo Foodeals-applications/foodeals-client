@@ -67,4 +67,6 @@ public interface SubEntityRepository extends JpaRepository<SubEntity, UUID> {
     @Query("SELECT se FROM SubEntity se JOIN se.subEntityDomains sed WHERE sed.name = :domainName")
     List<SubEntity> findByDomaineName(String domainName);
 
+    List<SubEntity> findByIsFeaturedTrue();
+
 }

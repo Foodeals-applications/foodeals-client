@@ -62,6 +62,8 @@ public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntity
 
     List<AgricultureResponse> getListOfAgrucultures(User user);
 
+    List<SpotlightStore> getSpotlightStores();
+
 }
 
     

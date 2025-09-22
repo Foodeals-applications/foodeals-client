@@ -11,6 +11,8 @@ import net.foodeals.offer.domain.entities.Deal;
 public interface CartService {
 
 	 Cart addToCart(Integer userId, CartRequest request);
+
+     Cart updateCart(Cart cart);
 	 
 	 Cart getCartByUser(Integer  userId);
 	 

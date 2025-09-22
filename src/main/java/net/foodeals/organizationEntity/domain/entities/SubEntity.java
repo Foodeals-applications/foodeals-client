@@ -135,6 +135,9 @@ public class SubEntity extends AbstractEntity<UUID> implements DonorInfo, Receiv
     @JsonIgnore
     private SubEntityStatus subEntityStatus;
 
+    @Column(name = "is_featured", nullable = false)
+    private boolean isFeatured;
+
 
     public SubEntity() {
     }

@@ -71,7 +71,12 @@ public class CartServiceImpl implements CartService {
 		return cart;
 	}
 
-	@Override
+    @Override
+    public Cart updateCart(Cart cart) {
+        return cartRepository.save(cart);
+    }
+
+    @Override
 	public Cart getCartByUser(Integer userId) {
 		return cartRepository.findByUserId(userId).orElse(null);
 	}
@@ -167,7 +172,8 @@ public class CartServiceImpl implements CartService {
 	}
 
 	public CartItemResponse toCartItemResponse(CartItem cartItem) {
-		String name = null;
+		UUID productId=null;
+        String name = null;
         String description=null;
 		String imagePath = null;
         Integer totalProducts=null;
@@ -182,6 +188,7 @@ public class CartServiceImpl implements CartService {
 		if (cartItem.getDeal() != null && cartItem.getDeal().getOffer() != null) {
 			Product product = cartItem.getDeal().getProduct();
 			if (product != null) {
+                productId=product.getId();
                 totalProducts++;
 				name = product.getName();
                 description=product.getDescription();
@@ -215,6 +222,7 @@ public class CartServiceImpl implements CartService {
 			}
 		} else if (cartItem.getProduct() != null) {
 			Product product = cartItem.getProduct();
+            productId=product.getId();
             totalProducts++;
 			name = product.getName();
 			imagePath = product.getProductImagePath();
@@ -223,7 +231,7 @@ public class CartServiceImpl implements CartService {
 			// À adapter si Product contient des infos de prix et de fournisseur
 		}
 
-		return new CartItemResponse(name, description,imagePath, totalProducts,price,oldPrice, providerName,
+		return new CartItemResponse(cartItem.getId(),productId,name, description,imagePath, totalProducts,price,oldPrice, providerName,
              modalityPaiements,   providerAvatar, quantity);
 	}
 

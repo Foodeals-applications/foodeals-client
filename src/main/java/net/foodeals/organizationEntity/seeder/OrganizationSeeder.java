@@ -50,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 @Component
@@ -379,6 +380,8 @@ public class OrganizationSeeder implements CommandLineRunner {
         subEntity.setNumberOfStars(numberOfStars);
         subEntity.setModalityTypes(List.of(ModalityType.AT_PLACE, ModalityType.DELIVERY, ModalityType.PICKUP));
         subEntity.setModalityPaiements(List.of(ModalityPaiement.CASH, ModalityPaiement.CARD));
+        boolean isFeatured = ThreadLocalRandom.current().nextBoolean();
+        subEntity.setFeatured(isFeatured);
         return subEntityRepository.save(subEntity);
     }
 

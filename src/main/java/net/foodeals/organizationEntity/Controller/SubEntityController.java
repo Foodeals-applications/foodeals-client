@@ -62,6 +62,10 @@ public class SubEntityController {
         return ResponseEntity.ok(bestSellers);
     }
 
+    @GetMapping("/spotlight")
+    public List<SpotlightStore> getSpotlightStores() {
+        return subEntityService.getSpotlightStores();
+    }
 
     @GetMapping("/hotel/details/{id}")
     public ResponseEntity<HotelDetailsResponse> getHotemDetails(@PathVariable UUID id) {

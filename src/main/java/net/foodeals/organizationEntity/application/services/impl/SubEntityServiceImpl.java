@@ -783,6 +783,31 @@ public class SubEntityServiceImpl implements SubEntityService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<SpotlightStore> getSpotlightStores() {
+        User user = userService.getConnectedUser();
+
+        List<SubEntity> featuredStores = subEntityRepository.findByIsFeaturedTrue();
+
+        return featuredStores.stream().map(subEntity -> {
+            double distance = DistanceCalculator.calculateDistance(
+                    user.getCoordinates().latitude(),
+                    user.getCoordinates().longitude(),
+                    subEntity.getCoordinates().latitude(),
+                    subEntity.getCoordinates().longitude()
+            );
+            return new SpotlightStore(
+                    subEntity.getId(),
+                    subEntity.getName(),
+                    subEntity.getAvatarPath(),
+                    subEntity.getCoverPath(),
+                    distance,
+                    subEntity.getNumberOfLikes(),
+                    subEntity.getNumberOfStars()
+            );
+        }).collect(Collectors.toList());
+    }
+
 
     public List<BestSellerResponse> getBestSellers(Double salesThreshold) {
 
