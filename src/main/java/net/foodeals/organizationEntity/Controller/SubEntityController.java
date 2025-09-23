@@ -12,7 +12,9 @@ import net.foodeals.user.domain.entities.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -129,6 +131,31 @@ public class SubEntityController {
     @GetMapping("/stores/map")
     public List<StoreMapDTO> getStoresOnMap() {
         return subEntityService.getStoresOnMap();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Map<String, Object>> searchStores(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "all") String category,
+            @RequestParam double lat,
+            @RequestParam double lng,
+            @RequestParam(defaultValue = "50") double radius,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit) {
+
+        List<StoreResponse> allStores = subEntityService.searchStores(q, category, lat, lng, radius);
+
+        // Pagination manuelle
+        int start = page * limit;
+        int end = Math.min(start + limit, allStores.size());
+        List<StoreResponse> paginated = start < end ? allStores.subList(start, end) : List.of();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("stores", paginated);
+        response.put("totalCount", allStores.size());
+        response.put("hasMore", end < allStores.size());
+
+        return ResponseEntity.ok(response);
     }
     
     private String generatePhotoUrl(String name) {

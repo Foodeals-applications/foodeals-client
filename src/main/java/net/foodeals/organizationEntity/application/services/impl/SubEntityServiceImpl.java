@@ -808,6 +808,51 @@ public class SubEntityServiceImpl implements SubEntityService {
         }).collect(Collectors.toList());
     }
 
+    @Override
+    public List<StoreResponse> searchStores(String q, String category, double lat, double lng, double radiusKm) {
+        List<SubEntity> stores;
+
+        // 1️⃣ Charger selon catégorie
+        if (category != null && !"all".equalsIgnoreCase(category)) {
+            stores = subEntityRepository.findBySubEntityDomains_NameIgnoreCase(category);
+        } else {
+            stores = subEntityRepository.findAll();
+        }
+
+        // 2️⃣ Filtrer par nom (q)
+        if (q != null && !q.isEmpty()) {
+            String queryLower = q.toLowerCase();
+            stores = stores.stream()
+                    .filter(s -> s.getName() != null && s.getName().toLowerCase().contains(queryLower))
+                    .toList();
+        }
+
+        // 3️⃣ Filtrer par distance et mapper vers DTO
+        return stores.stream()
+                .map(s -> {
+                    double distance = 0;
+                    if (lat != 0 && lng != 0 && radiusKm > 0 && s.getCoordinates() != null) {
+                        Double storeLat = s.getCoordinates().latitude().doubleValue();
+                        Double storeLng = s.getCoordinates().longitude().doubleValue();
+                        if (storeLat != null && storeLng != null) {
+                            distance = DistanceCalculator.calculateDistance(lat, lng, storeLat, storeLng);
+                        }
+                    }
+
+                    return new StoreResponse(
+                            s.getId(),
+                            s.getName(),
+                            s.getAvatarPath(),
+                            s.getCoverPath(),
+                            distance,
+                            s.getNumberOfLikes(),
+                            s.getNumberOfStars()
+                    );
+                })
+                .filter(dto -> radiusKm <= 0 || dto.getDistance() <= radiusKm) // appliquer filtre distance ici
+                .toList();
+    }
+
 
     public List<BestSellerResponse> getBestSellers(Double salesThreshold) {
 

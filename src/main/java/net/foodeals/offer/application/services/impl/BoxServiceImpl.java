@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import net.foodeals.offer.application.dtos.responses.*;
 import net.foodeals.offer.domain.enums.Category;
+import net.foodeals.product.application.dtos.responses.ProductOfferResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -167,28 +168,64 @@ class BoxServiceImpl implements BoxService {
     public BoxListResponse getBoxes(int page, int limit, String categoryStr) {
         PageRequest pageable = PageRequest.of(page - 1, limit);
 
-        List<Box> boxes;
+        List<BoxResponse> boxResponses;
         long totalCount;
 
         if (!"all".equalsIgnoreCase(categoryStr)) {
             Category category = Category.fromString(categoryStr);
             if (category != null) {
                 var pageResult = repository.findByCategory(category, pageable);
-                boxes = pageResult.getContent();
+                boxResponses = pageResult.getContent()
+                        .stream()
+                        .map(this::mapToResponse)
+                        .toList();
                 totalCount = pageResult.getTotalElements();
             } else {
-                boxes = List.of();
+                boxResponses = List.of();
                 totalCount = 0;
             }
         } else {
             var pageResult = repository.findAll(pageable);
-            boxes = pageResult.getContent();
+            boxResponses = pageResult.getContent()
+                    .stream()
+                    .map(this::mapToResponse)
+                    .toList();
             totalCount = pageResult.getTotalElements();
         }
 
         boolean hasMore = page * limit < totalCount;
 
-        return new BoxListResponse(boxes, totalCount, hasMore);
+        return new BoxListResponse(boxResponses, totalCount, hasMore);
+    }
+
+    /**
+     * Mapper d'une entité Box vers son DTO BoxResponse
+     */
+    private BoxResponse mapToResponse(Box box) {
+        return new BoxResponse(
+                box.getId().toString(),
+                box.getTitle(),
+                box.getDescription(),
+                box.getOffer().getSalePrice().amount().doubleValue(),
+                box.getPhotoBoxPath(),
+                box.getOffer().getSubEntity().getId().toString(),
+                box.getOffer().getSubEntity().getName(),
+                box.getOffer().getSubEntity().getAvatarPath(),
+                box.getProducts().stream().map(p->mapToProductResponse(p)).toList(),
+                box.getBoxStatus().name(),
+                box.getCategory().name()
+        );
+    }
+
+    public ProductOfferResponse mapToProductResponse(Product product) {
+        return new ProductOfferResponse(
+                product.getId(),
+                product.getProductImagePath(),      // adapte si ton champ dans Product s’appelle différemment
+                product.getName(),
+                product.getPrice().amount(),
+                product.getPrice().amount(),
+                product.getStock()
+        );
     }
 
     @Override

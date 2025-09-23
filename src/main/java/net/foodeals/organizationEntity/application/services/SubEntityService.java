@@ -64,6 +64,8 @@ public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntity
 
     List<SpotlightStore> getSpotlightStores();
 
+    public List<StoreResponse> searchStores(String q, String category, double lat, double lng, double radiusKm);
+
 }
 
     

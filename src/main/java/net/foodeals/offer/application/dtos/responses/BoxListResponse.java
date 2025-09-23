@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class BoxListResponse {
-    private List<Box> boxes;
+    private List<BoxResponse> boxes;
     private long totalCount;
     private boolean hasMore;
 }
