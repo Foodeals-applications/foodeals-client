@@ -10,4 +10,6 @@ import net.foodeals.organizationEntity.domain.entities.SubEntity;
 public interface OfferRepository extends BaseRepository<Offer, UUID> {
 	
 	List<Offer>getOffersBySubEntity(SubEntity subEntity);
+
+    List<Offer> findByType(String type);
 }

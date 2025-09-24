@@ -1,6 +1,7 @@
 package net.foodeals.organizationEntity.Controller;
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.offer.application.dtos.responses.DealStoreResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.*;
 import net.foodeals.organizationEntity.application.services.SubEntityCategoryService;
 import net.foodeals.organizationEntity.application.services.SubEntityService;
@@ -131,6 +132,16 @@ public class SubEntityController {
     @GetMapping("/stores/map")
     public List<StoreMapDTO> getStoresOnMap() {
         return subEntityService.getStoresOnMap();
+    }
+
+    @GetMapping("/stores/{id}/deals")
+    public List<DealStoreResponse> getStoresDeals(@PathVariable UUID id) {
+        return subEntityService.getDealStores(id);
+    }
+
+    @GetMapping("categories/{id}/stores")
+    public StoresByCategoryResponse getStoresByCategory(@PathVariable("id") String category) {
+        return subEntityService.getStoresByCategory(category);
     }
 
     @GetMapping("/search")

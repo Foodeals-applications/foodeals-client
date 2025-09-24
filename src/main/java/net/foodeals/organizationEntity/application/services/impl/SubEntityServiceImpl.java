@@ -10,6 +10,7 @@ import net.foodeals.location.domain.repositories.CityRepository;
 import net.foodeals.location.domain.repositories.CountryRepository;
 import net.foodeals.location.domain.repositories.RegionRepository;
 import net.foodeals.offer.application.dtos.responses.DealResponse;
+import net.foodeals.offer.application.dtos.responses.DealStoreResponse;
 import net.foodeals.offer.application.dtos.responses.SupplementDealResponse;
 import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.entities.Offer;
@@ -853,7 +854,30 @@ public class SubEntityServiceImpl implements SubEntityService {
                 .toList();
     }
 
+    @Override
+    public List<DealStoreResponse> getDealStores(UUID subEntityId) {
+        SubEntity subEntity=findById(subEntityId);
+        List<Deal>deals= subEntity.getOffers().stream().map(o->dealRepository.getDealByOfferId(o.getId())).toList();
+       List<DealStoreResponse>responses= deals.stream().map(deal->this.mapToDealStoreResponse(deal)).collect(Collectors.toList());
+        return responses;
+    }
 
+    @Override
+    public StoresByCategoryResponse getStoresByCategory(String categoryName) {
+        List<StoreResponse> stores = subEntityRepository.findByDomaineName(categoryName).stream()
+                .map(s->new StoreResponse(
+                        s.getId(),
+                        s.getName(),
+                        s.getAvatarPath(),
+                        s.getCoverPath(),
+                        0,
+                        s.getNumberOfLikes(),
+                        s.getNumberOfStars()
+                )) // mapping SubEntity → StoreResponse
+                .toList();
+
+        return new StoresByCategoryResponse(stores, categoryName);
+    }
     public List<BestSellerResponse> getBestSellers(Double salesThreshold) {
 
         Double globalTotalSales = orderRepository.findGlobalTotalSales();
@@ -914,5 +938,41 @@ public class SubEntityServiceImpl implements SubEntityService {
                         sub.getCoordinates().longitude()
                 ))
                 .collect(Collectors.toList());
+    }
+
+
+    private DealStoreResponse mapToDealStoreResponse(Deal deal) {
+        if (deal == null) {
+            return null;
+        }
+
+        BigDecimal priceValue = (deal.getPrice() != null && deal.getPrice().amount() != null)
+                ? deal.getPrice().amount()
+                : BigDecimal.ZERO;
+
+        BigDecimal originalPrice = (deal.getProduct() != null && deal.getProduct().getPrice() != null)
+                ? deal.getProduct().getPrice().amount()
+                : priceValue;
+
+        double discount = 0.0;
+        if (originalPrice.compareTo(BigDecimal.ZERO) > 0) {
+            discount = 100.0 * (originalPrice.doubleValue() - priceValue.doubleValue()) / originalPrice.doubleValue();
+        }
+
+        return new DealStoreResponse(
+                deal.getId(),
+                deal.getTitle(),
+                deal.getDescription(),
+                priceValue,
+                originalPrice,
+                discount,
+                (deal.getProduct() != null) ? deal.getProduct().getProductImagePath() : null,
+                (deal.getOffer() != null && deal.getOffer().getSubEntity() != null) ? deal.getOffer().getSubEntity().getId() : null,
+                (deal.getOffer() != null && deal.getOffer().getSubEntity() != null) ? deal.getOffer().getSubEntity().getName() : null,
+                (deal.getOffer() != null && deal.getOffer().getSubEntity() != null) ? deal.getOffer().getSubEntity().getAvatarPath() : null,
+                (deal.getExpirationDate() != null) ? deal.getExpirationDate().toString() : null,
+                deal.getQuantity(),
+                (deal.getCategory() != null) ? deal.getCategory().name() : null
+        );
     }
 }

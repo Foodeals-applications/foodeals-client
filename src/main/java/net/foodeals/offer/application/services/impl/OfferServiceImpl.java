@@ -1,9 +1,12 @@
 package net.foodeals.offer.application.services.impl;
 
 import lombok.AllArgsConstructor;
+import net.foodeals.common.Utils.DistanceCalculator;
 import net.foodeals.common.Utils.TimeRemainingUtil;
 import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.offer.application.dtos.requests.OfferRequest;
+import net.foodeals.offer.application.dtos.responses.OfferListResponse;
+import net.foodeals.offer.application.dtos.responses.OfferResponse;
 import net.foodeals.offer.application.services.OfferService;
 import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.entities.Deal;
@@ -94,6 +97,41 @@ public class OfferServiceImpl implements OfferService {
 
         return resultMap;
     }
+
+    @Override
+    public OfferListResponse getOffers(String type, double lat, double lng) {
+        // récupérer les offres filtrées par type
+        List<Offer> offers = offerRepository.findByType(type);
+
+        // transformer en DTO avec distance
+        List<OfferResponse> responses = offers.stream().map(offer -> {
+            double distance = DistanceCalculator.calculateDistance(
+                    lat, lng,
+                    offer.getSubEntity().getCoordinates().latitude().doubleValue(),
+                    offer.getSubEntity().getCoordinates().longitude().doubleValue()
+            );
+            Deal deal=dealRepository.getDealByOfferId(offer.getId());
+            Box box=boxRepository.getBoxByOfferId(offer.getId());
+            return new OfferResponse(
+                    offer.getId(),
+                    deal!=null?deal.getTitle():box.getTitle(),
+                    deal!=null?deal.getDescription():box.getDescription(),
+                    offer.getPrice().amount(),
+                    offer.getSalePrice().amount(),
+                    offer.getReduction(),
+                    deal!=null?deal.getProduct().getProductImagePath():box.getPhotoBoxPath(),
+                    offer.getSubEntity().getId().toString(),
+                    offer.getSubEntity().getName(),
+                    offer.getSubEntity().getAvatarPath(),
+                    null,
+                    offer.getType(),
+                    distance
+            );
+        }).toList();
+
+        return new OfferListResponse(responses);
+    }
+
 
     // Filtrer les deals en fonction de la distance
     private List<Map<String, Object>> getNewDeals(double userLat, double userLon, double radius) {

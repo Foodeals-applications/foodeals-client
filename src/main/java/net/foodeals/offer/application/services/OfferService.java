@@ -5,10 +5,13 @@ import java.util.UUID;
 
 import net.foodeals.common.contracts.CrudService;
 import net.foodeals.offer.application.dtos.requests.OfferRequest;
+import net.foodeals.offer.application.dtos.responses.OfferListResponse;
 import net.foodeals.offer.domain.entities.Offer;
 
 public interface OfferService extends CrudService<Offer, UUID, OfferRequest> {
 	
 	public Map<String, Object> getNears(double userLat, double userLon, double radius);
-	
+
+    public OfferListResponse getOffers(String type, double lat, double lng);
+
 }

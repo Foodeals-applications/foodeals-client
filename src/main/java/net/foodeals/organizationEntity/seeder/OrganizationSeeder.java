@@ -418,6 +418,7 @@ public class OrganizationSeeder implements CommandLineRunner {
                               Integer numberOfFeedback,
                               Float numberOfStars) {
         Offer offer = new Offer();
+        offer.setType("flash");
         offer.setSubEntity(subEntity);
         offer.setPrice(new Price(price, Currency.getInstance("MAD")));
         offer.setSalePrice(new Price(salePrice, Currency.getInstance("MAD")));

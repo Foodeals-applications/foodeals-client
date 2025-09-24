@@ -87,6 +87,9 @@ public class Offer extends AbstractEntity<UUID> {
 
 	private Float numberOfStars;
 
+    @Column(name = "type", nullable = true)
+    private String type;
+
 	public Offer() {
 	}
 

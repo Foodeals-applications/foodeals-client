@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import net.foodeals.offer.application.dtos.responses.DealStoreResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.*;
 import net.foodeals.user.domain.entities.User;
 import org.springframework.data.domain.Page;
@@ -65,6 +66,10 @@ public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntity
     List<SpotlightStore> getSpotlightStores();
 
     public List<StoreResponse> searchStores(String q, String category, double lat, double lng, double radiusKm);
+
+    public List<DealStoreResponse> getDealStores(UUID subEntityId);
+
+    public StoresByCategoryResponse getStoresByCategory(String categoryName);
 
 }
 
