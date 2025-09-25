@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.foodeals.organizationEntity.domain.entities.SubEntity;
 import net.foodeals.product.application.dtos.responses.ProductOfferResponse;
 import net.foodeals.product.domain.entities.ProductCategory;
 import org.springframework.data.domain.Page;
@@ -67,6 +68,10 @@ public interface ProductRepository extends BaseRepository<Product, UUID>, SlugRe
 
     List<Product> findByCategoryAndIdNot(ProductCategory category, UUID id);
 
+    List<Product> findBySubEntity(SubEntity subEntity);
+
+    // Produits liés dans le même store (exclure le produit courant)
+    List<Product> findBySubEntityAndIdNot(SubEntity subEntity, UUID excludedId);
 
 
 }

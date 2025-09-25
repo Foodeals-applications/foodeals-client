@@ -130,6 +130,7 @@ public class OrganizationSeeder implements CommandLineRunner {
             Offer carrefourOffer1 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("49.99"), 32, 4.2f);
             createOpenTimes(carrefourOffer1);
             Offer carrefourOffer2 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("59.99"), 20, 3.2f);
+            Offer carrefourOffer3 = createOffer(carrefourMarket, new BigDecimal("69.99"), new BigDecimal("79.99"), 20, 3.2f);
             createOpenTimes(carrefourOffer2);
             // Deals associés aux produits
             Deal pommeDeal = createDealWithOfferAndProduct("Promo Carrefour Market", "Réduction pommes bio.", carrefourOffer1, 1, DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, product1);
@@ -138,7 +139,7 @@ public class OrganizationSeeder implements CommandLineRunner {
 
             // Boxes associées aux offres
             Box box1 = createBoxWithOffer("Box Carrefour Market", "Box avec lait et autres produits.", carrefourOffer1, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.DAIRY_PRODUCTS, product2);
-            Box box2 = createBoxWithOffer("Box Carrefour Market 2", "Box avec lait Fraises et autres produits.", carrefourOffer1, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.DAIRY_PRODUCTS, product4);
+            Box box2 = createBoxWithOffer("Box Carrefour Market 2", "Box avec lait Fraises et autres produits.", carrefourOffer3, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.DAIRY_PRODUCTS, product4);
             Box box3 = createBoxWithOffer("Box Spéciale Noël", "Box garnie pour Noël avec gâteaux.", carrefourOffer2, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.FROZEN_PRODUCTS, product3);
 
             createSupplement("Lait", SupplementCategory.SUPPLEMENTS, noelDeal, box1);
@@ -418,6 +419,7 @@ public class OrganizationSeeder implements CommandLineRunner {
                               Integer numberOfFeedback,
                               Float numberOfStars) {
         Offer offer = new Offer();
+        offer.setReduction(25);
         offer.setType("flash");
         offer.setSubEntity(subEntity);
         offer.setPrice(new Price(price, Currency.getInstance("MAD")));

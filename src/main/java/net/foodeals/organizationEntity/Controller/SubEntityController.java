@@ -8,8 +8,13 @@ import net.foodeals.organizationEntity.application.services.SubEntityService;
 import net.foodeals.organizationEntity.domain.entities.SubEntity;
 import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
 import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
+import net.foodeals.product.application.dtos.requests.ProductReviewRequest;
+import net.foodeals.product.application.dtos.responses.ProductReviewResponse;
+import net.foodeals.product.application.dtos.responses.ProductStoreResponse;
+import net.foodeals.product.application.services.ProductService;
 import net.foodeals.user.application.services.UserService;
 import net.foodeals.user.domain.entities.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +30,8 @@ import java.util.stream.Collectors;
 public class SubEntityController {
 
     private final SubEntityService subEntityService;
+
+    private final ProductService productService;
 
     private final UserService userService;
 
@@ -168,6 +175,22 @@ public class SubEntityController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("{id}/products")
+    public ResponseEntity<List<ProductStoreResponse>> getProductWithRelated(@PathVariable UUID id) {
+        List<ProductStoreResponse> response = productService.getProductsByStore(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/review")
+    public ResponseEntity<ProductReviewResponse> addProductReview(
+            @PathVariable UUID id,
+            @RequestBody ProductReviewRequest reviewRequest
+    ) {
+        ProductReviewResponse response = productService.addReview(id, reviewRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     
     private String generatePhotoUrl(String name) {
         String baseUrl = "/images/"; // Votre domaine ou base d'URL

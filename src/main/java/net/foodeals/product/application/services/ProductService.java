@@ -7,8 +7,8 @@ import java.util.UUID;
 
 import net.foodeals.common.contracts.CrudService;
 import net.foodeals.product.application.dtos.requests.ProductRequest;
-import net.foodeals.product.application.dtos.responses.ProductResponse;
-import net.foodeals.product.application.dtos.responses.ProductSuggestionResponse;
+import net.foodeals.product.application.dtos.requests.ProductReviewRequest;
+import net.foodeals.product.application.dtos.responses.*;
 import net.foodeals.product.domain.entities.Product;
 
 
@@ -18,6 +18,12 @@ public interface ProductService extends CrudService<Product, UUID, ProductReques
     public ProductResponse getProductDetails(UUID productId);
 
     public List<ProductSuggestionResponse> getSimilarProducts(Product product);
+
+    public ProductStoreDetailResponse getProductWithRelated(UUID productId);
+
+    public List<ProductStoreResponse> getProductsByStore(UUID subEntityId);
+
+    public ProductReviewResponse addReview(UUID productId, ProductReviewRequest request);
 
 
 }

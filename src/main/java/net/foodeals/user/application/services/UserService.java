@@ -9,15 +9,18 @@ import net.foodeals.user.application.dtos.responses.FavorisOfferResponse;
 import net.foodeals.user.application.dtos.responses.InfosProfileResponse;
 import net.foodeals.user.application.dtos.responses.UserStatisticsResponse;
 import net.foodeals.user.domain.entities.User;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface UserService extends CrudService<User, Integer, UserRequest> {
 
+    String saveFile(MultipartFile file);
 
     User findByEmail(String email);
-    
-    User changeAvatarPhoto(Integer id, String avatarPath);
+
+   String uploadAvatar(Integer userId, MultipartFile file) throws IOException;
 
     User getConnectedUser();
 

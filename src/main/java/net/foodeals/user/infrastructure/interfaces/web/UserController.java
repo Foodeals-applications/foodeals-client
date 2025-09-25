@@ -3,6 +3,7 @@ package net.foodeals.user.infrastructure.interfaces.web;
 import java.util.List;
 import java.util.Map;
 
+import net.foodeals.user.application.dtos.responses.AvatarUploadResponse;
 import net.foodeals.user.application.dtos.responses.UserStatisticsResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import net.foodeals.user.application.dtos.requests.PostionClientRequest;
 import net.foodeals.user.application.dtos.responses.PositionClientResponse;
 import net.foodeals.user.application.services.UserService;
 import net.foodeals.user.domain.entities.User;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("v1/users")
@@ -56,6 +58,20 @@ public class UserController {
 		return ResponseEntity.ok(subEntityService.getStoreCountByDomains());
 	}
 
+
+
+    @PostMapping("/upload")
+    public ResponseEntity<AvatarUploadResponse> uploadAvatar(
+            @RequestParam("file") MultipartFile file
+    ) {
+        User user=service.getConnectedUser();
+        try {
+            String avatarPath = service.uploadAvatar(user.getId(), file);
+            return ResponseEntity.ok(new AvatarUploadResponse(avatarPath));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 	
 
 	/*
