@@ -4,18 +4,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
+import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import net.foodeals.offer.domain.entities.Donate;
 import org.hibernate.annotations.UuidGenerator;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import lombok.Getter;
 import net.foodeals.common.models.AbstractEntity;
 import net.foodeals.delivery.domain.entities.Delivery;
@@ -46,6 +40,11 @@ public class Order extends AbstractEntity<UUID> {
 	private LocalTime collectionStartTime ;
 
 	private LocalTime collectionEndTime;
+
+    @ManyToOne(fetch = FetchType.LAZY) // NOUVEAU: donate, pas de CascadeType.ALL
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Donate donate;
 
 
 	@Enumerated(EnumType.STRING)

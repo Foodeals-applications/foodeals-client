@@ -9,15 +9,9 @@ import net.foodeals.location.domain.entities.Address;
 import net.foodeals.location.domain.repositories.AddressRepository;
 import net.foodeals.location.domain.repositories.CityRepository;
 import net.foodeals.location.domain.repositories.CountryRepository;
-import net.foodeals.offer.domain.entities.Box;
-import net.foodeals.offer.domain.entities.Deal;
-import net.foodeals.offer.domain.entities.Offer;
-import net.foodeals.offer.domain.entities.OpenTime;
+import net.foodeals.offer.domain.entities.*;
 import net.foodeals.offer.domain.enums.*;
-import net.foodeals.offer.domain.repositories.BoxRepository;
-import net.foodeals.offer.domain.repositories.DealRepository;
-import net.foodeals.offer.domain.repositories.OfferRepository;
-import net.foodeals.offer.domain.repositories.OpenTimeRepository;
+import net.foodeals.offer.domain.repositories.*;
 import net.foodeals.order.domain.entities.Coupon;
 import net.foodeals.order.domain.entities.Order;
 import net.foodeals.order.domain.entities.Transaction;
@@ -40,7 +34,9 @@ import net.foodeals.product.domain.enums.SupplementCategory;
 import net.foodeals.product.domain.repositories.ProductCategoryRepository;
 import net.foodeals.product.domain.repositories.ProductRepository;
 import net.foodeals.product.domain.repositories.SupplementRepository;
+import net.foodeals.user.domain.entities.Rating;
 import net.foodeals.user.domain.entities.User;
+import net.foodeals.user.domain.repositories.RatingRepository;
 import net.foodeals.user.domain.repositories.UserRepository;
 import net.foodeals.user.domain.valueObjects.Name;
 import org.springframework.boot.CommandLineRunner;
@@ -66,6 +62,8 @@ public class OrganizationSeeder implements CommandLineRunner {
     private final CityRepository cityRepository;
     private final CountryRepository countryRepository;
     private final AddressRepository addressRepository;
+    private final DonateRepository donateRepository;
+    private final RatingRepository ratingRepository;
 
     private final DealRepository dealRepository;
     private final SupplementRepository supplementRepository;
@@ -347,7 +345,33 @@ public class OrganizationSeeder implements CommandLineRunner {
             System.out.println("✅ Favoris ajoutés pour " + client.getEmail());
         }
 
+        // ✅ Seed Donations
+        User donor = userRepository.findByEmail("mohamed.benibrahim@example.com").orElse(null);
+        if (donor != null && kfcCasa != null) {
+            createDonation(donor, kfcCasa, 50.0, false, "Soutien aux familles");
+            createDonation(donor, goldenTolipCasa, 100.0, true, "Aide aux étudiants");
+            createDonation(donor, deliceCasa, 200.0, false, "Soutien médical");
+            System.out.println("✅ Donations seedées pour " + donor.getEmail());
+        }
+
+        User clientRating = userRepository.findByEmail("mohamed.benibrahim@example.com").orElse(null);
+        if (client != null) {
+            createRating(clientRating, agricultureProduct1, 5, "Excellent produit, très frais !");
+            createRating(clientRating, hotelProduct1, 3, "Bon produit mais un peu cher.");
+            createRating(clientRating, agricultureProduct1, 4, "Très bon goût, je recommande.");
+            System.out.println("✅ Ratings ajoutés pour " + client.getEmail());
+        }
     }
+
+    private Rating createRating(User user, Product product, int ratingValue, String comment) {
+        Rating rating = new Rating();
+        rating.setUser(user);
+        rating.setProduct(product);
+        rating.setRating(ratingValue);
+        rating.setComment(comment);
+        return ratingRepository.save(rating);
+    }
+
 
     // Méthode pour créer une activité
     private Activity createActivity(String name) {
@@ -547,6 +571,20 @@ public class OrganizationSeeder implements CommandLineRunner {
                 TransactionType.CASH,
                 order
         );
+    }
+
+
+    private Donate createDonation(User user, SubEntity receiver, Double amount, boolean anonymous, String cause) {
+        Donate donate = new Donate();
+        donate.setUserDonor(user);
+        donate.setReceiver(receiver.getOrganizationEntity());
+
+        donate.setIsAnonymous(anonymous);
+        donate.setDonateStatus(DonateStatus.COMPLETED);
+        donate.setDonationType(DonationType.ONE);
+        donate.setDonateDelivryMethod(DonateDeliveryMethod.FOODEALS);
+        donate.setReason(cause);
+        return donateRepository.save(donate);
     }
 
 
