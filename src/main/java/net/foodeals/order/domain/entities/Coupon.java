@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.foodeals.common.models.AbstractEntity;
 import net.foodeals.organizationEntity.domain.entities.SubEntity;
+import net.foodeals.user.domain.entities.User;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Date;
@@ -28,6 +29,9 @@ public class Coupon extends AbstractEntity<UUID> {
     private String name;
 
     private Float discount;
+
+    @ManyToOne
+    private User user ;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private SubEntity subEntity;

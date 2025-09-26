@@ -11,6 +11,11 @@ import net.foodeals.location.domain.entities.Address;
 import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.entities.Offer;
 import net.foodeals.offer.domain.repositories.DealRepository;
+import net.foodeals.order.application.dtos.requests.AddCouponRequest;
+import net.foodeals.order.application.dtos.responses.ActivateCouponResponse;
+import net.foodeals.order.application.dtos.responses.AddCouponResponse;
+import net.foodeals.order.application.dtos.responses.CouponsResponse;
+import net.foodeals.order.application.services.CouponService;
 import net.foodeals.user.application.dtos.requests.InfosProfileRequest;
 import net.foodeals.user.application.dtos.responses.FavorisOfferPartenerResponse;
 import net.foodeals.user.application.dtos.responses.FavorisOfferResponse;
@@ -33,6 +38,7 @@ public class AccountController {
 
     private final AddressService addressService;
     private final UserService userService;
+    private final CouponService couponService;
     private final DealRepository dealRepository;
     private final UserRepository userRepository;
 
@@ -87,5 +93,22 @@ public class AccountController {
     @PutMapping("/infos-profile/update")
     public ResponseEntity<InfosProfileResponse>getInfosProfile(@RequestBody InfosProfileRequest request){
     	return  ResponseEntity.status(HttpStatus.OK).body(userService.updateInfosProfile(request));
+    }
+
+    @GetMapping("/coupons")
+    public CouponsResponse getCoupons() {
+        User user=userService.getConnectedUser();
+        return couponService.getUserCoupons(user);
+    }
+
+    @PostMapping("/coupons/add")
+    public AddCouponResponse addCoupon(@RequestBody AddCouponRequest request) {
+        User user=userService.getConnectedUser();
+        return couponService.addCoupon(user, request.getCode());
+    }
+
+    @PostMapping("/coupons/{id}/activate")
+    public ActivateCouponResponse activateCoupon(@PathVariable UUID id) {
+        return couponService.activateCoupon(id);
     }
 }

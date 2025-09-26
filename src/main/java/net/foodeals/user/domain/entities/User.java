@@ -13,6 +13,7 @@ import net.foodeals.order.domain.entities.Order;
 import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
 import net.foodeals.organizationEntity.domain.entities.Solution;
 import net.foodeals.organizationEntity.domain.entities.SubEntity;
+import net.foodeals.product.domain.entities.Product;
 import net.foodeals.user.domain.enums.Civility;
 import net.foodeals.user.domain.enums.Nationality;
 import net.foodeals.user.domain.enums.UserStatus;
@@ -135,6 +136,22 @@ public class User extends AbstractEntity<Integer> implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "offer_id")
     )
     private List<Offer> favorisOffers = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "subentites_favoris",
+            joinColumns = @JoinColumn(name = "client_id"),
+            inverseJoinColumns = @JoinColumn(name = "subentity_id")
+    )
+    private List<SubEntity> favorisSubEntities = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "products_favoris",
+            joinColumns = @JoinColumn(name = "client_id"),
+            inverseJoinColumns = @JoinColumn(name = "subentity_id")
+    )
+    private List<Product> favorisProducts = new ArrayList<>();
 
 
     public User(Name name, String email, String phone, String password, Boolean isEmailVerified, Role role) {
@@ -359,5 +376,15 @@ public class User extends AbstractEntity<Integer> implements UserDetails {
 		this.favorisOffers = favorisOffers;
 	}
 
+    public void setEmailVerified(Boolean emailVerified) {
+        isEmailVerified = emailVerified;
+    }
 
+    public void setFavorisProducts(List<Product> favorisProducts) {
+        this.favorisProducts = favorisProducts;
+    }
+
+    public void setFavorisSubEntities(List<SubEntity> favorisSubEntities) {
+        this.favorisSubEntities = favorisSubEntities;
+    }
 }

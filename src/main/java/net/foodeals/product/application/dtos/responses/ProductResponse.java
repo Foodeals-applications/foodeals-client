@@ -7,6 +7,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.enums.ProductType;
 import net.foodeals.user.application.dtos.responses.UserResponse;
 
@@ -22,5 +23,23 @@ public class ProductResponse {
 	private List<String>categories ;
 	private Integer stock;
 	private UUID subEntityId ;
+
+    public static ProductResponse fromEntity(Product product) {
+        return new ProductResponse(
+                product.getId(),
+                product.getProductImagePath(),   // image
+                product.getName(),
+                product.getDescription(),
+                new PriceResponse(
+                        product.getPrice().amount().doubleValue(),
+                        product.getPrice().amount().doubleValue()
+                ),
+                product.getCategory() != null
+                        ? List.of(product.getCategory().getName())
+                        : List.of(),
+                product.getStock(),
+                product.getSubEntity() != null ? product.getSubEntity().getId() : null
+        );
+    }
 }
 

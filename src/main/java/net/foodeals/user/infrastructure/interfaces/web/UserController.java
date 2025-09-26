@@ -3,8 +3,8 @@ package net.foodeals.user.infrastructure.interfaces.web;
 import java.util.List;
 import java.util.Map;
 
-import net.foodeals.user.application.dtos.responses.AvatarUploadResponse;
-import net.foodeals.user.application.dtos.responses.UserStatisticsResponse;
+import net.foodeals.product.application.dtos.responses.ProductResponse;
+import net.foodeals.user.application.dtos.responses.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import net.foodeals.offer.application.services.OfferService;
 import net.foodeals.organizationEntity.application.services.SubEntityService;
 import net.foodeals.user.application.dtos.requests.PostionClientRequest;
-import net.foodeals.user.application.dtos.responses.PositionClientResponse;
 import net.foodeals.user.application.services.UserService;
 import net.foodeals.user.domain.entities.User;
 import org.springframework.web.multipart.MultipartFile;
@@ -72,7 +71,26 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
     }
-	
+
+    @GetMapping("/favorites")
+    public FavoritesResponse getUserFavorites() {
+        // ⚠️ Récupération de l'utilisateur connecté par email
+        User user = service.getConnectedUser();
+
+        // Mapping SubEntities -> PartnerResponse
+        List<PartnerResponse> partners = user.getFavorisSubEntities()
+                .stream()
+                .map(PartnerResponse::fromEntity)
+                .toList();
+
+        // Mapping Products -> ProductResponse
+        List<ProductResponse> products = user.getFavorisProducts()
+                .stream()
+                .map(ProductResponse::fromEntity)
+                .toList();
+
+        return new FavoritesResponse(partners, products);
+    }
 
 	/*
 	 * @PostMapping public ResponseEntity<PositionClientResponse>

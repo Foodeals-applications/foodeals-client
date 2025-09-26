@@ -328,6 +328,25 @@ public class OrganizationSeeder implements CommandLineRunner {
         createBanner(
                 "https://cdn.monsite.com/banner2.jpg",
                 "https://offre.monsite.com");
+
+        // Ajouter favoris à un client
+        User client = userRepository.findByEmail("mohamed.benibrahim@example.com").orElse(null);
+        if (client != null) {
+            // Favoris SubEntities
+            List<SubEntity> favorisSubEntities = new ArrayList<>();
+            favorisSubEntities.add(kfcCasa);
+            favorisSubEntities.add(goldenTolipCasa);
+            client.setFavorisSubEntities(favorisSubEntities);
+
+            // Favoris Products
+            List<Product> favorisProducts = new ArrayList<>();
+            favorisProducts.add(hotelProduct1);  // Pommes Bio
+            client.setFavorisProducts(favorisProducts);
+
+            userRepository.save(client);
+            System.out.println("✅ Favoris ajoutés pour " + client.getEmail());
+        }
+
     }
 
     // Méthode pour créer une activité
@@ -530,17 +549,6 @@ public class OrganizationSeeder implements CommandLineRunner {
         );
     }
 
-    private Coupon createCoupon(SubEntity subEntity, String code, Float discount, Date endsAt, boolean isEnabled) {
-        Coupon coupon = new Coupon();
-        coupon.setCode(code);
-        coupon.setName(code);
-        coupon.setDiscount(discount);
-        coupon.setEndsAt(endsAt);
-        coupon.setIsEnabled(isEnabled);
-        coupon.setSubEntity(subEntity);
-        return couponRepository.save(coupon);
-    }
-
 
     private void createBanner(String imageUrl, String link) {
         // Vérifie si la bannière existe déjà (pour éviter doublons)
@@ -557,5 +565,17 @@ public class OrganizationSeeder implements CommandLineRunner {
             System.out.println("ℹ️ Bannière déjà existante : " + link);
         }
     }
+
+    private Coupon createCoupon(SubEntity subEntity, String code, Float discount, Date endsAt, boolean isEnabled) {
+        Coupon coupon = new Coupon();
+        coupon.setCode(code);
+        coupon.setName(code);
+        coupon.setDiscount(discount);
+        coupon.setEndsAt(endsAt);
+        coupon.setIsEnabled(isEnabled);
+        coupon.setSubEntity(subEntity);
+        return couponRepository.save(coupon);
+    }
+
 
 }

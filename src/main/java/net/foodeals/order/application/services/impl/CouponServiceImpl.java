@@ -3,18 +3,26 @@ package net.foodeals.order.application.services.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.order.application.dtos.requests.CouponRequest;
+import net.foodeals.order.application.dtos.responses.ActivateCouponResponse;
+import net.foodeals.order.application.dtos.responses.AddCouponResponse;
+import net.foodeals.order.application.dtos.responses.CouponResponse;
+import net.foodeals.order.application.dtos.responses.CouponsResponse;
 import net.foodeals.order.application.services.CouponService;
 import net.foodeals.order.domain.entities.Coupon;
 import net.foodeals.order.domain.exceptions.CouponNotFoundException;
 import net.foodeals.order.domain.repositories.CouponRepository;
+import net.foodeals.user.domain.entities.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -77,5 +85,52 @@ public class CouponServiceImpl implements CouponService {
 
     public Page findAllExpired(Pageable pageable) {
         return repository.findAllByEndsAtBefore(new Date(),pageable);
+    }
+
+
+    @Override
+    public CouponsResponse getUserCoupons(User user) {
+        List<Coupon> coupons = repository.findByUser(user);
+
+        List<CouponResponse> active = coupons.stream()
+                .filter(c -> Boolean.TRUE.equals(c.getIsEnabled()) && c.getEndsAt().after(new Date()))
+                .map(CouponResponse::fromEntity)
+                .toList();
+
+        List<CouponResponse> expired = coupons.stream()
+                .filter(c -> c.getEndsAt().before(new Date()))
+                .map(CouponResponse::fromEntity)
+                .toList();
+
+        return new CouponsResponse(active, expired);
+    }
+
+    @Override
+    public AddCouponResponse addCoupon(User user, String code) {
+
+        Optional<Coupon> existing =repository.findByCodeAndUser(code, user);
+        if (existing.isPresent()) {
+            return new AddCouponResponse(CouponResponse.fromEntity(existing.get()), false);
+        }
+
+        Coupon coupon = new Coupon();
+        coupon.setCode(code);
+        coupon.setIsEnabled(true);
+        coupon.setEndsAt(Date.from(LocalDate.now().plusDays(30).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        repository.save(coupon);
+
+        return new AddCouponResponse(CouponResponse.fromEntity(coupon), true);
+    }
+
+    @Override
+    public ActivateCouponResponse activateCoupon(UUID couponId) {
+        Optional<Coupon> couponOpt =repository.findById(couponId);
+        if (couponOpt.isEmpty()) return new ActivateCouponResponse(false);
+
+        Coupon coupon = couponOpt.get();
+        coupon.toggleIsEnabled();
+        repository.save(coupon);
+
+        return new ActivateCouponResponse(true);
     }
 }
