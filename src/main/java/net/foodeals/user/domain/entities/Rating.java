@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.foodeals.common.models.AbstractEntity;
+import net.foodeals.organizationEntity.domain.entities.SubEntity;
 import net.foodeals.product.domain.entities.Product;
 
 import java.util.UUID;
@@ -30,4 +31,7 @@ public class Rating  extends AbstractEntity<UUID> {
 
     private int rating;   // 1 à 5
     private String comment;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private SubEntity subEntity;
 }

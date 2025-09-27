@@ -3,6 +3,8 @@ package net.foodeals.organizationEntity.seeder;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.banner.domain.entities.Banner;
 import net.foodeals.banner.domain.repositories.BannerRepository;
+import net.foodeals.businessrecomendations.domain.entities.BusinessRecommendation;
+import net.foodeals.businessrecomendations.domain.repositories.BusinessRecommendationRepository;
 import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.common.valueOjects.Price;
 import net.foodeals.location.domain.entities.Address;
@@ -34,6 +36,10 @@ import net.foodeals.product.domain.enums.SupplementCategory;
 import net.foodeals.product.domain.repositories.ProductCategoryRepository;
 import net.foodeals.product.domain.repositories.ProductRepository;
 import net.foodeals.product.domain.repositories.SupplementRepository;
+import net.foodeals.referals.domain.entities.Referral;
+import net.foodeals.referals.domain.repositories.ReferralRepository;
+import net.foodeals.support.domain.entities.SupportTicket;
+import net.foodeals.support.domain.repositories.SupportTicketRepository;
 import net.foodeals.user.domain.entities.Rating;
 import net.foodeals.user.domain.entities.User;
 import net.foodeals.user.domain.repositories.RatingRepository;
@@ -78,6 +84,10 @@ public class OrganizationSeeder implements CommandLineRunner {
     private final OpenTimeRepository openTimeRepository;
     private final CouponRepository couponRepository;
     private final BannerRepository bannerRepository;
+
+    private final SupportTicketRepository supportTicketRepository;
+    private final BusinessRecommendationRepository businessRecommendationRepository;
+    private final ReferralRepository referralRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -316,8 +326,14 @@ public class OrganizationSeeder implements CommandLineRunner {
         Product agricultureProduct1 = createProduct(zalarCasa, "Pack Poulets Fermiers", "Volaille élevée en plein air", new BigDecimal("999.00"), "Agricultures", 15);
         Deal agricultureDeal1 = createDealWithOfferAndProduct("Offre Poulets Bio", "Réduction sur élevage durable", agricultureOffer1, 1, DealStatus.AVAILABLE, Category.WHOLESALER_DAIRY_PRODUCTS, agricultureProduct1);
 
-        createCoupon(kfcCasa, "CARREFOUR10", 10f, new Date(System.currentTimeMillis() + 86400000L), true);   // Enabled, expire demain
-        createCoupon(kfcCasa, "CARREFOUR20", 20f, new Date(System.currentTimeMillis() - 86400000L), false); // Disabled, expire demain
+        // Coupon qui expire demain (after now)
+        createCoupon(kfcCasa, "CARREFOUR10", 10f,
+                new Date(System.currentTimeMillis() + 86400000L), true); // Enabled, expire demain
+
+// Coupon qui a expiré hier (before now)
+        createCoupon(kfcCasa, "CARREFOUR20", 20f,
+                new Date(System.currentTimeMillis() - 86400000L), true);
+
 
         createBanner(
                 "https://cdn.monsite.com/banner1.jpg",
@@ -354,13 +370,85 @@ public class OrganizationSeeder implements CommandLineRunner {
             System.out.println("✅ Donations seedées pour " + donor.getEmail());
         }
 
-        User clientRating = userRepository.findByEmail("mohamed.benibrahim@example.com").orElse(null);
         if (client != null) {
-            createRating(clientRating, agricultureProduct1, 5, "Excellent produit, très frais !");
-            createRating(clientRating, hotelProduct1, 3, "Bon produit mais un peu cher.");
-            createRating(clientRating, agricultureProduct1, 4, "Très bon goût, je recommande.");
+            createRating(client, agricultureProduct1, 5, "Excellent produit, très frais !");
+            createRating(client, hotelProduct1, 3, "Bon produit mais un peu cher.");
+            createRating(client, agricultureProduct1, 4, "Très bon goût, je recommande.");
             System.out.println("✅ Ratings ajoutés pour " + client.getEmail());
+        } else {
+            System.out.println("⚠️ Aucun utilisateur trouvé pour mohamed.benibrahim@example.com");
         }
+
+        if (client != null) {
+            SupportTicket ticket1 = new SupportTicket();
+            ticket1.setUser(client);
+            ticket1.setSubject("Problème de paiement");
+            ticket1.setMessage("Impossible de payer avec ma carte.");
+            ticket1.setCategory("Paiement");
+            ticket1.setStatus("OPEN");
+
+            supportTicketRepository.save(ticket1);
+
+            SupportTicket ticket2 = new SupportTicket();
+            ticket2.setUser(client);
+            ticket2.setSubject("Erreur application");
+            ticket2.setMessage("L'application plante au démarrage.");
+            ticket2.setCategory("Technique");
+            ticket2.setStatus("OPEN");
+
+            supportTicketRepository.save(ticket2);
+
+            System.out.println("✅ Support Tickets créés pour " + client.getEmail());
+        }
+
+        if (client != null) {
+            BusinessRecommendation rec1 = new BusinessRecommendation();
+            rec1.setBusinessName("Chez Pierre");
+            rec1.setAddress("123 Rue de Paris, 75001 Paris");
+            rec1.setCategory("Restaurant");
+            rec1.setDescription("Un excellent restaurant français");
+
+            businessRecommendationRepository.save(rec1);
+
+            BusinessRecommendation rec2 = new BusinessRecommendation();
+            rec2.setBusinessName("Librairie Le Savoir");
+            rec2.setAddress("45 Avenue Hassan II, Casablanca");
+            rec2.setCategory("Librairie");
+            rec2.setDescription("Livres et papeterie de qualité");
+
+            businessRecommendationRepository.save(rec2);
+
+            System.out.println("✅ Business Recommendations créées");
+        }
+
+        if (client != null) {
+            Referral ref1 = new Referral();
+            ref1.setSender(client);
+            ref1.setEmail("friend1@example.com");
+            ref1.setSuccessful(true);
+            ref1.setReward(10.0);
+            referralRepository.save(ref1);
+
+            Referral ref2 = new Referral();
+            ref2.setSender(client);
+            ref2.setEmail("friend2@example.com");
+            ref2.setSuccessful(false);
+            ref2.setReward(0.0);
+
+            referralRepository.save(ref2);
+
+            Referral ref3 = new Referral();
+            ref3.setSender(client);
+            ref3.setEmail("friend3@example.com");
+            ref3.setSuccessful(true);
+            ref3.setReward(15.0);
+
+            referralRepository.save(ref3);
+
+            System.out.println("✅ Referrals créés pour " + client.getEmail());
+        }
+
+
     }
 
     private Rating createRating(User user, Product product, int ratingValue, String comment) {
@@ -369,6 +457,12 @@ public class OrganizationSeeder implements CommandLineRunner {
         rating.setProduct(product);
         rating.setRating(ratingValue);
         rating.setComment(comment);
+
+        // ⚠️ si tu veux aussi garder le store/subEntity
+        if (product.getSubEntity() != null) {
+            rating.setSubEntity(product.getSubEntity());
+        }
+
         return ratingRepository.save(rating);
     }
 
@@ -578,7 +672,7 @@ public class OrganizationSeeder implements CommandLineRunner {
         Donate donate = new Donate();
         donate.setUserDonor(user);
         donate.setReceiver(receiver.getOrganizationEntity());
-
+        donate.setAmount(amount);
         donate.setIsAnonymous(anonymous);
         donate.setDonateStatus(DonateStatus.COMPLETED);
         donate.setDonationType(DonationType.ONE);

@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DonationRequest {
     private String cause;
+    private Double amount;
     private boolean anonymous;
 }

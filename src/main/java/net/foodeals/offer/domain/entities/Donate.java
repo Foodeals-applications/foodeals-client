@@ -69,6 +69,8 @@ public class Donate extends AbstractEntity<UUID>{
 
     private Long deliveryFee;
 
+    private Double  amount ;
+
     @OneToMany(fetch=FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = false)
     private List<OpenTime> openTime;
 

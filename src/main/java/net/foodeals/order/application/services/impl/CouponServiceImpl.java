@@ -91,6 +91,7 @@ public class CouponServiceImpl implements CouponService {
     @Override
     public CouponsResponse getUserCoupons(User user) {
         List<Coupon> coupons = repository.findByUser(user);
+        LocalDate today = LocalDate.now();
 
         List<CouponResponse> active = coupons.stream()
                 .filter(c -> Boolean.TRUE.equals(c.getIsEnabled()) && c.getEndsAt().after(new Date()))
@@ -102,25 +103,37 @@ public class CouponServiceImpl implements CouponService {
                 .map(CouponResponse::fromEntity)
                 .toList();
 
+
         return new CouponsResponse(active, expired);
     }
 
     @Override
     public AddCouponResponse addCoupon(User user, String code) {
-
-        Optional<Coupon> existing =repository.findByCodeAndUser(code, user);
-        if (existing.isPresent()) {
-            return new AddCouponResponse(CouponResponse.fromEntity(existing.get()), false);
+        // Vérifier si le coupon existe en DB
+        Optional<Coupon> couponOpt = repository.findByCode(code);
+        if (couponOpt.isEmpty()) {
+            throw new RuntimeException("Invalid coupon code");
         }
 
-        Coupon coupon = new Coupon();
-        coupon.setCode(code);
-        coupon.setIsEnabled(true);
-        coupon.setEndsAt(Date.from(LocalDate.now().plusDays(30).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        Coupon coupon = couponOpt.get();
+
+        // Vérifier si le coupon est encore valide
+        if (!Boolean.TRUE.equals(coupon.getIsEnabled()) || coupon.getEndsAt().before(new Date())) {
+            throw new RuntimeException("Coupon expired or disabled");
+        }
+
+        // Vérifier si l'utilisateur l'a déjà utilisé
+        if (repository.findByCodeAndUser(code, user).isPresent()) {
+            return new AddCouponResponse(CouponResponse.fromEntity(coupon), false);
+        }
+
+        // Associer le coupon à l'utilisateur
+        coupon.setUser(user);
         repository.save(coupon);
 
         return new AddCouponResponse(CouponResponse.fromEntity(coupon), true);
     }
+
 
     @Override
     public ActivateCouponResponse activateCoupon(UUID couponId) {

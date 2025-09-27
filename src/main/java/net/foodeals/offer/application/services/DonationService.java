@@ -21,17 +21,21 @@ public class DonationService {
     private final DonateRepository donateRepository;
     private final UserRepository userRepository;
 
+    // Récupérer toutes les donations d’un utilisateur
     public DonationListResponse getUserDonations(User user) {
         List<Donate> donations = donateRepository.findByUserDonor(user);
-        return new DonationListResponse(getDonations(donations));
+        List<DonationResponse> donationResponses = donations.stream()
+                .map(DonationResponse::fromEntity)
+                .toList();
+        return new DonationListResponse(donationResponses);
     }
 
+    // Créer une nouvelle donation
     public DonationResponse createDonation(User user, DonationRequest request) {
-
-
         Donate donate = new Donate();
         donate.setUserDonor(user);
-        donate.setMotif(request.getCause());
+        donate.setReason(request.getCause());
+        donate.setAmount(request.getAmount());
         donate.setIsAnonymous(request.isAnonymous());
         donate.setDonateStatus(DonateStatus.OPEN);
 
@@ -40,10 +44,4 @@ public class DonationService {
     }
 
 
-    public List<DonationResponse> getDonations(List<Donate> entities) {
-        List<DonationResponse> donations = entities.stream()
-                .map(DonationResponse::fromEntity)
-                .toList();
-        return donations;
-    }
 }

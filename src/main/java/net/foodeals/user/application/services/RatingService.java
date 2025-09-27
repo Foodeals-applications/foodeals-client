@@ -19,14 +19,11 @@ public class RatingService {
 
     private final RatingRepository ratingRepository;
 
+
+    // Service methods
     public List<RatingResponse> getUserRatings(User user) {
         return ratingRepository.findByUser(user).stream()
-                .map(r -> new RatingResponse(
-                        r.getId(),
-                        r.getProduct().getName(),
-                        r.getRating(),
-                        r.getComment()
-                ))
+                .map(RatingResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
@@ -40,13 +37,8 @@ public class RatingService {
 
         rating.setRating(request.getRating());
         rating.setComment(request.getComment());
-        ratingRepository.save(rating);
+        Rating saved = ratingRepository.save(rating);
 
-        return new RatingResponse(
-                rating.getId(),
-                rating.getProduct().getName(),
-                rating.getRating(),
-                rating.getComment()
-        );
+        return RatingResponse.fromEntity(saved);
     }
 }

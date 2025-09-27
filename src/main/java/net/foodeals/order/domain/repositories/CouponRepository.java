@@ -20,4 +20,6 @@ public interface CouponRepository extends BaseRepository<Coupon, UUID> {
     List<Coupon> findByUser(User user );
 
     Optional<Coupon> findByCodeAndUser(String code, User user);
+
+    Optional<Coupon> findByCode(String code);
 }
