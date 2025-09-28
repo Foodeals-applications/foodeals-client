@@ -448,6 +448,26 @@ public class OrganizationSeeder implements CommandLineRunner {
             System.out.println("✅ Referrals créés pour " + client.getEmail());
         }
 
+        if (client != null) {
+            Referral inv1 = new Referral();
+            inv1.setSender(client);
+            inv1.setEmail("invite1@example.com");
+            inv1.setSuccessful(false);
+            inv1.setReward(0.0);
+
+            referralRepository.save(inv1);
+
+            Referral inv2 = new Referral();
+            inv2.setSender(client);
+            inv2.setEmail("invite2@example.com");
+            inv2.setSuccessful(false);
+            inv2.setReward(0.0);
+
+            referralRepository.save(inv2);
+
+            System.out.println("✅ Sample referral invitations créées pour " + client.getEmail());
+        }
+
 
     }
 

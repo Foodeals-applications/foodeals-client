@@ -15,4 +15,6 @@ public interface NotificationSettingsService {
     NotificationSettings resetSettings(User user);
 
     public NotificationCountResponse getNotificationCounts();
+
+    void sendReferralInvitation(String toEmail, String message, String senderName);
 }

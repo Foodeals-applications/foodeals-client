@@ -1,13 +1,14 @@
 package net.foodeals.referals.infrastructure;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.referals.application.dtos.requests.ReferralInviteRequest;
+import net.foodeals.referals.application.dtos.responses.ReferralInviteResultResponse;
 import net.foodeals.referals.application.dtos.responses.ReferralStatsResponse;
 import net.foodeals.referals.application.service.ReferralService;
 import net.foodeals.user.application.services.UserService;
 import net.foodeals.user.domain.entities.User;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/referrals")
@@ -22,5 +23,12 @@ public class ReferralController {
     getStats() {
         User user = userService.getConnectedUser();
         return referralService.getStats(user);
+    }
+
+    @PostMapping("/invite")
+    public ReferralInviteResultResponse invite(@RequestBody ReferralInviteRequest request) {
+
+        User user = userService.getConnectedUser();
+        return referralService.inviteFriends(user, request);
     }
 }

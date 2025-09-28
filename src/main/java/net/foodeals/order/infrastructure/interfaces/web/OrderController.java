@@ -1,8 +1,10 @@
 package net.foodeals.order.infrastructure.interfaces.web;
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.order.application.dtos.responses.DeliveryTrackingResponse;
 import net.foodeals.order.application.dtos.responses.OrderDetailsResponse;
 import net.foodeals.order.application.dtos.responses.OrderResponse;
+import net.foodeals.order.application.services.DeliveryTrackingService;
 import net.foodeals.order.application.services.OrderService;
 import net.foodeals.user.application.services.UserService;
 import net.foodeals.user.domain.entities.User;
@@ -23,6 +25,7 @@ import java.util.UUID;
 public class OrderController {
 
     private final OrderService service;
+    private final DeliveryTrackingService deliveryTrackingService;
     private final UserService userService;
 
     @GetMapping("/orders-client")
@@ -39,5 +42,10 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/delivery/{id}/tracking")
+    public ResponseEntity<DeliveryTrackingResponse> getTracking(@PathVariable UUID id) {
+        DeliveryTrackingResponse response = deliveryTrackingService.getTracking(id);
+        return ResponseEntity.ok(response);
+    }
 
 }

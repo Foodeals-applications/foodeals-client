@@ -65,4 +65,10 @@ public class NotificationSettingsServiceImpl implements NotificationSettingsServ
 
         return new NotificationCountResponse(donations, favorites, coupons);
     }
+
+    @Override
+    public void sendReferralInvitation(String toEmail, String message, String senderName) {
+        // Placeholder: remplacer par envoi réel (Mail/SMS/Push)
+        System.out.println("Sending referral invitation to " + toEmail + " from " + senderName + " message: " + message);
+    }
 }
