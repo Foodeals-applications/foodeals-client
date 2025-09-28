@@ -12,10 +12,12 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.entities.Deal;
+import net.foodeals.offer.domain.repositories.BoxRepository;
 import net.foodeals.offer.domain.repositories.DealRepository;
-import net.foodeals.order.application.dtos.responses.OrderDetailsResponse;
-import net.foodeals.order.application.dtos.responses.OrderResponse;
+import net.foodeals.order.application.dtos.responses.*;
+import net.foodeals.order.domain.entities.Transaction;
 import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,6 +60,7 @@ public class OrderServiceImpl implements OrderService {
 	private final OfferService offerService;
 	private final DeliveryService deliveryService;
 	private final DealRepository dealRepository;
+    private final BoxRepository boxRepository ;
 	private final ProductRepository productRepository;
 
 	@Value("${upload.directory}")
@@ -157,8 +160,46 @@ public class OrderServiceImpl implements OrderService {
 		return null;
 	}
 
+    @Override
+    public OrderConfirmationResponse getOrderConfirmation(UUID orderId) {
+        Order order = repository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
 
-	private OrderResponse mapToOrderResponse(Order order) {
+        Transaction transaction = order.getTransaction();
+
+        Deal deal=dealRepository.getDealByOfferId(order.getOffer().getId());
+        Box box =boxRepository.getBoxByOfferId(order.getOffer().getId());
+        String offerName=null;
+        if(deal!=null){
+            offerName=deal.getTitle();
+        }
+        if(box!=null){
+            offerName=box.getTitle();
+        }
+        // Mapper Order -> OrderPaymentResponse
+        OrderPaymentResponse orderDto = new OrderPaymentResponse(
+                order.getId(),
+                order.getStatus().name(),
+                order.getQuantity(),
+                offerName,
+                order.getClient() != null ? order.getClient().getName().firstName()+" "+order.getClient().getName().lastName() : null,
+                order.getCreatedAt()
+        );
+
+        // Mapper Transaction -> TransactionOrderResponse
+        TransactionOrderResponse transactionDto = transaction != null ? new TransactionOrderResponse(
+                transaction.getId(),
+                transaction.getReference(),
+                transaction.getPrice().amount().doubleValue(),
+                transaction.getPrice().currency().getCurrencyCode(),
+                transaction.getStatus().name()
+        ) : null;
+
+        return new OrderConfirmationResponse(orderDto, transactionDto);
+    }
+
+
+    private OrderResponse mapToOrderResponse(Order order) {
 		UUID idProduct=productRepository.findProductsWithActiveOffers(order.getOffer().getSubEntity().getId()).
 				get(0).getId();
 		Product product =productRepository.findById(idProduct).orElseThrow(EntityNotFoundException::new);

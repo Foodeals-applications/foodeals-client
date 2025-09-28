@@ -7,6 +7,8 @@ import net.foodeals.offer.application.dtos.responses.CartResponse;
 import net.foodeals.offer.application.services.CartService;
 import net.foodeals.offer.domain.entities.Cart;
 import net.foodeals.offer.domain.entities.CartItem;
+import net.foodeals.order.application.dtos.responses.CheckoutDataResponse;
+import net.foodeals.order.application.services.CheckoutService;
 import net.foodeals.user.application.services.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +24,13 @@ public class CartController {
 
     private final CartService cartService;
     private final UserService userService;
+    private final CheckoutService checkoutService;
 
+    @GetMapping("/checkout-data")
+    public ResponseEntity<CheckoutDataResponse> getCheckoutData() {
+        CheckoutDataResponse response = checkoutService.getCheckoutData();
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/add")
     public ResponseEntity<CartResponse> addDealToCart(@RequestBody CartRequest cartRequest) {

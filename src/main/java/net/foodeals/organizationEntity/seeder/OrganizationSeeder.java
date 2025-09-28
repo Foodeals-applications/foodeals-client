@@ -7,6 +7,12 @@ import net.foodeals.businessrecomendations.domain.entities.BusinessRecommendatio
 import net.foodeals.businessrecomendations.domain.repositories.BusinessRecommendationRepository;
 import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.common.valueOjects.Price;
+import net.foodeals.delivery.domain.entities.Delivery;
+import net.foodeals.delivery.domain.entities.DeliveryOption;
+import net.foodeals.delivery.domain.entities.DeliveryPosition;
+import net.foodeals.delivery.domain.enums.DeliveryStatus;
+import net.foodeals.delivery.domain.repositories.DeliveryPositionRepository;
+import net.foodeals.delivery.domain.repositories.DeliveryRepository;
 import net.foodeals.location.domain.entities.Address;
 import net.foodeals.location.domain.repositories.AddressRepository;
 import net.foodeals.location.domain.repositories.CityRepository;
@@ -14,13 +20,9 @@ import net.foodeals.location.domain.repositories.CountryRepository;
 import net.foodeals.offer.domain.entities.*;
 import net.foodeals.offer.domain.enums.*;
 import net.foodeals.offer.domain.repositories.*;
-import net.foodeals.order.domain.entities.Coupon;
-import net.foodeals.order.domain.entities.Order;
-import net.foodeals.order.domain.entities.Transaction;
+import net.foodeals.order.domain.entities.*;
 import net.foodeals.order.domain.enums.*;
-import net.foodeals.order.domain.repositories.CouponRepository;
-import net.foodeals.order.domain.repositories.OrderRepository;
-import net.foodeals.order.domain.repositories.TransactionRepository;
+import net.foodeals.order.domain.repositories.*;
 import net.foodeals.organizationEntity.domain.entities.Activity;
 import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
 import net.foodeals.organizationEntity.domain.entities.SubEntity;
@@ -29,10 +31,12 @@ import net.foodeals.organizationEntity.domain.entities.enums.EntityType;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityStatus;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityType;
 import net.foodeals.organizationEntity.domain.repositories.*;
+import net.foodeals.product.domain.entities.PaymentMethodProduct;
 import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.entities.ProductCategory;
 import net.foodeals.product.domain.entities.Supplement;
 import net.foodeals.product.domain.enums.SupplementCategory;
+import net.foodeals.product.domain.repositories.PaymentMethodRepository;
 import net.foodeals.product.domain.repositories.ProductCategoryRepository;
 import net.foodeals.product.domain.repositories.ProductRepository;
 import net.foodeals.product.domain.repositories.SupplementRepository;
@@ -88,6 +92,16 @@ public class OrganizationSeeder implements CommandLineRunner {
     private final SupportTicketRepository supportTicketRepository;
     private final BusinessRecommendationRepository businessRecommendationRepository;
     private final ReferralRepository referralRepository;
+
+
+    private final DeliveryRepository deliveryRepository;
+    private final DeliveryPositionRepository deliveryPositionRepository;
+    private final TrackingStepRepository trackingStepRepository;
+
+
+    private final PaymentMethodRepository paymentMethodRepository;
+    private final DeliveryOptionRepository deliveryOptionRepository;
+
 
     @Override
     public void run(String... args) throws Exception {
@@ -167,6 +181,22 @@ public class OrganizationSeeder implements CommandLineRunner {
             order1.setTransaction(transaction1);
             order2.setTransaction(transaction2);
             order3.setTransaction(transaction3);
+            orderRepository.save(order1);
+            orderRepository.save(order2);
+            orderRepository.save(order3);
+
+
+            User livreur1 = createDeliveryBoy("Rachid", "Bouazza", "livreur1@foodeals.ma", "0612345678");
+            User livreur2 = createDeliveryBoy("Youssef", "Haddad", "livreur2@foodeals.ma", "0612345679");
+
+// Affecter deliveries aux orders
+            Delivery delivery1 = createDeliveryForOrder(order1, livreur1, DeliveryStatus.ASSIGNED);
+            Delivery delivery2 = createDeliveryForOrder(order2, livreur2, DeliveryStatus.ASSIGNED);
+            Delivery delivery3 = createDeliveryForOrder(order3, livreur1, DeliveryStatus.ASSIGNED);
+
+            order1.setDelivery(delivery1);
+            order2.setDelivery(delivery2);
+            order3.setDelivery(delivery3);
             orderRepository.save(order1);
             orderRepository.save(order2);
             orderRepository.save(order3);
@@ -468,6 +498,12 @@ public class OrganizationSeeder implements CommandLineRunner {
             System.out.println("✅ Sample referral invitations créées pour " + client.getEmail());
         }
 
+        createPaymentMethod("CARD");
+        createPaymentMethod("CASH");
+
+        // ✅ Seed Delivery Options
+        createDeliveryOption("HOME", "Home Delivery", 20.0, "MAD", "30-45 min");
+        createDeliveryOption("PICKUP", "Pickup Point", 0.0, "MAD", "Ready in 15 min");
 
     }
 
@@ -509,6 +545,7 @@ public class OrganizationSeeder implements CommandLineRunner {
         addr.setAddress(address);
         addr.setCity(cityRepository.findByName(city));
         addr.setZip(zip);
+        addr.setCoordinates(new Coordinates(33.5731F, -7.5898F));
         addr.setCountry(countryRepository.findByName(country));
         return addressRepository.save(addr);
     }
@@ -729,5 +766,63 @@ public class OrganizationSeeder implements CommandLineRunner {
         return couponRepository.save(coupon);
     }
 
+    private User createDeliveryBoy(String firstName, String lastName, String email, String phone) {
+        User deliveryBoy = new User();
+        deliveryBoy.setName(new Name(firstName, lastName));
+        deliveryBoy.setEmail(email);
+        deliveryBoy.setPhone(phone);
+        return userRepository.save(deliveryBoy);
+    }
 
+    private Delivery createDeliveryForOrder(Order order, User deliveryBoy, DeliveryStatus deliveryStatus) {
+        Delivery delivery = new Delivery();
+        delivery.setDeliveryBoy(deliveryBoy);
+        delivery.setStatus(deliveryStatus);
+        delivery.setOrder(order);
+        delivery.setDuration(14l);
+
+        // Position simulée
+        DeliveryPosition position = new DeliveryPosition();
+        position.setCoordinates(new Coordinates(33.5731F, -7.5898F)); // Casablanca exemple
+        delivery.setDeliveryPosition(deliveryPositionRepository.save(position));
+
+        delivery = deliveryRepository.save(delivery);
+
+        // Création d’un TrackingStep initial
+        TrackingStep step = new TrackingStep();
+        step.setOrder(order);
+        step.setStatus("ASSIGNED");
+        step.setDescription("Commande assignée au livreur");
+        step.setTimestamp(java.time.Instant.now());
+        trackingStepRepository.save(step);
+
+        return delivery;
+    }
+
+    private void createPaymentMethod(String label) {
+
+        PaymentMethodProduct paymentMethod = new PaymentMethodProduct();
+        paymentMethod.setMethodName(label);
+
+        paymentMethodRepository.save(paymentMethod);
+
+
+    }
+    private void createDeliveryOption(String type, String label, Double cost, String currency, String estimatedTime) {
+
+        DeliveryOption option = new DeliveryOption();
+        option.setLabel(label);
+        option.setCost(cost);
+        option.setCurrency(currency);
+        option.setEstimatedTime(estimatedTime);
+        deliveryOptionRepository.save(option);
+        System.out.println("✅ DeliveryOption créée : " + type);
+
+    }
 }
+
+
+
+
+
+

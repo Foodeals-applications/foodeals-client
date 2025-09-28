@@ -3,6 +3,7 @@ package net.foodeals.product.domain.repositories;
 import java.util.UUID;
 
 import net.foodeals.common.contracts.BaseRepository;
+import net.foodeals.order.domain.entities.PaymentMethod;
 import net.foodeals.product.domain.entities.PaymentMethodProduct;
 
 public interface PaymentMethodRepository extends BaseRepository<PaymentMethodProduct, UUID> {

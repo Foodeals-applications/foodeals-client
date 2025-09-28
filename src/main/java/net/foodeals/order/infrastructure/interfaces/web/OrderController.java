@@ -2,6 +2,7 @@ package net.foodeals.order.infrastructure.interfaces.web;
 
 import lombok.RequiredArgsConstructor;
 import net.foodeals.order.application.dtos.responses.DeliveryTrackingResponse;
+import net.foodeals.order.application.dtos.responses.OrderConfirmationResponse;
 import net.foodeals.order.application.dtos.responses.OrderDetailsResponse;
 import net.foodeals.order.application.dtos.responses.OrderResponse;
 import net.foodeals.order.application.services.DeliveryTrackingService;
@@ -45,6 +46,12 @@ public class OrderController {
     @GetMapping("/delivery/{id}/tracking")
     public ResponseEntity<DeliveryTrackingResponse> getTracking(@PathVariable UUID id) {
         DeliveryTrackingResponse response = deliveryTrackingService.getTracking(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/confirmation")
+    public ResponseEntity<OrderConfirmationResponse> getOrderConfirmation(@PathVariable UUID id) {
+        OrderConfirmationResponse response = service.getOrderConfirmation(id);
         return ResponseEntity.ok(response);
     }
 

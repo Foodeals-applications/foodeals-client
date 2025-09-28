@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import net.foodeals.order.application.dtos.responses.OrderConfirmationResponse;
 import net.foodeals.order.application.dtos.responses.OrderDetailsResponse;
 import net.foodeals.order.application.dtos.responses.OrderResponse;
 import net.foodeals.user.domain.entities.User;
@@ -21,5 +22,7 @@ public interface OrderService extends CrudService<Order, UUID, OrderRequest> {
 	public Map<String, List<OrderResponse>> findOrdersByClient(User client);
 
 	public OrderDetailsResponse getDetailsOrder(UUID id);
+
+   public OrderConfirmationResponse getOrderConfirmation(UUID orderId);
 
 }
