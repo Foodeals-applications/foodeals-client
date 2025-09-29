@@ -1,4 +1,4 @@
-package net.foodeals.order.application.dtos.responses;
+package net.foodeals.order.application.dtos.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,9 +9,8 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateOrderResponse {
+public class ProcessPaymentRequest {
     private UUID orderId;
-    private String status;
-    private Double totalAmount;
-    private String currency;
+    private String paymentMethodId;
+    private Double amount;
 }

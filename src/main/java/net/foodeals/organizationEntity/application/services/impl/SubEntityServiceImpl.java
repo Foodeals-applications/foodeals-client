@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.common.Utils.DistanceCalculator;
+import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.location.domain.entities.Address;
 import net.foodeals.location.domain.repositories.AddressRepository;
 import net.foodeals.location.domain.repositories.CityRepository;
@@ -262,6 +263,47 @@ public class SubEntityServiceImpl implements SubEntityService {
     public Page<SubEntity> getAllByStatus(String status, Pageable pageable) {
         SubEntityStatus subEntityStatus = SubEntityStatus.valueOf(status);
         return repository.findAllBySubEntityStatus(subEntityStatus, pageable);
+    }
+
+    @Override
+    public List<SubEntityNearbyResponse> getNearbySubEntities(String type, double lat, double lng,double radiusKm) {
+        // ⚡ Charger toutes les SubEntity du domaine demandé
+        List<SubEntity> all = repository.findByDomaineName(type);
+
+        // ⚡ Filtrer celles dans le rayon
+        return all.stream()
+                .filter(sub -> {
+                    if (sub.getCoordinates() == null) return false;
+                    return distanceInKm(
+                           lat, lng,
+                            sub.getCoordinates().latitude(), sub.getCoordinates().longitude()
+                    ) <= radiusKm;
+                })
+                .map(sub -> new SubEntityNearbyResponse(
+                        sub.getId(),
+                        sub.getName(),
+                        sub.getAvatarPath(),
+                        sub.getAddress().getAddress(),
+                        distanceInKm(lat,lng,sub.getCoordinates().latitude(),
+                                sub.getCoordinates().longitude()),
+                        radiusKm
+                ))
+                .toList();
+    }
+
+
+
+
+    // ✅ Calcul de la distance haversine
+    private double distanceInKm(double lat1, double lon1, double lat2, double lon2) {
+        double R = 6371; // rayon de la Terre
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
     }
 
     @Override

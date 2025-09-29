@@ -36,7 +36,7 @@ import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.entities.ProductCategory;
 import net.foodeals.product.domain.entities.Supplement;
 import net.foodeals.product.domain.enums.SupplementCategory;
-import net.foodeals.product.domain.repositories.PaymentMethodRepository;
+import net.foodeals.product.domain.repositories.PaymentMethodProductRepository;
 import net.foodeals.product.domain.repositories.ProductCategoryRepository;
 import net.foodeals.product.domain.repositories.ProductRepository;
 import net.foodeals.product.domain.repositories.SupplementRepository;
@@ -801,8 +801,8 @@ public class OrganizationSeeder implements CommandLineRunner {
 
     private void createPaymentMethod(String label) {
 
-        PaymentMethodProduct paymentMethod = new PaymentMethodProduct();
-        paymentMethod.setMethodName(label);
+        PaymentMethod paymentMethod = new PaymentMethod();
+        paymentMethod.setLabel(label);
 
         paymentMethodRepository.save(paymentMethod);
 

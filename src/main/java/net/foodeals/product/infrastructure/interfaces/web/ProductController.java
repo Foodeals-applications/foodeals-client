@@ -13,7 +13,7 @@ import net.foodeals.product.application.dtos.responses.ProductSuggestionResponse
 import net.foodeals.product.application.services.ProductService;
 import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.repositories.DeliveryMethodRepository;
-import net.foodeals.product.domain.repositories.PaymentMethodRepository;
+import net.foodeals.product.domain.repositories.PaymentMethodProductRepository;
 import net.foodeals.product.domain.repositories.PickupConditionRepository;
 import net.foodeals.product.domain.repositories.ProductRepository;
 import net.foodeals.user.application.services.UserService;
@@ -39,7 +39,7 @@ public class ProductController {
     private final SubEntityService subEntityService;
     private final DealRepository dealRepository;
     private final ProductRepository productRepository;
-    private final PaymentMethodRepository paymentMethodRepository;
+    private final PaymentMethodProductRepository paymentMethodRepository;
     private final DeliveryMethodRepository deliveryMethodRepository;
     private final PickupConditionRepository pickupConditionRepository;
     private final ModelMapper mapper;

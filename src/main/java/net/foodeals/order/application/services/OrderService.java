@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import net.foodeals.order.application.dtos.requests.CreateOrderRequest;
+import net.foodeals.order.application.dtos.responses.CreateOrderResponse;
 import net.foodeals.order.application.dtos.responses.OrderConfirmationResponse;
 import net.foodeals.order.application.dtos.responses.OrderDetailsResponse;
 import net.foodeals.order.application.dtos.responses.OrderResponse;
@@ -24,5 +26,7 @@ public interface OrderService extends CrudService<Order, UUID, OrderRequest> {
 	public OrderDetailsResponse getDetailsOrder(UUID id);
 
    public OrderConfirmationResponse getOrderConfirmation(UUID orderId);
+
+    public CreateOrderResponse createOrder(User user, CreateOrderRequest request);
 
 }

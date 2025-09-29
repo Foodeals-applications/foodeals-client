@@ -9,9 +9,8 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateOrderResponse {
-    private UUID orderId;
-    private String status;
-    private Double totalAmount;
-    private String currency;
+public class ProcessPaymentResponse {
+    private UUID transactionId;
+    private String status; // SUCCESS, FAILED, PENDING
+    private String message;
 }

@@ -14,14 +14,14 @@ import net.foodeals.product.application.dtos.requests.PaymentMethodRequest;
 import net.foodeals.product.application.dtos.responses.PaymentMethodResponse;
 import net.foodeals.product.application.services.PaymentMethodService;
 import net.foodeals.product.domain.entities.PaymentMethodProduct;
-import net.foodeals.product.domain.repositories.PaymentMethodRepository;
+import net.foodeals.product.domain.repositories.PaymentMethodProductRepository;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class PaymendMethodServiceImpl implements PaymentMethodService {
 
-	private final PaymentMethodRepository paymentMethodRepository;
+	private final PaymentMethodProductRepository paymentMethodRepository;
 	private final ModelMapper mapper;
 
 	@Override

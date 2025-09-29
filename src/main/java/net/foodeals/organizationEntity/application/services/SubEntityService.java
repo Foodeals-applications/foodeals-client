@@ -37,6 +37,8 @@ public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntity
 
     Page<SubEntity> getAllByStatus(String status, Pageable pageable);
 
+    public List<SubEntityNearbyResponse> getNearbySubEntities(String type, double lat, double lng,double radiusKm);
+
     SubEntity confirmSubEntity(UUID id);
 
 

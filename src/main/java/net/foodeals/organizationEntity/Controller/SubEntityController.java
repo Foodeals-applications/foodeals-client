@@ -1,7 +1,12 @@
 package net.foodeals.organizationEntity.Controller;
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.common.valueOjects.Coordinates;
+import net.foodeals.offer.application.dtos.responses.BoxResponse;
+import net.foodeals.offer.application.dtos.responses.DealResponse;
 import net.foodeals.offer.application.dtos.responses.DealStoreResponse;
+import net.foodeals.offer.application.services.BoxService;
+import net.foodeals.offer.application.services.DealService;
 import net.foodeals.organizationEntity.application.dtos.responses.*;
 import net.foodeals.organizationEntity.application.services.SubEntityCategoryService;
 import net.foodeals.organizationEntity.application.services.SubEntityService;
@@ -32,6 +37,10 @@ public class SubEntityController {
     private final SubEntityService subEntityService;
 
     private final ProductService productService;
+
+    private final DealService  dealService;
+
+    private BoxService boxService;
 
     private final UserService userService;
 
@@ -190,6 +199,33 @@ public class SubEntityController {
         ProductReviewResponse response = productService.addReview(id, reviewRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+
+
+    @GetMapping("/{domain}/nearby")
+    public ResponseEntity<Map<String, Object>> getNearby(
+            @PathVariable String domain,
+            @RequestParam double latitude,
+            @RequestParam double longitude,
+            @RequestParam(defaultValue = "5.0") double radiusKm
+    ) {
+
+        List<SubEntityNearbyResponse> list = subEntityService.getNearbySubEntities(domain.toUpperCase(),
+                latitude,longitude, radiusKm);
+
+        // structure dynamique selon le domain
+        String key = switch (domain.toLowerCase()) {
+            case "bakery" -> "bakeries";
+            case "restaurant" -> "restaurants";
+            case "hotel" -> "hotels";
+            case "agriculture" -> "farmers";
+            case "industrial" -> "industrials";
+            default -> "subentities";
+        };
+
+        return ResponseEntity.ok(Map.of(key, list));
+    }
+
 
     
     private String generatePhotoUrl(String name) {

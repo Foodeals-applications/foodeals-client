@@ -10,7 +10,7 @@ import net.foodeals.order.application.dtos.responses.DeliveryOptionResponse;
 import net.foodeals.order.domain.repositories.DeliveryOptionRepository;
 import net.foodeals.product.application.dtos.responses.PaymentMethodResponse;
 import net.foodeals.product.domain.entities.Product;
-import net.foodeals.product.domain.repositories.PaymentMethodRepository;
+import net.foodeals.product.domain.repositories.PaymentMethodProductRepository;
 import net.foodeals.user.application.services.UserService;
 import net.foodeals.user.domain.entities.User;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class CheckoutService {
 
     private final UserService userService;
     private final CartRepository cartRepository;
-    private final PaymentMethodRepository paymentMethodRepository;
+    private final PaymentMethodProductRepository paymentMethodRepository;
     private final DeliveryOptionRepository deliveryOptionRepository;
 
     public CheckoutDataResponse getCheckoutData() {

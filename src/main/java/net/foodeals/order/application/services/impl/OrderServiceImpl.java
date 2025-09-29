@@ -12,13 +12,27 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import net.foodeals.location.domain.entities.Address;
+import net.foodeals.location.domain.repositories.AddressRepository;
+import net.foodeals.location.domain.repositories.CityRepository;
+import net.foodeals.location.domain.repositories.CountryRepository;
 import net.foodeals.offer.domain.entities.Box;
+import net.foodeals.offer.domain.entities.Cart;
 import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.repositories.BoxRepository;
+import net.foodeals.offer.domain.repositories.CartRepository;
 import net.foodeals.offer.domain.repositories.DealRepository;
+import net.foodeals.offer.domain.repositories.OfferRepository;
+import net.foodeals.order.application.dtos.requests.CartItemRequest;
+import net.foodeals.order.application.dtos.requests.CreateOrderRequest;
 import net.foodeals.order.application.dtos.responses.*;
+import net.foodeals.order.domain.entities.Coupon;
+import net.foodeals.order.domain.entities.PaymentMethod;
 import net.foodeals.order.domain.entities.Transaction;
+import net.foodeals.order.domain.repositories.CouponRepository;
+import net.foodeals.order.domain.repositories.PaymentMethodRepository;
 import net.foodeals.product.domain.entities.Product;
+
 import net.foodeals.product.domain.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -61,7 +75,15 @@ public class OrderServiceImpl implements OrderService {
 	private final DeliveryService deliveryService;
 	private final DealRepository dealRepository;
     private final BoxRepository boxRepository ;
-	private final ProductRepository productRepository;
+
+    private final PaymentMethodRepository paymentMethodRepository;
+    private final CouponRepository couponRepository;
+    private final AddressRepository addressRepository;
+    private final OfferRepository offerRepository;   // ⚡ pour récupérer les produits/offres réelles
+    private final CartRepository cartRepository;
+    private final CityRepository cityRepository;
+    private final CountryRepository countryRepository;
+    private final ProductRepository productRepository;
 
 	@Value("${upload.directory}")
 	private String uploadDir;
@@ -197,6 +219,64 @@ public class OrderServiceImpl implements OrderService {
 
         return new OrderConfirmationResponse(orderDto, transactionDto);
     }
+
+    @Override
+    public CreateOrderResponse createOrder(User user, CreateOrderRequest request) {
+        // 🛒 Récupérer les vrais produits depuis la DB
+        double total = 0.0;
+        int totalQuantity = 0;
+
+        for (CartItemRequest item : request.getItems()) {
+            Product product = productRepository.findById(item.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Produit introuvable: " + item.getProductId()));
+
+            double price = product.getPrice() != null ? product.getPrice().amount().doubleValue() : 0.0;
+            total += price * item.getQuantity();
+            totalQuantity += item.getQuantity();
+
+            // ✅ Optionnel: sauvegarder le panier
+            Cart cart = new Cart();
+            cart.setUserId(user.getId());
+            cartRepository.save(cart);
+        }
+
+        // 🎟️ Vérifier promo
+        if (request.getPromoCode() != null) {
+            Coupon coupon = couponRepository.findByCode(request.getPromoCode())
+                    .orElseThrow(() -> new RuntimeException("Code promo invalide"));
+
+            if (coupon.getEndsAt().after(new Date()) && Boolean.TRUE.equals(coupon.getIsEnabled())) {
+                // Exemple simple: réduction en %
+                total = total - (total * (coupon.getDiscount() / 100));
+            }
+        }
+
+        // 📦 Créer l’entité Order
+        Order order = new Order();
+        order.setClient(user);
+        order.setStatus(OrderStatus.IN_PROGRESS);
+        order.setQuantityOfOrder(totalQuantity);
+
+        // 🏠 Sauvegarder l’adresse
+        Address address = new Address();
+        address.setAddress(request.getDeliveryAddress().address());
+        address.setCity(cityRepository.findById(request.getDeliveryAddress().cityId()).orElse(null));
+        address.setZip(request.getDeliveryAddress().zip());
+        address.setCountry(countryRepository.findByName("Morocco"));
+        addressRepository.save(address);
+        order.setShippingAddress(address);
+
+        // 💳 Associer le moyen de paiement
+        PaymentMethod paymentMethod = paymentMethodRepository.findByLabel(request.getPaymentMethod())
+                .orElseThrow(() -> new RuntimeException("Méthode de paiement introuvable"));
+        // ⚡ Ici tu pourrais créer une relation Order → PaymentMethod si tu l’as modélisée
+
+        // Sauvegarde
+        repository.save(order);
+
+        return new CreateOrderResponse(order.getId(), order.getStatus().name(), total, "MAD");
+    }
+
 
 
     private OrderResponse mapToOrderResponse(Order order) {

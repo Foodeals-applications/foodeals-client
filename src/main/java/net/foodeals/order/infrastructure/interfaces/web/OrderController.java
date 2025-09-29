@@ -1,19 +1,14 @@
 package net.foodeals.order.infrastructure.interfaces.web;
 
 import lombok.RequiredArgsConstructor;
-import net.foodeals.order.application.dtos.responses.DeliveryTrackingResponse;
-import net.foodeals.order.application.dtos.responses.OrderConfirmationResponse;
-import net.foodeals.order.application.dtos.responses.OrderDetailsResponse;
-import net.foodeals.order.application.dtos.responses.OrderResponse;
+import net.foodeals.order.application.dtos.requests.CreateOrderRequest;
+import net.foodeals.order.application.dtos.responses.*;
 import net.foodeals.order.application.services.DeliveryTrackingService;
 import net.foodeals.order.application.services.OrderService;
 import net.foodeals.user.application.services.UserService;
 import net.foodeals.user.domain.entities.User;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -53,6 +48,13 @@ public class OrderController {
     public ResponseEntity<OrderConfirmationResponse> getOrderConfirmation(@PathVariable UUID id) {
         OrderConfirmationResponse response = service.getOrderConfirmation(id);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<CreateOrderResponse> createOrder(
+            @RequestBody CreateOrderRequest request) {
+        User user=userService.getConnectedUser();
+        return ResponseEntity.ok(service.createOrder(user, request));
     }
 
 }

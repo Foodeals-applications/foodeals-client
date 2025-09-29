@@ -87,7 +87,7 @@ public class UserSeeder implements CommandLineRunner {
         newAddress.setZip(zip);
         newAddress.setCoordinates(coordinates);
 
-        CountryRequest countryRequest = new CountryRequest("Morocco", "202410");
+        CountryRequest countryRequest = new CountryRequest("Tunisia", "202410");
         Country country = this.countryService.create(countryRequest);
 
         StateRequest stateRequest = new StateRequest("Casablanca", "102436", country.getId());
