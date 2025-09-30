@@ -4,10 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.common.Utils.DistanceCalculator;
 import net.foodeals.offer.application.dtos.requests.DealDto;
-import net.foodeals.offer.application.dtos.responses.DealDetailsResponse;
-import net.foodeals.offer.application.dtos.responses.OpenTimeResponse;
-import net.foodeals.offer.application.dtos.responses.SimilarDealResponse;
-import net.foodeals.offer.application.dtos.responses.SupplementDealResponse;
+import net.foodeals.offer.application.dtos.responses.*;
 import net.foodeals.offer.application.services.DealService;
 import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.entities.OpenTime;
@@ -86,6 +83,26 @@ class DealServiceImpl implements DealService {
     public DealDetailsResponse getDetailsDeal(UUID id) {
         Deal deal = repository.findById(id).orElseThrow(() -> new DealNotFoundException(id));
         return mapToDealDetailsResponse(deal);
+    }
+
+    @Override
+    public FeaturedDealsResponse getFeaturedDeals() {
+        // ⚡ Ici on filtre seulement les deals "featured" (selon un flag en DB)
+        List<Deal> featuredDeals = repository.findByIsFeaturedTrueAndIsActiveTrue();
+
+        List<DealFeaturedResponse> responses = featuredDeals.stream()
+                .map(deal -> new DealFeaturedResponse(
+                        deal.getId(),
+                        deal.getTitle(),
+                        deal.getDescription(),
+                        deal.getOffer().getSalePrice().amount().doubleValue(),
+                        deal.getOffer().getPrice().amount().doubleValue(),
+                        deal.getOffer().getSubEntity().getName(),
+                        deal.getOffer().getSubEntity().getAvatarPath()
+                ))
+                .toList();
+
+        return new FeaturedDealsResponse(responses);
     }
 
 

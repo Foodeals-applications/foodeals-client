@@ -13,20 +13,15 @@ import java.util.UUID;
 public class CartRequest {
 
     private UUID dealId;
-
     private UUID boxId;
-
     private int quantity;
-
     private ModalityType modalityType;
-
     private String timeSlot;
 
-    private String addressSubEntity;
+    // 👉 Adresse choisie par le client
+    private String address;
 
-    private String note ;
-
+    private String note;
     private boolean isDonation;
-
     private boolean showInfoDonation;
 }

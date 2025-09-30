@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.location.application.dtos.requests.AddressRequest;
 import net.foodeals.location.application.dtos.responses.AddressResponse;
+import net.foodeals.location.application.dtos.responses.UserAddressesResponse;
 import net.foodeals.location.application.services.AddressService;
 import net.foodeals.location.domain.entities.Address;
 import net.foodeals.user.application.services.UserService;
@@ -38,14 +39,10 @@ public class AddressController {
     }
 
     @GetMapping("/my-address")
-    public ResponseEntity<AddressResponse> getAddressClient(
-            @RequestParam(defaultValue = "0") Integer pageNum,
-            @RequestParam(defaultValue = "10") Integer pageSize
+    public ResponseEntity<UserAddressesResponse> getAddressClient(
     ) {
-
-        User client =userService.getConnectedUser();
-        Address address=client.getAddress();
-        return ResponseEntity.ok( mapper.map(address, AddressResponse.class));
+        UserAddressesResponse userAddressesResponse = service.getUserAddresses();
+        return ResponseEntity.ok(userAddressesResponse);
     }
 
     @GetMapping("/{id}")

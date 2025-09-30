@@ -41,6 +41,9 @@ public class Cart extends AbstractEntity<UUID>{
 
     private boolean showInfoDonation;
 
+    @Column(name = "client_address")
+    private String clientAddress;
+
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CartItem> items=new ArrayList<>();
 

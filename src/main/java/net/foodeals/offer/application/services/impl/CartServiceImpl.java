@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.foodeals.location.domain.entities.Address;
+import net.foodeals.location.domain.repositories.AddressRepository;
 import net.foodeals.offer.application.dtos.requests.CartRequest;
 import net.foodeals.offer.application.dtos.responses.CartItemResponse;
 import net.foodeals.offer.application.dtos.responses.CartResponse;
@@ -15,6 +17,9 @@ import net.foodeals.offer.domain.enums.ModalityPaiement;
 import net.foodeals.offer.domain.repositories.BoxRepository;
 import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.repositories.ProductRepository;
+import net.foodeals.user.application.services.UserService;
+import net.foodeals.user.domain.entities.User;
+import net.foodeals.user.domain.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -37,38 +42,48 @@ public class CartServiceImpl implements CartService {
 	private final CartItemRepository cartItemRepository;
 	private final DealRepository dealRepository;
 	private final BoxRepository boxRepository;
+    private final UserService  userService;
+    private final AddressRepository addressRepository;
 	private final ProductRepository productRepository;
 
 	@Override
 	public Cart addToCart(Integer userId, CartRequest request) {
+        Cart cart = cartRepository.findByUserId(userId).orElse(null);
 
-		Cart cart = null;
-        if(!cartRepository.findByUserId(userId).isPresent()){
-            cart=new Cart(userId);
-            cart.setDonation(request.isDonation());
-            cart.setShowInfoDonation(request.isShowInfoDonation());
-            cart.setTimeSlot(request.getTimeSlot());
-            cart.setSubEntityAddress(request.getAddressSubEntity());
+        if (cart == null) {
+            cart = new Cart(userId);
         }
-		Deal deal = null;
-		Box box = null;
-		CartItem cartItem = null;
-		if (request.getDealId() != null) {
-			deal = dealRepository.findById(request.getDealId())
-					.orElseThrow(() -> new IllegalArgumentException("Deal not found"));
-			cartItem = new CartItem(cart, deal, request.getQuantity(), request.getModalityType());
-		}
 
-		if (request.getBoxId() != null) {
-			box = boxRepository.findById(request.getBoxId())
-					.orElseThrow(() -> new IllegalArgumentException("Box not found"));
-			cartItem = new CartItem(cart, box, request.getQuantity(), request.getModalityType());
-		}
+        // 🔥 Récupérer l’adresse sélectionnée du client
+        User client = userService.getConnectedUser();
+        Address deliveryAddress = client.getAddress();
 
-		cart.getItems().add(cartItem);
+        // Mettre à jour les infos globales du panier
+        cart.setDonation(request.isDonation());
+        cart.setShowInfoDonation(request.isShowInfoDonation());
+        cart.setTimeSlot(request.getTimeSlot());
 
-		cartRepository.save(cart);
-		return cart;
+
+        // Ajouter l’item (deal / box)
+        CartItem cartItem = null;
+
+        if (request.getDealId() != null) {
+            Deal deal = dealRepository.findById(request.getDealId())
+                    .orElseThrow(() -> new IllegalArgumentException("Deal not found"));
+            cartItem = new CartItem(cart, deal, request.getQuantity(), request.getModalityType());
+        }
+
+        if (request.getBoxId() != null) {
+            Box box = boxRepository.findById(request.getBoxId())
+                    .orElseThrow(() -> new IllegalArgumentException("Box not found"));
+            cartItem = new CartItem(cart, box, request.getQuantity(), request.getModalityType());
+        }
+
+        if (cartItem != null) {
+            cart.getItems().add(cartItem);
+        }
+
+        return cartRepository.save(cart);
 	}
 
     @Override

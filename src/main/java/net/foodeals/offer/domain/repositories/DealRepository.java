@@ -70,4 +70,7 @@ public interface DealRepository extends BaseRepository<Deal, UUID> {
 		long countDealsByCategory(@Param("category") SubEntityProductCategory category);
 
 
+    List<Deal> findByIsFeaturedTrueAndIsActiveTrue();
+
+
 }

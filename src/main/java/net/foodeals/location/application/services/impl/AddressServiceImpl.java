@@ -4,6 +4,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.location.application.dtos.requests.CreateAddressAccountRequest;
+import net.foodeals.location.application.dtos.responses.AddressResponse;
+import net.foodeals.location.application.dtos.responses.UserAddressesResponse;
 import net.foodeals.location.domain.entities.Country;
 import net.foodeals.location.domain.repositories.CityRepository;
 import net.foodeals.location.domain.repositories.CountryRepository;
@@ -19,6 +21,8 @@ import net.foodeals.location.domain.entities.Region;
 import net.foodeals.location.domain.exceptions.AddressNotFoundException;
 import net.foodeals.location.domain.repositories.AddressRepository;
 import net.foodeals.user.application.dtos.requests.UserAddress;
+import net.foodeals.user.application.services.UserService;
+import net.foodeals.user.domain.entities.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,11 +38,13 @@ class AddressServiceImpl implements AddressService {
 
     private final AddressRepository repository;
     private final CityService cityService;
+    private final UserService userService;
     private final ModelMapper modelMapper;
     private final RegionService regionService;
     private final RegionRepository regionRepository;
     private final CountryRepository countryRepository;
     private final CityRepository cityRepository;
+    private final ModelMapper mapper;
 
     @Override
     public List<Address> findAll() {
@@ -134,5 +140,22 @@ class AddressServiceImpl implements AddressService {
                 .build();
 
         return repository.save(address);
+    }
+
+    @Override
+    public UserAddressesResponse getUserAddresses() {
+        User client = userService.getConnectedUser();
+
+        AddressResponse main = null;
+        if (client.getAddress() != null) {
+            main = mapper.map(client.getAddress(), AddressResponse.class);
+        }
+
+        List<AddressResponse> others = client.getOtherAddresses()
+                .stream()
+                .map(addr -> mapper.map(addr, AddressResponse.class))
+                .toList();
+
+        return new UserAddressesResponse(main, others);
     }
 }

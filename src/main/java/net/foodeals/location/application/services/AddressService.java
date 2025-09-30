@@ -2,6 +2,7 @@ package net.foodeals.location.application.services;
 
 import net.foodeals.common.contracts.CrudService;
 import net.foodeals.location.application.dtos.requests.CreateAddressAccountRequest;
+import net.foodeals.location.application.dtos.responses.UserAddressesResponse;
 import net.foodeals.organizationEntity.application.dtos.requests.EntityAddressDto;
 import net.foodeals.location.application.dtos.requests.AddressRequest;
 import net.foodeals.location.domain.entities.Address;
@@ -15,4 +16,6 @@ public interface AddressService extends CrudService<Address, UUID, AddressReques
     Address createUserAddress(UserAddress userAddress);
 
     Address createAccountAddress(CreateAddressAccountRequest request);
+
+    public UserAddressesResponse getUserAddresses();
 }

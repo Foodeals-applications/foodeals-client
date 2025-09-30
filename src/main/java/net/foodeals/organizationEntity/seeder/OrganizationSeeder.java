@@ -504,7 +504,8 @@ public class OrganizationSeeder implements CommandLineRunner {
         // ✅ Seed Delivery Options
         createDeliveryOption("HOME", "Home Delivery", 20.0, "MAD", "30-45 min");
         createDeliveryOption("PICKUP", "Pickup Point", 0.0, "MAD", "Ready in 15 min");
-
+        addOtherAddressToUser(client, "Rue des Fleurs 45", "Casablanca", "20100", "Maroc");
+        addOtherAddressToUser(client, "Résidence Oasis, Maarif", "Casablanca", "20200", "Maroc");
     }
 
     private Rating createRating(User user, Product product, int ratingValue, String comment) {
@@ -548,6 +549,12 @@ public class OrganizationSeeder implements CommandLineRunner {
         addr.setCoordinates(new Coordinates(33.5731F, -7.5898F));
         addr.setCountry(countryRepository.findByName(country));
         return addressRepository.save(addr);
+    }
+
+    private void addOtherAddressToUser(User user, String address, String city, String zip, String country) {
+        Address addr = createAddress(address, city, zip, country);
+        user.getOtherAddresses().add(addr);
+        userRepository.save(user);
     }
 
     // Méthode pour créer une OrganizationEntity
@@ -643,6 +650,11 @@ public class OrganizationSeeder implements CommandLineRunner {
         deal.setProduct(product);
         deal.setQuantity(quantity);
         deal.setOffer(offer);
+        boolean isFeatured = ThreadLocalRandom.current().nextBoolean();
+        deal.setFeatured(isFeatured);
+
+        boolean isActive= ThreadLocalRandom.current().nextBoolean();
+        deal.setActive(isActive);
         return dealRepository.save(deal);
     }
 
@@ -667,6 +679,11 @@ public class OrganizationSeeder implements CommandLineRunner {
         box.setQuantity(50); // Exemple : nombre de produits
         box.setReason("Offre spéciale."); // Exemple : raison
         box.setProducts(List.of(product));
+        boolean isFeatured = ThreadLocalRandom.current().nextBoolean();
+        box.setFeatured(isFeatured);
+
+        boolean isActive= ThreadLocalRandom.current().nextBoolean();
+        box.setActive(isActive);
         return boxRepository.save(box);
     }
 

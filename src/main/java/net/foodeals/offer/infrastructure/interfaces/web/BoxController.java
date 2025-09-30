@@ -1,8 +1,5 @@
 package net.foodeals.offer.infrastructure.interfaces.web;
-import net.foodeals.offer.application.dtos.responses.BoxCategory;
-import net.foodeals.offer.application.dtos.responses.BoxDetailsResponse;
-import net.foodeals.offer.application.dtos.responses.BoxListResponse;
-import net.foodeals.offer.application.dtos.responses.CartResponse;
+import net.foodeals.offer.application.dtos.responses.*;
 import net.foodeals.offer.application.services.BoxService;
 import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.entities.Cart;
@@ -28,6 +25,11 @@ public class BoxController {
     public ResponseEntity<BoxDetailsResponse> getDetailsBox(@PathVariable UUID id) {
         BoxDetailsResponse response = boxService.getBoxDetails(id);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/featured")
+    public ResponseEntity<FeaturedBoxesResponse> getFeaturedBoxes() {
+        return ResponseEntity.ok(boxService.getFeaturedBoxes());
     }
 
     @GetMapping("/list-box-surprise")

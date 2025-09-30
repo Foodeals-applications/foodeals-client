@@ -79,6 +79,10 @@ public class Box extends AbstractEntity<UUID> implements IOfferChoice {
 	private String reason ;
 	
 	private String motif ;
+
+    private boolean isFeatured;
+
+    private boolean isActive ;
 	
 	Box() {
 	}

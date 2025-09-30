@@ -322,7 +322,26 @@ class BoxServiceImpl implements BoxService {
 		return mapBoxToBoxDetailsResponse(box);
 	}
 
-	private BoxDetailsResponse mapBoxToBoxDetailsResponse(Box box) {
+    @Override
+    public FeaturedBoxesResponse getFeaturedBoxes() {
+        // ⚡ Récupérer uniquement les boxes actives + mises en avant
+        List<Box> featuredBoxes = repository.findByIsFeaturedTrueAndIsActiveTrue();
+
+        List<BoxFeaturedResponse> responses = featuredBoxes.stream()
+                .map(box -> new BoxFeaturedResponse(
+                        box.getId(),
+                        box.getTitle(),
+                        box.getDescription(),
+                        box.getOffer().getPrice().amount().doubleValue(),
+                        box.getOffer().getSalePrice().amount().doubleValue(),
+                        box.getOffer().getSubEntity().getName()
+                ))
+                .toList();
+
+        return new FeaturedBoxesResponse(responses);
+    }
+
+    private BoxDetailsResponse mapBoxToBoxDetailsResponse(Box box) {
 		 User user = userService.getConnectedUser();
 	        BoxDetailsResponse response = new BoxDetailsResponse();
 	        response.setId(box.getId());

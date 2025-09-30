@@ -104,6 +104,10 @@ public class User extends AbstractEntity<Integer> implements UserDetails {
     @JoinColumn(name = "address_id")
     private Address address;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id") // foreign key dans Address
+    private List<Address> otherAddresses = new ArrayList<>();
+
     @OneToMany(mappedBy = "collaborator", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<WorkSchedule> workSchedules = new ArrayList();
 

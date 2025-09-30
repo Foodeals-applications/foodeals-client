@@ -91,6 +91,10 @@ public class Deal extends AbstractEntity<UUID> implements IOfferChoice {
     private OrganizationEntity creator ; 
     
     private Date expirationDate;
+
+    private boolean isActive;
+
+    private boolean isFeatured;
     
     public Deal() {
     }

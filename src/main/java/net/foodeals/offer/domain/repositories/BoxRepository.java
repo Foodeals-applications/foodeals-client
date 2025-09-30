@@ -57,6 +57,7 @@ public interface BoxRepository extends BaseRepository<Box, UUID> {
     Page<Box> findByCategory(Category category, Pageable pageable);
 
 
+    List<Box> findByIsFeaturedTrueAndIsActiveTrue();
 }
 
 
