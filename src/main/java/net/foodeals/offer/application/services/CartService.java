@@ -1,6 +1,7 @@
 package net.foodeals.offer.application.services;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.UUID;
 
 import net.foodeals.offer.application.dtos.requests.CartRequest;
@@ -18,8 +19,8 @@ public interface CartService {
      Cart updateCart(Cart cart);
 	 
 	 Cart getCartByUser(Integer  userId);
-	 
-	 void clearCart(Integer userId);
+
+    Map<String, Object> clearCart(Integer userId);
 
 	void deleteAllDealsByOrganizationFromCart(UUID organizationId);
 	
@@ -31,7 +32,9 @@ public interface CartService {
     public SelectItemResponse selectItem(UUID itemId, boolean selected);
     public RemoveItemResponse removeItem(UUID itemId);
     public UpdateQuantityResponse updateItemQuantity(UUID itemId, int quantity);
-
+    public Map<String, Object> selectAllStore(UUID storeId, boolean selected);
+    public Map<String, Object> removeAllStore(UUID storeId);
+    public Map<String, Object> getSummary(Integer userId);
 
 
     CartResponse toCartResponse(Cart cart);

@@ -93,15 +93,7 @@ public class CartServiceImpl implements CartService {
 		return cartRepository.findByUserId(userId).orElse(null);
 	}
 
-	public void clearCart(Integer userId) {
-		Cart cart = cartRepository.findByUserId(userId)
-				.orElseThrow(() -> new IllegalArgumentException("Cart not found"));
-		cartItemRepository.deleteAll(cart.getItems());
-		cart.setItems(null);
-		;
-		cart = cartRepository.save(cart);
 
-	}
 
 	@Override
 	public void deleteAllDealsByOrganizationFromCart(UUID organizationId) {
@@ -328,6 +320,72 @@ public class CartServiceImpl implements CartService {
                 true,
                 "Item selection updated successfully",
                 new SelectItemResponse.Data(itemId.toString(), selected)
+        );
+    }
+
+    public Map<String, Object> selectAllStore(UUID storeId, boolean selected) {
+        List<CartItem> items = cartItemRepository.findBySubEntityId(storeId);
+        items.forEach(i -> i.setSelected(selected));
+        cartItemRepository.saveAll(items);
+
+        return Map.of(
+                "success", true,
+                "message", "All store items selection updated successfully",
+                "data", Map.of(
+                        "storeId", storeId,
+                        "selectedItemsCount", selected ? items.size() : 0,
+                        "totalItems", items.size()
+                )
+        );
+    }
+
+    public Map<String, Object> removeAllStore(UUID storeId) {
+        List<CartItem> items = cartItemRepository.findBySubEntityId(storeId);
+        cartItemRepository.deleteAll(items);
+        return Map.of(
+                "success", true,
+                "message", "All items removed from store successfully",
+                "data", Map.of(
+                        "storeId", storeId,
+                        "removedItemsCount", items.size()
+                )
+        );
+    }
+
+    public Map<String, Object> clearCart(Integer userId) {
+        Cart cart = cartRepository.findByUserId(userId).orElseThrow();
+        int removedCount = cart.getItems().size();
+        cart.getItems().clear();
+        cartRepository.save(cart);
+        return Map.of(
+                "success", true,
+                "message", "Cart cleared successfully",
+                "data", Map.of(
+                        "removedItemsCount", removedCount,
+                        "removedStoresCount", 0
+                )
+        );
+    }
+
+    public Map<String, Object> getSummary(Integer userId) {
+        Cart cart = cartRepository.findByUserId(userId).orElseThrow();
+        int totalItems = cart.getItems().size();
+        int selectedItems = (int) cart.getItems().stream().filter(CartItem::isSelected).count();
+        double totalPrice = cart.getItems().stream()
+                .mapToDouble(i -> i.getProduct().getPrice().amount().doubleValue() * i.getQuantity())
+                .sum();
+
+        return Map.of(
+                "success", true,
+                "data", Map.of(
+                        "totalItems", totalItems,
+                        "selectedItems", selectedItems,
+                        "totalPrice", totalPrice,
+                        "selectedPrice", totalPrice,
+                        "storesCount", 1,
+                        "deliveryFee", 0.0,
+                        "finalTotal", totalPrice
+                )
         );
     }
 

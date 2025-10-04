@@ -54,6 +54,8 @@ public class CartItem extends AbstractEntity<UUID>{
     @Enumerated(EnumType.STRING)
     private ModalityType modalityType;
 
+    private boolean selected=false;
+
     public CartItem() {}
 
     public CartItem(Cart cart, Deal deal, Integer quantity, ModalityType modalityType) {
