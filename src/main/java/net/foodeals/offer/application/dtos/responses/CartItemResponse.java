@@ -15,29 +15,17 @@ import java.util.UUID;
 @NoArgsConstructor
 public class CartItemResponse {
 
-    private UUID idItem ;
-
+    private UUID id;
     private UUID productId;
-
-    private String productName ;
-
-    private String productDescription ;
-
-    private String productPhotoUrl;
-
-    private Integer totalProducts;
-
-    private double oldPrice  ;
-
-    private double price ;
-
-    private String subEntityName;
-
-
-    private List<ModalityPaiement> modalityPaiementList;
-
-    private String subEntityPhotoUrl;
-
-    private int quantity;
+    private String name;
+    private String productName;
+    private Double price;
+    private Double discountPrice;
+    private Integer quantity;
+    private String imageUrl;
+    private UUID storeId;
+    private boolean selected;
+    private String description;
+    private String collectionInfo;
 
 }

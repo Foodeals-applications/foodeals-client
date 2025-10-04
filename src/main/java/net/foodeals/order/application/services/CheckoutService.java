@@ -114,7 +114,8 @@ public class CheckoutService {
             // À adapter si Product contient des infos de prix et de fournisseur
         }
 
-        return new CartItemResponse(cartItem.getId(),productId,name, description,imagePath, totalProducts,price,oldPrice, providerName,
-                modalityPaiements,   providerAvatar, quantity);
+       // return new CartItemResponse(cartItem.getId(),productId,name, description,imagePath, totalProducts,price,oldPrice, providerName,
+               // modalityPaiements,   providerAvatar, quantity);
+        return null;
     }
 }

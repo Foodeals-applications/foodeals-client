@@ -1,22 +1,16 @@
 package net.foodeals.offer.application.dtos.responses;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
-
-@Setter
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CartResponse {
-
-    private boolean success;
-    private CartData data;
-
+public class CartData {
+    private List<StoreCartResponse> stores;
 }

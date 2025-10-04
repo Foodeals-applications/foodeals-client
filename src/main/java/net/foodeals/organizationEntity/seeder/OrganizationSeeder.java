@@ -97,6 +97,8 @@ public class OrganizationSeeder implements CommandLineRunner {
     private final DeliveryRepository deliveryRepository;
     private final DeliveryPositionRepository deliveryPositionRepository;
     private final TrackingStepRepository trackingStepRepository;
+    private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
 
 
     private final PaymentMethodRepository paymentMethodRepository;
@@ -107,6 +109,8 @@ public class OrganizationSeeder implements CommandLineRunner {
     public void run(String... args) throws Exception {
         SubEntity goldenTolipCasa = null;
         SubEntity kfcCasa = null;
+        Box box2=null;
+        Product product2=null;
         if (!organizationEntityRepository.findByName("Carrefour").isPresent()) {
 
             /**
@@ -137,7 +141,7 @@ public class OrganizationSeeder implements CommandLineRunner {
                     "Pommes fraîches et biologiques.",
                     new BigDecimal("5.99"),
                     "Supermarchés", 20);
-            Product product2 = createProduct(carrefourMarket, "Lait entier",
+            product2 = createProduct(carrefourMarket, "Lait entier",
                     "Bouteille de lait entier 1L.", new BigDecimal("1.99"), "Supermarchés", 10);
             Product product3 = createProduct(carrefourMarket, "Buche de Noël",
                     "Délicieux gâteau de Noël.", new BigDecimal("15.99"), "Supermarchés", 6);
@@ -161,7 +165,7 @@ public class OrganizationSeeder implements CommandLineRunner {
 
             // Boxes associées aux offres
             Box box1 = createBoxWithOffer("Box Carrefour Market", "Box avec lait et autres produits.", carrefourOffer1, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.DAIRY_PRODUCTS, product2);
-            Box box2 = createBoxWithOffer("Box Carrefour Market 2", "Box avec lait Fraises et autres produits.", carrefourOffer3, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.DAIRY_PRODUCTS, product4);
+            box2 = createBoxWithOffer("Box Carrefour Market 2", "Box avec lait Fraises et autres produits.", carrefourOffer3, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.DAIRY_PRODUCTS, product4);
             Box box3 = createBoxWithOffer("Box Spéciale Noël", "Box garnie pour Noël avec gâteaux.", carrefourOffer2, BoxType.NORMAL_BOX, BoxStatus.AVAILABLE, Category.FROZEN_PRODUCTS, product3);
 
             createSupplement("Lait", SupplementCategory.SUPPLEMENTS, noelDeal, box1);
@@ -506,6 +510,43 @@ public class OrganizationSeeder implements CommandLineRunner {
         createDeliveryOption("PICKUP", "Pickup Point", 0.0, "MAD", "Ready in 15 min");
         addOtherAddressToUser(client, "Rue des Fleurs 45", "Casablanca", "20100", "Maroc");
         addOtherAddressToUser(client, "Résidence Oasis, Maarif", "Casablanca", "20200", "Maroc");
+
+        // Dans ton OrganizationSeeder (à la fin du run par ex.)
+        if (client != null) {
+            // Création d’un panier (Cart)
+            Cart cart = new Cart();
+            cart.setUserId(client.getId());
+            cart = cartRepository.save(cart);
+
+            // Ajout d’items dans le panier
+            // 1. Avec un Deal
+            CartItem cartItemDeal = new CartItem(cart, agricultureDeal1, 2, ModalityType.DELIVERY);
+            cartItemDeal.setCart(cart);
+            cartItemDeal.setSubEntity(goldenTolipCasa);
+            cartItemDeal = cartItemRepository.save(cartItemDeal);
+
+            // 2. Avec une Box
+
+            CartItem cartItemBox = new CartItem(cart,box2, 1, ModalityType.PICKUP);
+            cartItemBox.setCart(cart);
+            cartItemBox.setSubEntity(goldenTolipCasa);
+            cartItemBox = cartItemRepository.save(cartItemBox);
+
+            // 3. Avec un Product (direct)
+            CartItem cartItemProduct = new CartItem(cart, product2, 3, ModalityType.AT_PLACE);
+            cartItemProduct.setCart(cart);
+
+            cartItemProduct.setSubEntity(goldenTolipCasa);
+            cartItemProduct = cartItemRepository.save(cartItemProduct);
+
+            // Attacher les items au panier
+          //  cart.setItems(List.of(cartItemDeal, cartItemBox, cartItemProduct));
+            cartRepository.save(cart);
+
+            System.out.println("✅ Cart créé avec des items pour " + client.getEmail());
+        }
+
+
     }
 
     private Rating createRating(User user, Product product, int ratingValue, String comment) {

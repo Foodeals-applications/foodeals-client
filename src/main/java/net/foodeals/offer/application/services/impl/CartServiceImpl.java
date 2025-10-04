@@ -1,20 +1,17 @@
 package net.foodeals.offer.application.services.impl;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Currency;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import net.foodeals.location.domain.entities.Address;
 import net.foodeals.location.domain.repositories.AddressRepository;
 import net.foodeals.offer.application.dtos.requests.CartRequest;
-import net.foodeals.offer.application.dtos.responses.CartItemResponse;
-import net.foodeals.offer.application.dtos.responses.CartResponse;
+import net.foodeals.offer.application.dtos.responses.*;
 import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.enums.ModalityPaiement;
 import net.foodeals.offer.domain.repositories.BoxRepository;
+import net.foodeals.organizationEntity.domain.entities.SubEntity;
 import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.repositories.ProductRepository;
 import net.foodeals.user.application.services.UserService;
@@ -154,100 +151,192 @@ public class CartServiceImpl implements CartService {
 		return dealRepository.save(dealPro);
 	}
 
-	public CartResponse toCartResponse(Cart cart) {
-		Long deliveryCost = 0L;
+    @Override
+    public CartResponse getUserCart(Integer userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
 
-		double totalDeliveryFee = cart.getItems().stream().mapToDouble(cartItem -> {
-			if (cartItem.getDeal() != null && cartItem.getDeal().getOffer() != null) {
-				return cartItem.getDeal().getOffer().getDeliveryFee() * cartItem.getDeal().getQuantity();
-			} else if (cartItem.getBox() != null && cartItem.getBox().getOffer() != null) {
-				return cartItem.getBox().getOffer().getDeliveryFee() * cartItem.getBox().getQuantity();
-			}
-			return 0.0;
-		}).sum();
+        // ⚡ On regroupe les items par "store"
+        Map<UUID, List<CartItem>> groupedByStore = cart.getItems().stream()
+                .collect(Collectors.groupingBy(item -> item.getSubEntity().getId()));
 
-		double totalPrice = cart.getItems().stream().mapToDouble(cartItem -> {
-			if (cartItem.getDeal() != null && cartItem.getDeal().getOffer() != null
-					&& cartItem.getDeal().getOffer().getSalePrice() != null
-					&& cartItem.getDeal().getOffer().getSalePrice().amount() != null) {
-				return cartItem.getDeal().getOffer().getSalePrice().amount().doubleValue();
-			} else if (cartItem.getBox() != null && cartItem.getBox().getOffer() != null
-					&& cartItem.getBox().getOffer().getSalePrice() != null
-					&& cartItem.getBox().getOffer().getSalePrice().amount() != null) {
-				return cartItem.getBox().getOffer().getSalePrice().amount().doubleValue();
-			}
-			return 0.0;
-		}).sum();
+        List<StoreCartResponse> stores = groupedByStore.entrySet().stream()
+                .map(entry -> {
+                    UUID storeId = entry.getKey();
+                    SubEntity store = entry.getValue().get(0).getSubEntity();
 
-		List<CartItemResponse> cartItemResponses = cart.getItems().stream().map(this::toCartItemResponse)
-				.collect(Collectors.toList());
+                    List<CartItemResponse> itemResponses = entry.getValue().stream().map(item -> {
+                        UUID productId = null;
+                        String name = null;
+                        String description = null;
+                        String imagePath = null;
+                        Double price = null;
+                        Double discountPrice = null;
 
-		return new CartResponse(deliveryCost, totalDeliveryFee, cartItemResponses);
+                        if (item.getProduct() != null) {
+                            productId = item.getProduct().getId();
+                            name = item.getProduct().getName();
+                            description = item.getProduct().getDescription();
+                            imagePath = item.getProduct().getProductImagePath();
+                            price = item.getProduct().getPrice().amount().doubleValue();
+                        } else if (item.getDeal() != null) {
+                            productId = item.getDeal().getId(); // ⚡ on met l’ID du deal
+                            name = item.getDeal().getTitle();
+                            description = item.getDeal().getDescription();
+                            imagePath = item.getDeal().getProduct().getProductImagePath();
+                            price = item.getDeal().getProduct().getPrice().amount().doubleValue();
+                            discountPrice = item.getDeal().getPrice().amount().doubleValue();
+                        } else if (item.getBox() != null) {
+                            productId = item.getBox().getId(); // ⚡ on met l’ID du box
+                            name = item.getBox().getTitle();
+                            description = item.getBox().getDescription();
+                            imagePath = item.getBox().getPhotoBoxPath();
+                            price = item.getBox().getOffer().getPrice().amount().doubleValue();
+                            discountPrice = item.getBox().getOffer().getSalePrice().amount().doubleValue();
+                        }
 
-	}
+                        return new CartItemResponse(
+                                item.getId(),
+                                productId,
+                                name,
+                                name, // titre aussi dans "shortName"
+                                price,
+                                discountPrice,
+                                item.getQuantity(),
+                                imagePath,
+                                storeId,
+                                true, // sélectionné par défaut
+                                description,
+                                item.getCollectionInfo()
+                        );
+                    }).toList();
 
-	public CartItemResponse toCartItemResponse(CartItem cartItem) {
-		UUID productId=null;
-        String name = null;
-        String description=null;
-		String imagePath = null;
-        Integer totalProducts=null;
-        double oldPrice = 0.0;
-		double price = 0.0;
-		String providerName = null;
-		String providerAvatar = null;
-        String address=null;
-        List<ModalityPaiement>modalityPaiements=new ArrayList<>();
-		int quantity = cartItem.getQuantity();
+                    Double total = itemResponses.stream()
+                            .mapToDouble(i -> (i.getDiscountPrice() != null ? i.getDiscountPrice() : i.getPrice()) * i.getQuantity())
+                            .sum();
 
-		if (cartItem.getDeal() != null && cartItem.getDeal().getOffer() != null) {
-			Product product = cartItem.getDeal().getProduct();
-			if (product != null) {
-                productId=product.getId();
-                totalProducts++;
-				name = product.getName();
-                description=product.getDescription();
-                imagePath = product.getProductImagePath();
-			}
-			if (cartItem.getDeal().getOffer().getSalePrice() != null
-					&& cartItem.getDeal().getOffer().getSalePrice().amount() != null) {
-				price = cartItem.getDeal().getOffer().getSalePrice().amount().doubleValue();
-                oldPrice = cartItem.getDeal().getOffer().getSalePrice().amount().doubleValue();
-			}
-			if (cartItem.getDeal().getOffer().getSubEntity() != null) {
-				providerName = cartItem.getDeal().getOffer().getSubEntity().getName();
-				providerAvatar = cartItem.getDeal().getOffer().getSubEntity().getAvatarPath();
-                address=cartItem.getDeal().getOffer().getSubEntity().getAddress().getAddress()+ ""+cartItem.getDeal().getOffer().getSubEntity().getAddress().getCity().getName();
-                modalityPaiements = cartItem.getDeal().getOffer().getSubEntity().getModalityPaiements();
-			}
-		} else if (cartItem.getBox() != null && cartItem.getBox().getOffer() != null) {
-			name = cartItem.getBox().getTitle(); // Assurez-vous que Box a un nom
-			imagePath = cartItem.getBox().getPhotoBoxPath(); // Assurez-vous que Box a une image
-			if (cartItem.getBox().getOffer().getSalePrice() != null
-					&& cartItem.getBox().getOffer().getSalePrice().amount() != null) {
-				price = cartItem.getBox().getOffer().getSalePrice().amount().doubleValue();
-                oldPrice = cartItem.getBox().getOffer().getPrice().amount().doubleValue();
-			}
-			if (cartItem.getBox().getOffer().getSubEntity() != null) {
-				providerName = cartItem.getBox().getOffer().getSubEntity().getName();
-				providerAvatar = cartItem.getBox().getOffer().getSubEntity().getAvatarPath();
-                address=cartItem.getBox().getOffer().getSubEntity().getAddress().getAddress()+ ""+cartItem.getBox().
-                        getOffer().getSubEntity().getAddress().getCity().getName();
-                modalityPaiements = cartItem.getBox().getOffer().getSubEntity().getModalityPaiements();
-			}
-		} else if (cartItem.getProduct() != null) {
-			Product product = cartItem.getProduct();
-            productId=product.getId();
-            totalProducts++;
-			name = product.getName();
-			imagePath = product.getProductImagePath();
-            description=product.getDescription();
+                    return new StoreCartResponse(
+                            storeId,
+                            store.getName(),
+                            store.getAvatarPath(),
+                            total,
+                            itemResponses
+                    );
+                }).toList();
 
-			// À adapter si Product contient des infos de prix et de fournisseur
-		}
+        return new CartResponse(true, new CartData(stores));
+    }
 
-		return new CartItemResponse(cartItem.getId(),productId,name, description,imagePath, totalProducts,price,oldPrice, providerName,
-             modalityPaiements,   providerAvatar, quantity);
-	}
+
+    @Override
+    public CartResponse toCartResponse(Cart cart) {
+
+        // ⚡ On regroupe les items par "store"
+        Map<UUID, List<CartItem>> groupedByStore = cart.getItems().stream()
+                .collect(Collectors.groupingBy(item -> item.getSubEntity().getId()));
+
+        List<StoreCartResponse> stores = groupedByStore.entrySet().stream()
+                .map(entry -> {
+                    UUID storeId = entry.getKey();
+                    SubEntity store = entry.getValue().get(0).getSubEntity(); // tous appartiennent au même store
+                    List<CartItemResponse> itemResponses = entry.getValue().stream().map(item ->
+
+
+                            new CartItemResponse(
+                                    item.getId(),
+                                    item.getProduct().getId(),
+                                    item.getProduct().getName(),
+                                    item.getProduct().getName(),
+                                    item.getProduct().getPrice().amount().doubleValue(),
+                                    item.getDeal()!=null?item.getDeal().getPrice().amount().doubleValue():
+                                            item.getBox().getOffer().getPrice().amount().doubleValue(),
+                                    item.getQuantity(),
+                                    item.getProduct().getProductImagePath(),
+                                    storeId,
+                                    true, // selected par défaut
+                                    item.getProduct().getDescription(),
+                                    item.getCollectionInfo()
+                            )
+                    ).toList();
+
+                    Double total = itemResponses.stream()
+                            .mapToDouble(i -> i.getDiscountPrice() != null ? i.getDiscountPrice() * i.getQuantity() : i.getPrice() * i.getQuantity())
+                            .sum();
+
+                    return new StoreCartResponse(
+                            storeId,
+                            store.getName(),
+                            store.getAvatarPath(),
+                            total,
+                            itemResponses
+                    );
+                }).toList();
+
+        return new CartResponse(true, new CartData(stores));
+    }
+
+    public UpdateQuantityResponse updateItemQuantity(UUID itemId, int quantity) {
+        CartItem item = cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+
+        item.setQuantity(quantity);
+        cartItemRepository.save(item);
+
+        double totalPrice = getItemPrice(item) * item.getQuantity();
+
+        return new UpdateQuantityResponse(
+                true,
+                "Item quantity updated successfully",
+                new UpdateQuantityResponse.Data(
+                        item.getId().toString(),
+                        item.getQuantity(),
+                        totalPrice
+                )
+        );
+    }
+
+    // 3. Remove Single Cart Item
+    public RemoveItemResponse removeItem(UUID itemId) {
+        CartItem item = cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+
+        UUID cartId = item.getCart().getId();
+        cartItemRepository.delete(item);
+
+        Cart cart = cartRepository.findById(cartId).orElseThrow();
+        double updatedTotal = cart.getItems().stream()
+                .mapToDouble(i -> getItemPrice(i) * i.getQuantity())
+                .sum();
+
+        return new RemoveItemResponse(
+                true,
+                "Item removed from cart successfully",
+                new RemoveItemResponse.Data(itemId.toString(), updatedTotal)
+        );
+    }
+
+    // 4. Select/Unselect Single Item
+    public SelectItemResponse selectItem(UUID itemId, boolean selected) {
+        CartItem item = cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+
+        // ici tu peux stocker "selected" dans CartItem si tu ajoutes le champ
+        // item.setSelected(selected);
+        // cartItemRepository.save(item);
+
+        return new SelectItemResponse(
+                true,
+                "Item selection updated successfully",
+                new SelectItemResponse.Data(itemId.toString(), selected)
+        );
+    }
+
+    // Utils
+    private double getItemPrice(CartItem item) {
+        if (item.getDeal() != null) return item.getDeal().getPrice().amount().doubleValue();
+        if (item.getBox() != null) return item.getBox().getOffer().getPrice().amount().doubleValue();
+        if (item.getProduct() != null) return item.getProduct().getPrice().amount().doubleValue();
+        return 0.0;
+    }
 
 }
