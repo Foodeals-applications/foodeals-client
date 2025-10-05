@@ -38,6 +38,12 @@ public class CartController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/validate")
+    public Map<String, Object> validateCart(@RequestBody Map<String, List<UUID>> request) {
+        List<UUID> selectedItems = request.get("selectedItems");
+        return cartService.validateCart(selectedItems);
+    }
+
     @PostMapping("/add")
     public ResponseEntity<CartResponse> addDealToCart(@RequestBody CartRequest cartRequest) {
         Integer userId = userService.getConnectedUser().getId();

@@ -367,6 +367,61 @@ public class CartServiceImpl implements CartService {
         );
     }
 
+    public Map<String, Object> validateCart(List<UUID> selectedItems) {
+        List<CartItem> items = cartItemRepository.findAllById(selectedItems);
+
+        List<Map<String, Object>> unavailableItems = new ArrayList<>();
+        List<Map<String, Object>> priceChanges = new ArrayList<>();
+
+        double total = 0.0;
+
+        for (CartItem item : items) {
+            var product = item.getProduct();
+
+            // ✅ Vérifier si le produit est toujours disponible
+            if (product == null || product.getDeletedAt()!=null || item.getQuantity() <= 0) {
+                unavailableItems.add(Map.of(
+                        "itemId", item.getId(),
+                        "reason", "Product unavailable"
+                ));
+                continue;
+            }
+
+            // ✅ Vérifier le prix actuel vs prix stocké dans l’item
+            double currentPrice = product.getPrice().amount().doubleValue();
+            double expectedPrice = currentPrice; // tu peux stocker old price dans item si nécessaire
+            if (item.getQuantity() < 1) {
+                unavailableItems.add(Map.of(
+                        "itemId", item.getId(),
+                        "reason", "Invalid quantity"
+                ));
+            }
+
+            if (item.getProduct() != null && currentPrice != expectedPrice) {
+                priceChanges.add(Map.of(
+                        "itemId", item.getId(),
+                        "oldPrice", expectedPrice,
+                        "newPrice", currentPrice
+                ));
+            }
+
+            total += currentPrice * item.getQuantity();
+        }
+
+        boolean valid = unavailableItems.isEmpty() && priceChanges.isEmpty();
+
+        return Map.of(
+                "success", true,
+                "data", Map.of(
+                        "valid", valid,
+                        "unavailableItems", unavailableItems,
+                        "priceChanges", priceChanges,
+                        "total", total
+                )
+        );
+    }
+
+
     public Map<String, Object> getSummary(Integer userId) {
         Cart cart = cartRepository.findByUserId(userId).orElseThrow();
         int totalItems = cart.getItems().size();

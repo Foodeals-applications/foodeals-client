@@ -1,6 +1,7 @@
 package net.foodeals.offer.application.services;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,6 +26,8 @@ public interface CartService {
 	void deleteAllDealsByOrganizationFromCart(UUID organizationId);
 	
 	void deleteSingleDealByOrganizationFromCart(UUID organizationId, UUID dealId) ;
+
+    public Map<String, Object> validateCart(List<UUID> selectedItems);
 
 	Deal updatePrice(UUID id, BigDecimal newPrice);
 
