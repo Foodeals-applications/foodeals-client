@@ -9,4 +9,5 @@ import net.foodeals.offer.domain.entities.CartItem;
 
 public interface CartItemRepository extends BaseRepository<CartItem, UUID> {
     List<CartItem> findBySubEntityId(UUID storeId);
+    List<CartItem> findAllByIdIn(List<UUID> ids);
 }
