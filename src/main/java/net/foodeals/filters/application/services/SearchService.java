@@ -2,6 +2,7 @@ package net.foodeals.filters.application.services;
 
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.order.domain.repositories.DeliveryOptionRepository;
 import net.foodeals.organizationEntity.domain.repositories.SubEntityDomainRepository;
 import net.foodeals.organizationEntity.domain.repositories.SubEntityRepository;
 import net.foodeals.product.domain.entities.ProductCategory;
@@ -21,7 +22,7 @@ public class SearchService {
     private final SubEntityRepository
             storeRepository;
 
-    private final DeliveryMethodRepository deliveryMethodRepository;
+    private final DeliveryOptionRepository deliveryMethodRepository;
     private final ProductCategoryRepository foodCategoryRepository;
     private final SubEntityDomainRepository subEntityDomainRepository;
 
@@ -62,7 +63,7 @@ public class SearchService {
                 .stream()
                 .map(m -> Map.of(
                         "id", m.getId(),
-                        "label", m.getDeliveryName()
+                        "label", m.getLabel()
                 ))
                 .toList();
         return Map.of("deliveryMethods", methods);

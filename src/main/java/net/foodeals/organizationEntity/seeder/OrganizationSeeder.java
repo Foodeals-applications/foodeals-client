@@ -36,10 +36,7 @@ import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.entities.ProductCategory;
 import net.foodeals.product.domain.entities.Supplement;
 import net.foodeals.product.domain.enums.SupplementCategory;
-import net.foodeals.product.domain.repositories.PaymentMethodProductRepository;
-import net.foodeals.product.domain.repositories.ProductCategoryRepository;
-import net.foodeals.product.domain.repositories.ProductRepository;
-import net.foodeals.product.domain.repositories.SupplementRepository;
+import net.foodeals.product.domain.repositories.*;
 import net.foodeals.referals.domain.entities.Referral;
 import net.foodeals.referals.domain.repositories.ReferralRepository;
 import net.foodeals.support.domain.entities.SupportTicket;
@@ -103,6 +100,7 @@ public class OrganizationSeeder implements CommandLineRunner {
 
     private final PaymentMethodRepository paymentMethodRepository;
     private final DeliveryOptionRepository deliveryOptionRepository;
+
 
 
     @Override
