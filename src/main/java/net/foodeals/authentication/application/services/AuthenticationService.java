@@ -14,4 +14,6 @@ public interface AuthenticationService {
     LoginResponse login(LoginRequest request);
     
     boolean verifyToken(String token);
+
+    public LoginResponse authenticateWithApple(String identityToken, String authorizationCode);
 }

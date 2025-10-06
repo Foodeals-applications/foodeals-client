@@ -1,0 +1,105 @@
+package net.foodeals.authentication.application.services.impl;
+
+import lombok.RequiredArgsConstructor;
+import net.foodeals.authentication.application.dtos.requests.GoogleLoginRequest;
+import net.foodeals.authentication.application.dtos.requests.LoginRequest;
+import net.foodeals.authentication.application.dtos.requests.RegisterRequest;
+import net.foodeals.authentication.application.dtos.responses.AuthenticationResponse;
+import net.foodeals.authentication.application.dtos.responses.LoginResponse;
+import net.foodeals.authentication.application.services.AuthenticationService;
+import net.foodeals.authentication.application.services.GoogleAuthService;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import net.foodeals.authentication.application.services.JwtService;
+import net.foodeals.user.domain.entities.Role;
+import net.foodeals.user.domain.entities.User;
+import net.foodeals.user.domain.repositories.RoleRepository;
+import net.foodeals.user.domain.repositories.UserRepository;
+import net.foodeals.user.domain.valueObjects.Name;
+import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class GoogleAuthServiceImpl implements GoogleAuthService {
+
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final JwtService jwtService;
+    private final AuthenticationService authService;
+    @Override
+    public LoginResponse authenticateWithGoogle(String idToken) {
+        GoogleIdToken.Payload payload = verifyGoogleToken(idToken);
+        if (payload == null) {
+            throw new RuntimeException("Invalid Google ID Token");
+        }
+
+        String email = payload.getEmail();
+        String name = (String) payload.get("name");
+        String givenName = (String) payload.get("given_name");
+        String familyName = (String) payload.get("family_name");
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        User user;
+
+        if (userOpt.isPresent()) {
+            user = userOpt.get();
+        } else {
+            Role role = roleRepository.findByName("CLIENT")
+                    .orElseThrow(() -> new RuntimeException("Role CLIENT not found"));
+
+            // Créer un nouvel utilisateur à partir du payload Google
+            RegisterRequest registerRequest = new RegisterRequest(
+                    new Name(givenName != null ? givenName : name.split(" ")[0],
+                            familyName != null ? familyName : name.split(" ")[1]),
+                    email,
+                    null, // pas de mot de passe (auth externe)
+                    UUID.randomUUID().toString(),
+                    true,
+                    role.getId()
+            );
+
+            authService.register(registerRequest);
+            user = userRepository.findByEmail(email).orElseThrow();
+        }
+
+        // ⚡ Connexion de l’utilisateur
+        LoginRequest loginRequest = new LoginRequest(user.getEmail(), user.getPassword());
+        return authService.login(loginRequest);
+    }
+
+
+
+    private GoogleIdToken.Payload verifyGoogleToken(String idTokenString) {
+        try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                    new NetHttpTransport(),
+                    new GsonFactory()
+            )
+                    .setAudience(Collections.singletonList("YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"))
+                    .build();
+
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken != null) {
+                return idToken.getPayload();
+            } else {
+                throw new RuntimeException("Invalid ID token");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to verify Google ID token: " + e.getMessage(), e);
+        }
+    }
+
+
+    private AuthenticationResponse getTokens(User user) {
+        final Map<String, Object> extraClaims = Map.of("email", user.getEmail(), "phone", user.getPhone(), "role",
+                user.getRole().getName());
+        return jwtService.generateTokens(user, extraClaims);
+    }
+}

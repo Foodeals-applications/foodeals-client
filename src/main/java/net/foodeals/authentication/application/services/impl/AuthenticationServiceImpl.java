@@ -1,24 +1,13 @@
 package net.foodeals.authentication.application.services.impl;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.stereotype.Service;
-
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.foodeals.authentication.application.dtos.requests.LoginRequest;
 import net.foodeals.authentication.application.dtos.requests.RegisterRequest;
+import net.foodeals.authentication.application.dtos.responses.AppleUser;
 import net.foodeals.authentication.application.dtos.responses.AuthenticationResponse;
 import net.foodeals.authentication.application.dtos.responses.LoginResponse;
 import net.foodeals.authentication.application.services.AuthenticationService;
@@ -26,7 +15,26 @@ import net.foodeals.authentication.application.services.JwtService;
 import net.foodeals.organizationEntity.domain.entities.Solution;
 import net.foodeals.user.application.dtos.requests.UserRequest;
 import net.foodeals.user.application.services.UserService;
+import net.foodeals.user.domain.entities.Role;
 import net.foodeals.user.domain.entities.User;
+import net.foodeals.user.domain.repositories.RoleRepository;
+import net.foodeals.user.domain.repositories.UserRepository;
+import net.foodeals.user.domain.valueObjects.Name;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * AuthenticationServiceImpl
@@ -35,71 +43,116 @@ import net.foodeals.user.domain.entities.User;
 @RequiredArgsConstructor
 @Slf4j
 class AuthenticationServiceImpl implements AuthenticationService {
-	private final UserService userService;
-	private final JwtService jwtService;
-	private final UserDetailsService userDetailsService;
-	private final AuthenticationManager authenticationManager;
+    private final UserService userService;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
+    private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationService authenticationService;
 
-	public AuthenticationResponse register(RegisterRequest request) {
-		final User user = userService.create
+    public AuthenticationResponse register(RegisterRequest request) {
+        final User user = userService.create
 
-		(new UserRequest(null, null, request.name(), null, null, request.roleId(), request.email(),
-				request.isEmailVerified(),request.password(), request.phone(), null, null, null, null, null, null,
-				null, null, null));
-		return handleRegistration(user);
-	}
+                (new UserRequest(null, null, request.name(), null, null, request.roleId(), request.email(),
+                        request.isEmailVerified(), request.password(), request.phone(), null, null, null, null, null, null,
+                        null, null, null));
+        return handleRegistration(user);
+    }
 
-	@Transactional
-	public LoginResponse login(LoginRequest request) {
-		try {
-			Authentication authentication = authenticationManager
-					.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+    @Transactional
+    public LoginResponse login(LoginRequest request) {
+        try {
+            Authentication authentication = authenticationManager
+                    .authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
-			SecurityContext sc = SecurityContextHolder.getContext();
-			sc.setAuthentication(authentication);
+            SecurityContext sc = SecurityContextHolder.getContext();
+            sc.setAuthentication(authentication);
 
-			final User user = userService.findByEmail(request.email());
+            final User user = userService.findByEmail(request.email());
 
-			// Generate token (assuming getTokens returns a token string)
-			AuthenticationResponse token = getTokens(user);
+            // Generate token (assuming getTokens returns a token string)
+            AuthenticationResponse token = getTokens(user);
 
-			// Create and return the LoginResponse
-			UUID organizationId=null;
-			List<String>solutions=null;
-			if(user.getOrganizationEntity()!=null) {
-				organizationId=user.getOrganizationEntity().getId();
-				solutions=user.getOrganizationEntity().getSolutions().stream()
-				.map(Solution::getName).collect(Collectors.toList());
-			}
-			
-			return new LoginResponse(user.getName(), user.getEmail(), user.getPhone(),
-					organizationId, solutions,
-					user.getRole().getName(), user.getAvatarPath(), user.getId(), token);
-		} catch (Exception e) {
-			// Handle exception
-			throw new RuntimeException("Login failed", e);
-		}
-	}
+            // Create and return the LoginResponse
+            UUID organizationId = null;
+            List<String> solutions = null;
+            if (user.getOrganizationEntity() != null) {
+                organizationId = user.getOrganizationEntity().getId();
+                solutions = user.getOrganizationEntity().getSolutions().stream()
+                        .map(Solution::getName).collect(Collectors.toList());
+            }
 
-	@Transactional
-	public boolean verifyToken(String token) {
-		try {
-			String username = jwtService.extractUsername(token);
-			UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-			return jwtService.isTokenValid(token, userDetails);
-		} catch (Exception e) {
-			log.error("Token verification failed: {}", e.getMessage());
-			return false;
-		}
-	}
+            return new LoginResponse(user.getName(), user.getEmail(), user.getPhone(),
+                    organizationId, solutions,
+                    user.getRole().getName(), user.getAvatarPath(), user.getId(), token);
+        } catch (Exception e) {
+            // Handle exception
+            throw new RuntimeException("Login failed", e);
+        }
+    }
 
-	private AuthenticationResponse handleRegistration(User user) {
-		return getTokens(user);
-	}
 
-	private AuthenticationResponse getTokens(User user) {
-		final Map<String, Object> extraClaims = Map.of("email", user.getEmail(), "phone", user.getPhone(), "role",
-				user.getRole().getName());
-		return jwtService.generateTokens(user, extraClaims);
-	}
+    @Transactional
+    public boolean verifyToken(String token) {
+        try {
+            String username = jwtService.extractUsername(token);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            return jwtService.isTokenValid(token, userDetails);
+        } catch (Exception e) {
+            log.error("Token verification failed: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public LoginResponse authenticateWithApple(String identityToken, String authorizationCode) {
+        AppleUser appleUser = verifyAppleToken(identityToken);
+
+        Optional<User> userOpt = userRepository.findByEmail(appleUser.getEmail());
+        User user;
+
+        if (userOpt.isPresent()) {
+            user = userOpt.get();
+        } else {
+            Role role = roleRepository.findByName("CLIENT").orElseThrow();
+            user = new User();
+            user.setName(new Name(appleUser.getFirstName(),appleUser.getLastName()));
+            user.setEmail(appleUser.getEmail());
+            user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString())); // mot de passe aléatoire
+            user.setRole(role);
+            userRepository.save(user);
+        }
+
+        // Générer JWT + refreshToken
+
+        LoginRequest loginRequest = new LoginRequest(user.getEmail(), user.getPassword());
+        return authenticationService.login(loginRequest);
+
+    }
+
+    private AppleUser verifyAppleToken(String identityToken) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(identityToken);
+            JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
+
+            String email = claims.getStringClaim("email");
+            String firstName = claims.getStringClaim("given_name");
+            String lastName = claims.getStringClaim("family_name");
+
+            return new AppleUser(firstName, lastName, email);
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid Apple identity token", e);
+        }
+    }
+
+    private AuthenticationResponse handleRegistration(User user) {
+        return getTokens(user);
+    }
+
+    private AuthenticationResponse getTokens(User user) {
+        final Map<String, Object> extraClaims = Map.of("email", user.getEmail(), "phone", user.getPhone(), "role",
+                user.getRole().getName());
+        return jwtService.generateTokens(user, extraClaims);
+    }
 }
