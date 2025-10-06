@@ -72,4 +72,5 @@ public interface SubEntityRepository extends JpaRepository<SubEntity, UUID> {
     List<SubEntity> findByNameContainingIgnoreCase(String q);
     List<SubEntity> findBySubEntityDomains_NameIgnoreCase(String category);
 
+    SubEntity findTop5ByNameContainingIgnoreCase(String q);
 }

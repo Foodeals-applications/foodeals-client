@@ -1,0 +1,64 @@
+package net.foodeals.filters.infrastructure;
+
+
+import lombok.RequiredArgsConstructor;
+import net.foodeals.filters.application.services.SearchService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/v1/search")
+@RequiredArgsConstructor
+public class SearchController {
+
+    private final SearchService searchService;
+
+    @GetMapping("/suggestions")
+    public ResponseEntity<?> getSuggestions(@RequestParam String q) {
+        return ResponseEntity.ok(searchService.getSuggestions(q));
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<?> getRecentSearches() {
+        return ResponseEntity.ok(searchService.getRecentSearches());
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<?> saveSearch(@RequestBody Map<String, Object> body) {
+        return ResponseEntity.ok(searchService.saveSearch(body));
+    }
+
+    @DeleteMapping("/recent/{query}")
+    public ResponseEntity<?> deleteRecent(@PathVariable String query) {
+        return ResponseEntity.ok(searchService.deleteRecent(query));
+    }
+
+    @GetMapping("/trending")
+    public ResponseEntity<?> getTrendingSearches() {
+        return ResponseEntity.ok(searchService.getTrendingSearches());
+    }
+
+    @GetMapping("/global")
+    public ResponseEntity<?> globalSearch(@RequestParam String q,
+                                          @RequestParam(defaultValue = "all") String type,
+                                          @RequestParam(required = false) String location) {
+        return ResponseEntity.ok(searchService.globalSearch(q, type, location));
+    }
+
+    @GetMapping("/delivery-methods")
+    public ResponseEntity<?> getDeliveryMethods() {
+        return ResponseEntity.ok(searchService.getDeliveryMethods());
+    }
+
+    @GetMapping("/food-categories")
+    public ResponseEntity<?> getFoodCategories() {
+        return ResponseEntity.ok(searchService.getFoodCategories());
+    }
+
+    @GetMapping("/product-types")
+    public ResponseEntity<?> getProductTypes() {
+        return ResponseEntity.ok(searchService.getProductTypes());
+    }
+}

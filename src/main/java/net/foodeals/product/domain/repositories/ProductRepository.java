@@ -1,6 +1,7 @@
 package net.foodeals.product.domain.repositories;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -74,4 +75,5 @@ public interface ProductRepository extends BaseRepository<Product, UUID>, SlugRe
     List<Product> findBySubEntityAndIdNot(SubEntity subEntity, UUID excludedId);
 
 
+    Collection<Product> findTop10ByNameContainingIgnoreCase(String query);
 }

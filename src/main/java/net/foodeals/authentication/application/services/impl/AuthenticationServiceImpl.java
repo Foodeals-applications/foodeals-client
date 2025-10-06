@@ -50,7 +50,7 @@ class AuthenticationServiceImpl implements AuthenticationService {
     private final UserDetailsService userDetailsService;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationService authenticationService;
+
 
     public AuthenticationResponse register(RegisterRequest request) {
         final User user = userService.create
@@ -127,7 +127,7 @@ class AuthenticationServiceImpl implements AuthenticationService {
         // Générer JWT + refreshToken
 
         LoginRequest loginRequest = new LoginRequest(user.getEmail(), user.getPassword());
-        return authenticationService.login(loginRequest);
+        return this.login(loginRequest);
 
     }
 
