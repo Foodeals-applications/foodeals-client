@@ -1,6 +1,7 @@
 package net.foodeals.offer.application.services.impl;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -148,8 +149,9 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
 
+
         // ⚡ On regroupe les items par "store"
-        Map<UUID, List<CartItem>> groupedByStore = cart.getItems().stream()
+        Map<UUID, List<CartItem>> groupedByStore = cart.getItems().stream().filter(item->item.getDeletedAt()==null)
                 .collect(Collectors.groupingBy(item -> item.getSubEntity().getId()));
 
         List<StoreCartResponse> stores = groupedByStore.entrySet().stream()
@@ -292,8 +294,9 @@ public class CartServiceImpl implements CartService {
         CartItem item = cartItemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("Item not found"));
 
+        item.setDeletedAt(Instant.now());
         UUID cartId = item.getCart().getId();
-        cartItemRepository.delete(item);
+        cartItemRepository.save(item);
 
         Cart cart = cartRepository.findById(cartId).orElseThrow();
         double updatedTotal = cart.getItems().stream()

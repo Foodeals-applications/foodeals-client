@@ -21,15 +21,19 @@ import net.foodeals.user.application.dtos.responses.FavorisOfferPartenerResponse
 import net.foodeals.user.application.dtos.responses.FavorisOfferResponse;
 import net.foodeals.user.application.dtos.responses.InfosProfileResponse;
 import net.foodeals.user.application.dtos.responses.UserStatisticsResponse;
+import net.foodeals.user.application.services.RoleService;
 import net.foodeals.user.application.services.UserService;
+import net.foodeals.user.domain.entities.Role;
 import net.foodeals.user.domain.entities.User;
 import net.foodeals.user.domain.exceptions.UserNotFoundException;
 import net.foodeals.user.domain.repositories.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,8 +53,11 @@ class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
     private final DealRepository dealRepository;
+    private final RoleService roleService;
     private final CountryRepository countryRepository;
     private final CityRepository cityRepository;
+    private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
     private final AddressRepository addressRepository;
 
     @Value("${upload.directory}")
@@ -74,9 +81,13 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User create(UserRequest dto) {
-        // TODO Auto-generated method stub
-        return null;
+    @Transactional
+    public User create(UserRequest request) {
+        final User user = modelMapper.map(request, User.class);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        final Role role = roleService.findById(request.roleId());
+        user.setRole(role).setPassword(passwordEncoder.encode(user.getPassword()));
+        return this.repository.save(user);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package net.foodeals.authentication.application.services.impl;
 
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.authentication.application.dtos.requests.GoogleLoginRequest;
 import net.foodeals.authentication.application.dtos.requests.LoginRequest;
@@ -20,10 +21,7 @@ import net.foodeals.user.domain.repositories.UserRepository;
 import net.foodeals.user.domain.valueObjects.Name;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -79,23 +77,47 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     private GoogleIdToken.Payload verifyGoogleToken(String idTokenString) {
         try {
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
-                    new NetHttpTransport(),
-                    new GsonFactory()
+                    GoogleNetHttpTransport.newTrustedTransport(),
+                    GsonFactory.getDefaultInstance()
             )
-                    .setAudience(Collections.singletonList("YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"))
+                    .setAudience(List.of(
+                            "612106481875-hodimi65ojh6qk6shs754qdeihq0kt4t.apps.googleusercontent.com", // Web
+                            "612106481875-r4jvebfvisteujqknei5hefphmn5c6uf.apps.googleusercontent.com", // Android
+                            "612106481875-ov63in07kf6rnr36i8ihsod2kti7nvce.apps.googleusercontent.com"  // iOS
+                    ))
+                    .setIssuer("https://accounts.google.com")
                     .build();
+
+            debugGoogleToken(idTokenString);
 
             GoogleIdToken idToken = verifier.verify(idTokenString);
             if (idToken != null) {
                 return idToken.getPayload();
             } else {
-                throw new RuntimeException("Invalid ID token");
+                throw new RuntimeException("Invalid ID token: audience mismatch");
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to verify Google ID token: " + e.getMessage(), e);
         }
     }
 
+    public void debugGoogleToken(String idTokenString) {
+        try {
+            String[] parts = idTokenString.split("\\.");
+            if (parts.length < 2) {
+                System.out.println("Token invalide : il ne contient pas 3 parties.");
+                return;
+            }
+
+            String headerJson = new String(Base64.getUrlDecoder().decode(parts[0]));
+            String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]));
+
+            System.out.println("HEADER:\n" + headerJson);
+            System.out.println("PAYLOAD:\n" + payloadJson);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private AuthenticationResponse getTokens(User user) {
         final Map<String, Object> extraClaims = Map.of("email", user.getEmail(), "phone", user.getPhone(), "role",

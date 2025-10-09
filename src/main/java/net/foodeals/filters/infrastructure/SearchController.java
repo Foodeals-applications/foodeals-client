@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/v1/search")
+@RequestMapping("/v1/filters")
 @RequiredArgsConstructor
 public class SearchController {
 
@@ -33,6 +33,26 @@ public class SearchController {
     @DeleteMapping("/recent/{query}")
     public ResponseEntity<?> deleteRecent(@PathVariable String query) {
         return ResponseEntity.ok(searchService.deleteRecent(query));
+    }
+
+    @GetMapping("/quantity-sizes")
+    public ResponseEntity<?> getQuantitySizes() {
+        return ResponseEntity.ok(searchService.getQuantitySizes());
+    }
+
+    @GetMapping("/commerce-categories")
+    public ResponseEntity<?> getCommerceCategories() {
+        return ResponseEntity.ok(searchService.getCommerceCategories());
+    }
+
+    @GetMapping("/date-options")
+    public ResponseEntity<?> getDateOptions() {
+        return ResponseEntity.ok(searchService.getDateOptions());
+    }
+
+    @GetMapping("/price-range")
+    public ResponseEntity<?> getPriceRange() {
+        return ResponseEntity.ok(searchService.getPriceRange());
     }
 
     @GetMapping("/trending")
