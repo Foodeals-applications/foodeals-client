@@ -64,10 +64,41 @@ class AddressServiceImpl implements AddressService {
 
     @Override
     public Address create(AddressRequest request) {
-        City city = cityService.findById(request.cityId());
-        Address address = modelMapper.map(request, Address.class);
-        address.setCity(city);
+        Address address = new Address();
+        address.setAddress(request.address());
+        address.setExtraAddress(request.extraAddress());
+        address.setZip(request.zip());
+        address.setContactName(request.contactName());
+        address.setContactEmail(request.contactEmail());
+        address.setContactPhone(request.contactPhone());
+        address.setAddressType(request.addressType());
+        address.setCoordinates(request.coordinates());
+
+        address.setIdMapCity(request.cityMapId());
+        address.setIdMapRegion(request.regionMapId());
+        address.setIdMapCountry(request.countryMapId());
         return repository.save(address);
+
+        
+    }
+
+    public AddressResponse createAddress(AddressRequest request) {
+        Address address = new Address();
+        address.setAddress(request.address());
+        address.setExtraAddress(request.extraAddress());
+        address.setZip(request.zip());
+        address.setContactName(request.contactName());
+        address.setContactEmail(request.contactEmail());
+        address.setContactPhone(request.contactPhone());
+        address.setAddressType(request.addressType());
+        address.setCoordinates(request.coordinates());
+
+        address.setIdMapCity(request.cityMapId());
+        address.setIdMapRegion(request.regionMapId());
+        address.setIdMapCountry(request.countryMapId());
+        address=repository.save(address);
+
+        return toAddressResponse(address);
     }
 
     @Override
@@ -157,5 +188,29 @@ class AddressServiceImpl implements AddressService {
                 .toList();
 
         return new UserAddressesResponse(main, others);
+    }
+
+    AddressResponse toAddressResponse(Address address) {
+        if (address == null) {
+            return null;
+        }
+
+        return new AddressResponse(
+                address.getId(),
+                address.getAddressType(),
+                address.getContactName(),
+                address.getContactEmail(),
+                address.getContactPhone(),
+                address.getAddress(),
+                address.getExtraAddress(),
+                address.getZip(),
+                address.getCoordinates(),
+                address.getCity() != null ? address.getCity().getName() : null,
+                address.getRegion() != null ? address.getRegion().getName() : null,
+                address.getCountry() != null ? address.getCountry().getName() : null,
+                address.getIdMapCity(),
+                address.getIdMapRegion(),
+                address.getIdMapCountry()
+        );
     }
 }

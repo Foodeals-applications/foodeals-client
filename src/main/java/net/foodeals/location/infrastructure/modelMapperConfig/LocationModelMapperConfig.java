@@ -65,8 +65,7 @@ public class LocationModelMapperConfig {
 		mapper.addConverter(context -> {
 			final Address address = context.getSource();
 			final CityResponse cityResponse = mapper.map(address.getCity(), CityResponse.class);
-			return new AddressResponse(address.getId(), address.getAddress(), address.getExtraAddress(),
-					address.getZip(), cityResponse);
+			return new AddressResponse();
 		}, Address.class, AddressResponse.class);
 	}
 }

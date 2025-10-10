@@ -53,7 +53,7 @@ public class AddressController {
 
     @PostMapping
     public ResponseEntity<AddressResponse> create(@RequestBody @Valid AddressRequest request) {
-        final AddressResponse response = mapper.map(service.create(request), AddressResponse.class);
+        final AddressResponse response = service.createAddress(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

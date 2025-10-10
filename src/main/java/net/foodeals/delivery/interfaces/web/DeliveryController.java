@@ -265,11 +265,22 @@ public class DeliveryController {
         OrganizationEntityResponse response = new OrganizationEntityResponse
         		(organization.getId(), organization.getName(), organization.getAvatarPath(), 
         				organization.getCoverPath(), organization.getType(), 
-        				new AddressResponse(organization.getAddress().getId(), 
-        						organization.getAddress().getAddress(), organization.getAddress().getExtraAddress(), 
-        						organization.getAddress().getZip(),new CityResponse(organization.getAddress().getCity().getId(),
-        								organization.getAddress().getCity().getName(), 
-        								organization.getAddress().getCity().getCode(), null, null,organization.getAddress().getCity().getCoordinates())), qrCode)
+        				new AddressResponse(organization.getAddress().getId(),
+                                organization.getAddress().getAddressType(),
+                                organization.getName(),
+                                organization.getContacts().get(0).getEmail(),
+                                organization.getContacts().get(0).getPhone(),
+                                organization.getAddress().getAddress(),
+                                organization.getAddress().getExtraAddress(),
+        						organization.getAddress().getZip(),
+                                organization.getAddress().getCoordinates(),
+                                organization.getAddress().getCity().getName(),
+                                organization.getAddress().getRegion().getName(),
+                                organization.getAddress().getCountry().getName(),
+                                organization.getAddress().getIdMapCity(),
+                                organization.getAddress().getIdMapCountry(),
+                                organization.getAddress().getIdMapCountry()),
+                                qrCode)
         ;
 
         return ResponseEntity.ok(response);

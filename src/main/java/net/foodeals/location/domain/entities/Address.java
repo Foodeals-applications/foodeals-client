@@ -66,6 +66,12 @@ public class Address extends AbstractEntity<UUID> {
     @ManyToOne
     private Country country ;
 
+    private String idMapCity;
+
+    private String idMapRegion;
+
+    private String idMapCountry;
+
     @OneToMany(mappedBy = "shippingAddress", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Order> orders;
