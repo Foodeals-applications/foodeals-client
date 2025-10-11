@@ -12,6 +12,8 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.google.zxing.WriterException;
+import net.foodeals.common.Utils.QrCodeUtil;
 import net.foodeals.location.domain.entities.Address;
 import net.foodeals.location.domain.repositories.AddressRepository;
 import net.foodeals.location.domain.repositories.CityRepository;
@@ -174,7 +176,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public OrderDetailsResponse getDetailsOrder(UUID id) {
+	public OrderDetailsResponse getDetailsOrder(UUID id) throws WriterException {
 		Order order =findById(id);
 		if(order!=null){
          return mapToOrderDetailsResponse(order);
@@ -297,12 +299,14 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 
-	private OrderDetailsResponse mapToOrderDetailsResponse(Order order) {
+	private OrderDetailsResponse mapToOrderDetailsResponse(Order order) throws WriterException {
 		UUID idProduct=productRepository.findProductsWithActiveOffers(order.getOffer().getSubEntity().getId()).
 				get(0).getId();
 		Deal deal=dealRepository.findActiveDealByProduct(idProduct).orElse(null);
 		Product product =productRepository.findById(idProduct).orElseThrow(EntityNotFoundException::new);
-		return new OrderDetailsResponse(order.getId(),
+        String qrCodeBase64 = QrCodeUtil.generateQRCodeBase64(order.getId().toString(), 250, 250);
+
+        return new OrderDetailsResponse(order.getId(),
 				product.getName(),
 				product.getDescription(),
 				product.getProductImagePath(),
@@ -310,7 +314,7 @@ public class OrderServiceImpl implements OrderService {
 				order.getDelivery() != null ? Date.from(order.getDelivery().getCreatedAt()) : null,
 				20,
 				order.getOffer().getModalityPaiement(),
-				deal.getId()) ;
+				deal.getId(),qrCodeBase64) ;
 
 	}
 

@@ -21,4 +21,6 @@ public interface AddressService extends CrudService<Address, UUID, AddressReques
     public UserAddressesResponse getUserAddresses();
 
     public AddressResponse createAddress(AddressRequest request);
+
+    public AddressResponse updateAddress(UUID id ,AddressRequest request);
 }

@@ -32,4 +32,6 @@ public class OrderDetailsResponse {
     private ModalityPaiement modalityPaiement;
 
     private UUID dealId ;
+
+    private String qrCode;
 }

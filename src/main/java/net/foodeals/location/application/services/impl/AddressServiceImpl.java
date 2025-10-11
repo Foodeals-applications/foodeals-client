@@ -79,11 +79,31 @@ class AddressServiceImpl implements AddressService {
         address.setIdMapCountry(request.countryMapId());
         return repository.save(address);
 
-        
+
     }
 
     public AddressResponse createAddress(AddressRequest request) {
         Address address = new Address();
+        address.setAddress(request.address());
+        address.setExtraAddress(request.extraAddress());
+        address.setZip(request.zip());
+        address.setContactName(request.contactName());
+        address.setContactEmail(request.contactEmail());
+        address.setContactPhone(request.contactPhone());
+        address.setAddressType(request.addressType());
+        address.setCoordinates(request.coordinates());
+
+        address.setIdMapCity(request.cityMapId());
+        address.setIdMapRegion(request.regionMapId());
+        address.setIdMapCountry(request.countryMapId());
+        address=repository.save(address);
+
+        return toAddressResponse(address);
+    }
+
+    @Override
+    public AddressResponse updateAddress(UUID id, AddressRequest request) {
+        Address address = repository.findById(id).get();
         address.setAddress(request.address());
         address.setExtraAddress(request.extraAddress());
         address.setZip(request.zip());

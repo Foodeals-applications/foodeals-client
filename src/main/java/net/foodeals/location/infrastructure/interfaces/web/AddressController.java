@@ -57,6 +57,12 @@ public class AddressController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PutMapping("update")
+    public ResponseEntity<AddressResponse> updateAddress(@RequestBody @Valid AddressRequest request,UUID id) {
+        final AddressResponse response = service.updateAddress(id, request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
     @PatchMapping("/update-myAddress")
     public ResponseEntity<AddressResponse> update( @RequestBody @Valid AddressRequest request) {
         UUID idAddress=userService.getConnectedUser().getAddress().getId();

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.google.zxing.WriterException;
 import net.foodeals.order.application.dtos.requests.CreateOrderRequest;
 import net.foodeals.order.application.dtos.responses.CreateOrderResponse;
 import net.foodeals.order.application.dtos.responses.OrderConfirmationResponse;
@@ -23,7 +24,7 @@ public interface OrderService extends CrudService<Order, UUID, OrderRequest> {
 
 	public Map<String, List<OrderResponse>> findOrdersByClient(User client);
 
-	public OrderDetailsResponse getDetailsOrder(UUID id);
+	public OrderDetailsResponse getDetailsOrder(UUID id)  throws WriterException;
 
    public OrderConfirmationResponse getOrderConfirmation(UUID orderId);
 

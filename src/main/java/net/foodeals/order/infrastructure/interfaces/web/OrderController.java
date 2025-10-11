@@ -1,5 +1,6 @@
 package net.foodeals.order.infrastructure.interfaces.web;
 
+import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.order.application.dtos.requests.CreateOrderRequest;
 import net.foodeals.order.application.dtos.responses.*;
@@ -34,7 +35,12 @@ public class OrderController {
     @GetMapping("/details-order/{id}")
     public ResponseEntity<OrderDetailsResponse> getDetailsOrders(@PathVariable UUID id) {
 
-        final OrderDetailsResponse  response = service.getDetailsOrder(id);
+        final OrderDetailsResponse  response;
+        try {
+            response = service.getDetailsOrder(id);
+        } catch (WriterException e) {
+            throw new RuntimeException(e);
+        }
         return ResponseEntity.ok(response);
     }
 
