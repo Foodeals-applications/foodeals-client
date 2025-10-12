@@ -2,13 +2,22 @@ package net.foodeals.filters.application.services;
 
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.common.Utils.DistanceCalculator;
+import net.foodeals.filters.application.dtos.GlobalSearchResponse;
+import net.foodeals.offer.application.dtos.responses.DealResponse;
+import net.foodeals.offer.domain.entities.Deal;
+import net.foodeals.offer.domain.repositories.DealRepository;
 import net.foodeals.order.domain.repositories.DeliveryOptionRepository;
+import net.foodeals.organizationEntity.application.dtos.responses.StoreResponse;
+import net.foodeals.organizationEntity.application.dtos.responses.SubEntityResponse;
 import net.foodeals.organizationEntity.domain.repositories.SubEntityRepository;
+import net.foodeals.product.application.dtos.responses.ProductResponse;
 import net.foodeals.product.domain.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +25,7 @@ public class SearchService {
 
     private final ProductRepository productRepository;
     private final SubEntityRepository storeRepository;
+    private final DealRepository dealRepository;
 
     private final DeliveryOptionRepository deliveryMethodRepository;
 
@@ -89,5 +99,54 @@ public class SearchService {
                 Map.of("id", "vegan", "name", "Vegan", "description", "Sans produits d’origine animale")
         );
     }
+
+    public GlobalSearchResponse globalSearch(String q, String type, double lat, double lng) {
+
+        boolean searchStores = type.equalsIgnoreCase("all") || type.equalsIgnoreCase("store");
+        boolean searchProducts = type.equalsIgnoreCase("all") || type.equalsIgnoreCase("product");
+        boolean searchDeals = type.equalsIgnoreCase("all") || type.equalsIgnoreCase("deal");
+
+        List<StoreResponse> stores = List.of();
+        List<ProductResponse> products = List.of();
+        List<DealResponse> deals = List.of();
+
+        if (searchStores) {
+            stores = storeRepository.searchByNameContainingIgnoreCase(q).stream()
+                    .map(store -> {
+                        double distance = DistanceCalculator.calculateDistance(
+                                lat, lng,
+                                store.getCoordinates().latitude().doubleValue(),
+                                store.getCoordinates().longitude().doubleValue()
+                        );
+                        return new StoreResponse(
+                                store.getId(),
+                                store.getName(),
+                                store.getAvatarPath(),
+                                store.getCoverPath(),
+                                distance,
+                                store.getNumberOfLikes(),
+                                store.getNumberOfStars()
+
+                        );
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        if (searchProducts) {
+            products = productRepository.searchByNameContainingIgnoreCase(q).stream()
+                    .map(ProductResponse::fromEntity)
+                    .collect(Collectors.toList());
+        }
+
+        if (searchDeals) {
+            deals = dealRepository.searchByDescriptionContainingIgnoreCase(q).stream()
+                    .map(DealResponse::fromEntity)
+                    .collect(Collectors.toList());
+        }
+
+        return new GlobalSearchResponse(stores, products, deals);
+    }
+
+
 }
 

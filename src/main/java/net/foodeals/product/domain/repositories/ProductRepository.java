@@ -76,4 +76,6 @@ public interface ProductRepository extends BaseRepository<Product, UUID>, SlugRe
 
 
     Collection<Product> findTop10ByNameContainingIgnoreCase(String query);
+
+    Collection<Product> searchByNameContainingIgnoreCase(String q);
 }

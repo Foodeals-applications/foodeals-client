@@ -199,12 +199,12 @@ class AddressServiceImpl implements AddressService {
 
         AddressResponse main = null;
         if (client.getAddress() != null) {
-            main = mapper.map(client.getAddress(), AddressResponse.class);
+            main =toAddressResponse(client.getAddress());
         }
 
         List<AddressResponse> others = client.getOtherAddresses()
                 .stream()
-                .map(addr -> mapper.map(addr, AddressResponse.class))
+                .map(addr ->toAddressResponse(addr))
                 .toList();
 
         return new UserAddressesResponse(main, others);

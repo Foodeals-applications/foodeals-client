@@ -2,6 +2,7 @@ package net.foodeals.filters.infrastructure;
 
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.filters.application.dtos.GlobalSearchResponse;
 import net.foodeals.filters.application.services.SearchService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -60,12 +61,7 @@ public class SearchController {
         return ResponseEntity.ok(searchService.getTrendingSearches());
     }
 
-    @GetMapping("/global")
-    public ResponseEntity<?> globalSearch(@RequestParam String q,
-                                          @RequestParam(defaultValue = "all") String type,
-                                          @RequestParam(required = false) String location) {
-        return ResponseEntity.ok(searchService.globalSearch(q, type, location));
-    }
+
 
     @GetMapping("/delivery-methods")
     public ResponseEntity<?> getDeliveryMethods() {
@@ -80,5 +76,19 @@ public class SearchController {
     @GetMapping("/product-types")
     public ResponseEntity<?> getProductTypes() {
         return ResponseEntity.ok(searchService.getProductTypes());
+    }
+
+    @GetMapping("/global")
+    public ResponseEntity<GlobalSearchResponse> globalSearch(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "all") String type,
+            @RequestParam String location
+    ) {
+        String[] loc = location.split(",");
+        double lat = Double.parseDouble(loc[0]);
+        double lng = Double.parseDouble(loc[1]);
+
+        GlobalSearchResponse response = searchService.globalSearch(q, type, lat, lng);
+        return ResponseEntity.ok(response);
     }
 }

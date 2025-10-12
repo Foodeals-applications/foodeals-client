@@ -1,6 +1,7 @@
 package net.foodeals.organizationEntity.domain.repositories;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,4 +74,6 @@ public interface SubEntityRepository extends JpaRepository<SubEntity, UUID> {
     List<SubEntity> findBySubEntityDomains_NameIgnoreCase(String category);
 
     SubEntity findTop5ByNameContainingIgnoreCase(String q);
+
+    Collection<SubEntity> searchByNameContainingIgnoreCase(String q);
 }

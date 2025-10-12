@@ -1,6 +1,7 @@
 package net.foodeals.offer.domain.repositories;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -73,4 +74,5 @@ public interface DealRepository extends BaseRepository<Deal, UUID> {
     List<Deal> findByIsFeaturedTrueAndIsActiveTrue();
 
 
+    Collection<Deal> searchByDescriptionContainingIgnoreCase(String q);
 }
