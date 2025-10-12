@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.foodeals.authentication.application.dtos.requests.LoginRequest;
+import net.foodeals.authentication.application.dtos.requests.RegisterClientRequest;
 import net.foodeals.authentication.application.dtos.requests.RegisterRequest;
 import net.foodeals.authentication.application.dtos.responses.AppleUser;
 import net.foodeals.authentication.application.dtos.responses.AuthenticationResponse;
@@ -56,6 +57,17 @@ class AuthenticationServiceImpl implements AuthenticationService {
         final User user = userService.create
 
                 (new UserRequest(null, null, request.name(), null, null, request.roleId(), request.email(),
+                        request.isEmailVerified(), request.password(), request.phone(), null, null, null, null, null, null,
+                        null, null, null));
+        return handleRegistration(user);
+    }
+
+    @Override
+    public AuthenticationResponse registerClient(RegisterClientRequest request) {
+        Role role =roleRepository.findByName("CLIENT").get();
+        final User user = userService.create
+
+                (new UserRequest(null, null, request.name(), null, null, role.getId(), request.email(),
                         request.isEmailVerified(), request.password(), request.phone(), null, null, null, null, null, null,
                         null, null, null));
         return handleRegistration(user);

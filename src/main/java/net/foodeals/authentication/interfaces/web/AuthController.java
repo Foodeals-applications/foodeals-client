@@ -36,6 +36,13 @@ public class AuthController {
                 service.register(request));
     }
 
+    @PostMapping("register-client")
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody @Valid RegisterClientRequest request) {
+
+        return ResponseEntity.ok(
+                service.registerClient(request));
+    }
+
     @PostMapping("login")
     @Transactional
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request, HttpServletResponse response) {
