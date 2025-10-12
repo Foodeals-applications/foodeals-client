@@ -8,8 +8,10 @@ import net.foodeals.location.application.dtos.requests.StateRequest;
 import net.foodeals.location.application.services.CountryService;
 import net.foodeals.location.application.services.StateService;
 import net.foodeals.location.domain.entities.*;
+import net.foodeals.location.domain.enums.AddressType;
 import net.foodeals.location.domain.repositories.AddressRepository;
 import net.foodeals.location.domain.repositories.CityRepository;
+import net.foodeals.location.domain.repositories.CountryRepository;
 import net.foodeals.location.domain.repositories.RegionRepository;
 import net.foodeals.notification.application.services.NotificationSettingsService;
 import net.foodeals.notification.domain.entity.NotificationSettings;
@@ -38,9 +40,11 @@ public class UserSeeder implements CommandLineRunner {
     private final AddressRepository addressRepository;
     private final PasswordEncoder passwordEncoder;
     private final CityRepository cityRepository;
+    private final RegionRepository regionRepository;
+    private final CountryRepository countryRepository;
     private final StateService stateService;
     private final CountryService countryService;
-    private final RegionRepository regionRepository;
+
     private final NotificationSettingsService notificationSettingsService;
 
     @Override
@@ -74,35 +78,33 @@ public class UserSeeder implements CommandLineRunner {
         user.setAccount(null);
         Coordinates coordinates = new Coordinates(33.9871f, -8.5498f);
         user.setCoordinates(coordinates);
-        Address address = createAddress("Rue Moussa Bnou Noussair", "Quartier Gauthier", "20000", coordinates);
+        Address address = createAddress("123 Carrefour St", "Casablanca", "20000", "Morocco","Casablanca-Settat");;
         user.setAddress(address);
         user.setDateOfBirth(LocalDate.of(1990, 12, 5));
         return userRepository.save(user);
     }
 
-    private Address createAddress(String address, String extraAddress, String zip, Coordinates coordinates) {
-        Address newAddress = new Address();
-        newAddress.setAddress(address);
-        newAddress.setExtraAddress(extraAddress);
-        newAddress.setZip(zip);
-        newAddress.setCoordinates(coordinates);
+    private Address createAddress(String address, String city, String zip, String country,String region) {
+        Address addr = new Address();
+        addr.setAddress(address);
+        addr.setExtraAddress("Quartier " + city); // ou autre logique
+        addr.setZip(zip);
+        addr.setCoordinates(new Coordinates(33.5731F, -7.5898F));
 
-        CountryRequest countryRequest = new CountryRequest("Tunisia", "202410");
-        Country country = this.countryService.create(countryRequest);
+        // 🟢 Lier les entités City / Country si existantes
+        addr.setCity(cityRepository.findByName(city));
+        addr.setCountry(countryRepository.findByName(country));
+        addr.setRegion(regionRepository.findByName(region));
 
-        StateRequest stateRequest = new StateRequest("Casablanca", "102436", country.getId());
-        State state = this.stateService.create(stateRequest);
-        country.getStates().add(state);
-        country =this.countryService.save(country);
-        newAddress.setCountry(country);
-
-        City city = cityRepository.findByName("Casablanca");
-        newAddress.setCity(city);
-
-        Region region = regionRepository.findByName("Casablanca-Settat ");
-
-        newAddress.setRegion(region);
-        return addressRepository.save(newAddress);
+        // 🟢 Renseigner les infos de contact et type d’adresse
+        addr.setAddressType(AddressType.HOME); // ou "OTHER" selon le cas
+        addr.setContactName("Service Client " + city);
+        addr.setContactEmail("contact@" + city.toLowerCase() + ".ma");
+        addr.setContactPhone("+212600000000");
+        addr.setIdMapCity("city.12345");
+        addr.setIdMapCountry("country.12345");
+        addr.setIdMapRegion("region.12345");
+        return addressRepository.save(addr);
     }
 
 }

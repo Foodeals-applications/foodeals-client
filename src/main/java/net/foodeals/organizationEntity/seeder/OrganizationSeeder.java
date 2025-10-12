@@ -14,9 +14,11 @@ import net.foodeals.delivery.domain.enums.DeliveryStatus;
 import net.foodeals.delivery.domain.repositories.DeliveryPositionRepository;
 import net.foodeals.delivery.domain.repositories.DeliveryRepository;
 import net.foodeals.location.domain.entities.Address;
+import net.foodeals.location.domain.enums.AddressType;
 import net.foodeals.location.domain.repositories.AddressRepository;
 import net.foodeals.location.domain.repositories.CityRepository;
 import net.foodeals.location.domain.repositories.CountryRepository;
+import net.foodeals.location.domain.repositories.RegionRepository;
 import net.foodeals.offer.domain.entities.*;
 import net.foodeals.offer.domain.enums.*;
 import net.foodeals.offer.domain.repositories.*;
@@ -68,6 +70,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     private final UserRepository userRepository;
     private final CityRepository cityRepository;
     private final CountryRepository countryRepository;
+    private final RegionRepository regionRepository;
     private final AddressRepository addressRepository;
     private final DonateRepository donateRepository;
     private final RatingRepository ratingRepository;
@@ -118,10 +121,10 @@ public class OrganizationSeeder implements CommandLineRunner {
             User partnerManager = createUser("Ahmed", "Ben Ali", "ahmed.ben.ali@carrefour.ma", "0650123456");
             User subEntityManager = createUser("Sara", "El Fassi", "sara.elfassi@carrefourmarket.ma", "0650765432");
 
-            Address mainAddress = createAddress("123 Carrefour St", "Casablanca", "20000", "Maroc");
+            Address mainAddress = createAddress("123 Carrefour St", "Casablanca", "20000", "Morocco","Casablanca-Settat");
             OrganizationEntity carrefour = createOrganizationEntity("Carrefour", activity1, mainAddress, partnerManager);
 
-            Address subEntityAddress = createAddress("12 Carrefour St Maaref", "Casablanca", "20000", "Maroc");
+            Address subEntityAddress = createAddress("12 Carrefour St Maaref", "Casablanca", "20000", "Morocco","Casablanca-Settat");
 
             List<SubEntityDomain> domains = new ArrayList<>();
             Optional<SubEntityDomain> domainSuperMarchesOpt = subEntityDomainRepository.findByName("Supermarchés");
@@ -212,11 +215,11 @@ public class OrganizationSeeder implements CommandLineRunner {
             User hotelManager = createUser("Ismail", "Ben Mabrouk", "ismail.mabrouk@golden-tolip.ma", "0650123456");
             User subEntityHotelManager = createUser("Mourad", "Ramhi", "mourad.ramhi@golden-tolip.ma", "0650765432");
 
-            Address hotelMainAddress = createAddress("123 Rue Golden St", "Casablanca", "20000", "Maroc");
+            Address hotelMainAddress = createAddress("123 Rue Golden St", "Casablanca", "20000", "Morocco","Casablanca-Settat");
             OrganizationEntity goldenTolip = createOrganizationEntity("Golden-Tolip", activityHotel, hotelMainAddress,
                     hotelManager);
 
-            Address subEntityHotelAddress = createAddress("12  Rue Golden St Maaref", "Casablanca", "20000", "Maroc");
+            Address subEntityHotelAddress = createAddress("12  Rue Golden St Maaref", "Casablanca", "20000", "Morocco","Casablanca-Settat");
 
             List<SubEntityDomain> domainsHotel = new ArrayList<>();
             Optional<SubEntityDomain> domainHotel = subEntityDomainRepository.findByName("Hôtels");
@@ -234,12 +237,12 @@ public class OrganizationSeeder implements CommandLineRunner {
             User restautantManager = createUser("Chafik", "Jarraya", "chafik.jarraya@kfc.ma", "0650123456");
             User subEntityRestaurantManager = createUser("Salim", "El iamani", "salim.eliamani@kfc.ma", "0650765432");
 
-            Address restautantMainAddress = createAddress("123 Mohamed V St", "Casablanca", "20000", "Maroc");
+            Address restautantMainAddress = createAddress("123 Mohamed V St", "Casablanca", "20000", "Morocco","Casablanca-Settat");
             OrganizationEntity kfc = createOrganizationEntity("KFC", activityRestaurant,
                     restautantMainAddress,
                     restautantManager);
 
-            Address subEntityRestaurantAddress = createAddress("12  Rue Ibnou Sina Maaref", "Casablanca", "20000", "Maroc");
+            Address subEntityRestaurantAddress = createAddress("12  Rue Ibnou Sina Maaref", "Casablanca", "20000", "Morocco","Casablanca-Settat");
 
             List<SubEntityDomain> domainsRestaurant = new ArrayList<>();
             Optional<SubEntityDomain> domainRestaurant = subEntityDomainRepository.findByName("Restaurants");
@@ -290,12 +293,12 @@ public class OrganizationSeeder implements CommandLineRunner {
         }
 
 
-        Address industryMainAddress = createAddress("123 Charles Egaul ", "Casablanca", "20000", "Maroc");
+        Address industryMainAddress = createAddress("123 Charles Egaul ", "Casablanca", "20000", "Morocco","Casablanca-Settat");
         OrganizationEntity delice = createOrganizationEntity("Delice", activityIndustry,
                 industryMainAddress,
                 industryManager);
 
-        Address subEntityIndustryAddress = createAddress("Qaurtie industriel Casa", "Casablanca", "20000", "Maroc");
+        Address subEntityIndustryAddress = createAddress("Qaurtie industriel Casa", "Casablanca", "20000", "Morocco","Casablanca-Settat");
 
         List<SubEntityDomain> domainsIndustry = new ArrayList<>();
         Optional<SubEntityDomain> domainIndustry = subEntityDomainRepository.findByName("Industriels");
@@ -317,12 +320,12 @@ public class OrganizationSeeder implements CommandLineRunner {
         User subEntityAgriculureManager = createUser("Wafa", "Moutawakil",
                 "wafa.moutawakil@zalar-holding.ma", "0659865432");
 
-        Address agricultureMainAddress = createAddress("15 rue agriculture ", "Casablanca", "20000", "Maroc");
+        Address agricultureMainAddress = createAddress("15 rue agriculture ", "Casablanca", "20000", "Morocco","Casablanca-Settat");
         OrganizationEntity zalar = createOrganizationEntity("Zalar Holding", activityAgriculture,
                 agricultureMainAddress,
                 agricultureManager);
 
-        Address subEntityAgrocultureAddress = createAddress("Qaurtie agriculture Casa", "Casablanca", "20000", "Maroc");
+        Address subEntityAgrocultureAddress = createAddress("Qaurtie agriculture Casa", "Casablanca", "20000", "Morocco","Casablanca-Settat");
 
         List<SubEntityDomain> domainsAgriculture = new ArrayList<>();
         Optional<SubEntityDomain> domainAgriculture = subEntityDomainRepository.findByName("Agricultures");
@@ -506,8 +509,8 @@ public class OrganizationSeeder implements CommandLineRunner {
         // ✅ Seed Delivery Options
         createDeliveryOption("HOME", "Home Delivery", 20.0, "MAD", "30-45 min");
         createDeliveryOption("PICKUP", "Pickup Point", 0.0, "MAD", "Ready in 15 min");
-        addOtherAddressToUser(client, "Rue des Fleurs 45", "Casablanca", "20100", "Maroc");
-        addOtherAddressToUser(client, "Résidence Oasis, Maarif", "Casablanca", "20200", "Maroc");
+        addOtherAddressToUser(client, "Rue des Fleurs 45", "Casablanca", "20100", "Morocco","Casablanca-Settat");
+        addOtherAddressToUser(client, "Résidence Oasis, Maarif", "Casablanca", "20200", "Morocco","Casablanca-Settat");
 
         // Dans ton OrganizationSeeder (à la fin du run par ex.)
         if (client != null) {
@@ -580,18 +583,32 @@ public class OrganizationSeeder implements CommandLineRunner {
     }
 
     // Méthode pour créer une adresse
-    private Address createAddress(String address, String city, String zip, String country) {
+    private Address createAddress(String address, String city, String zip, String country,String region) {
         Address addr = new Address();
         addr.setAddress(address);
-        addr.setCity(cityRepository.findByName(city));
+        addr.setExtraAddress("Quartier " + city); // ou autre logique
         addr.setZip(zip);
         addr.setCoordinates(new Coordinates(33.5731F, -7.5898F));
+
+        // 🟢 Lier les entités City / Country si existantes
+        addr.setCity(cityRepository.findByName(city));
         addr.setCountry(countryRepository.findByName(country));
+        addr.setRegion(regionRepository.findByName(region));
+
+        // 🟢 Renseigner les infos de contact et type d’adresse
+        addr.setAddressType(AddressType.HOME); // ou "OTHER" selon le cas
+        addr.setContactName("Service Client " + city);
+        addr.setContactEmail("contact@" + city.toLowerCase() + ".ma");
+        addr.setContactPhone("+212600000000");
+        addr.setIdMapCity("city.12345");
+        addr.setIdMapCountry("country.12345");
+        addr.setIdMapRegion("region.12345");
         return addressRepository.save(addr);
     }
 
-    private void addOtherAddressToUser(User user, String address, String city, String zip, String country) {
-        Address addr = createAddress(address, city, zip, country);
+
+    private void addOtherAddressToUser(User user, String address, String city, String zip, String country,String region) {
+        Address addr = createAddress(address, city, zip, country,region);
         user.getOtherAddresses().add(addr);
         userRepository.save(user);
     }
