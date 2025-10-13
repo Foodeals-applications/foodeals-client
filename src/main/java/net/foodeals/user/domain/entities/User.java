@@ -132,6 +132,10 @@ public class User extends AbstractEntity<Integer> implements UserDetails {
 
     Integer distanceOfDeliveryBoy;
 
+    private String facebookId;
+
+    private Boolean socialLogin;
+
 
     @ManyToMany
     @JoinTable(
@@ -390,5 +394,17 @@ public class User extends AbstractEntity<Integer> implements UserDetails {
 
     public void setFavorisSubEntities(List<SubEntity> favorisSubEntities) {
         this.favorisSubEntities = favorisSubEntities;
+    }
+
+    public void setOtherAddresses(List<Address> otherAddresses) {
+        this.otherAddresses = otherAddresses;
+    }
+
+    public void setFacebookId(String facebookId) {
+        this.facebookId = facebookId;
+    }
+
+    public void setSocialLogin(Boolean socialLogin) {
+        this.socialLogin = socialLogin;
     }
 }

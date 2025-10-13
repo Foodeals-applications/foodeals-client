@@ -1,5 +1,6 @@
 package net.foodeals.user.domain.repositories;
 
+import aj.org.objectweb.asm.commons.InstructionAdapter;
 import net.foodeals.common.contracts.BaseRepository;
 import net.foodeals.user.domain.entities.User;
 import org.springframework.data.jpa.repository.Query;
@@ -76,4 +77,5 @@ public interface UserRepository extends BaseRepository<User, Integer> {
 			@Param("collaboratorId") Integer collaboratorId, @Param("role") String role, @Param("email") String email,
 			@Param("phone") String phone, @Param("solutionId") UUID solutionId, Pageable pageable);
 
+    Optional<User> findByFacebookId(String id);
 }
