@@ -10,9 +10,12 @@ import net.foodeals.authentication.application.dtos.requests.RegisterClientReque
 import net.foodeals.authentication.application.dtos.requests.RegisterRequest;
 import net.foodeals.authentication.application.dtos.responses.AppleUser;
 import net.foodeals.authentication.application.dtos.responses.AuthenticationResponse;
+import net.foodeals.authentication.application.dtos.responses.ClientRegistredResponse;
 import net.foodeals.authentication.application.dtos.responses.LoginResponse;
 import net.foodeals.authentication.application.services.AuthenticationService;
 import net.foodeals.authentication.application.services.JwtService;
+import net.foodeals.location.domain.entities.Country;
+import net.foodeals.location.domain.repositories.CountryRepository;
 import net.foodeals.organizationEntity.domain.entities.Solution;
 import net.foodeals.user.application.dtos.requests.UserRequest;
 import net.foodeals.user.application.services.UserService;
@@ -47,6 +50,7 @@ class AuthenticationServiceImpl implements AuthenticationService {
     private final UserService userService;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final CountryRepository countryRepository;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final AuthenticationManager authenticationManager;
@@ -63,14 +67,20 @@ class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public AuthenticationResponse registerClient(RegisterClientRequest request) {
+    public ClientRegistredResponse registerClient(RegisterClientRequest request) {
         Role role =roleRepository.findByName("CLIENT").get();
-        final User user = userService.create
-
-                (new UserRequest(null, null, request.name(), null, null, role.getId(), request.email(),
-                        request.isEmailVerified(), request.password(), request.phone(), null, null, null, null, null, null,
-                        null, null, null));
-        return handleRegistration(user);
+        Country country=countryRepository.findByName(request.countryName());
+        User user = new User();
+        user.setName(request.name());
+        user.setEmail(request.email());
+        user.setPhone(request.phone());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRole(role);
+        user.setDateOfBirth(request.birthDate());
+        AuthenticationResponse token = getTokens(user);
+        return new ClientRegistredResponse(user.getName(), user.getEmail(), user.getPhone(),
+                null, null,
+                user.getRole().getName(), user.getAvatarPath(), user.getId(), token);
     }
 
     @Transactional

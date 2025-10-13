@@ -7,6 +7,9 @@ import jakarta.validation.constraints.NotBlank;
  * AuthenticationResponse
  */
 public record AuthenticationResponse(
+
+
+
         @JsonProperty("access_token")
         @NotBlank
         String accessToken,

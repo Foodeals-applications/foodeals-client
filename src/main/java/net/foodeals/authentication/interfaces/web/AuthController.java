@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.authentication.application.dtos.requests.*;
 import net.foodeals.authentication.application.dtos.responses.AuthenticationResponse;
+import net.foodeals.authentication.application.dtos.responses.ClientRegistredResponse;
 import net.foodeals.authentication.application.dtos.responses.LoginResponse;
 import net.foodeals.authentication.application.services.AuthenticationService;
 import net.foodeals.authentication.application.services.FacebookService;
@@ -37,7 +38,7 @@ public class AuthController {
     }
 
     @PostMapping("register-client")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody @Valid RegisterClientRequest request) {
+    public ResponseEntity<ClientRegistredResponse> register(@RequestBody @Valid RegisterClientRequest request) {
 
         return ResponseEntity.ok(
                 service.registerClient(request));
