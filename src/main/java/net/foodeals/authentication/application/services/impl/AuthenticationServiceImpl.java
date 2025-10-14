@@ -128,6 +128,8 @@ class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
+
+
     public LoginResponse authenticateWithApple(String identityToken, String authorizationCode) {
         AppleUser appleUser = verifyAppleToken(identityToken);
 

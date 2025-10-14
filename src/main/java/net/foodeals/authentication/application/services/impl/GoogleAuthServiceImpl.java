@@ -31,6 +31,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
     private final AuthenticationService authService;
+
+
     @Override
     public LoginResponse authenticateWithGoogle(String idToken) {
         GoogleIdToken.Payload payload = verifyGoogleToken(idToken);
@@ -73,17 +75,20 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     }
 
 
-
     private GoogleIdToken.Payload verifyGoogleToken(String idTokenString) {
         try {
+            if (idTokenString == null || idTokenString.isBlank()) {
+                throw new IllegalArgumentException("Google ID Token is null or empty");
+            }
+
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                     GoogleNetHttpTransport.newTrustedTransport(),
                     GsonFactory.getDefaultInstance()
             )
                     .setAudience(List.of(
-                            "612106481875-hodimi65ojh6qk6shs754qdeihq0kt4t.apps.googleusercontent.com", // Web
-                            "612106481875-r4jvebfvisteujqknei5hefphmn5c6uf.apps.googleusercontent.com", // Android
-                            "612106481875-ov63in07kf6rnr36i8ihsod2kti7nvce.apps.googleusercontent.com"  // iOS
+                            "612106481875-hodimi65ojh6qk6shs754qdeihq0kt4t.apps.googleusercontent.com",
+                            "612106481875-r4jvebfvisteujqknei5hefphmn5c6uf.apps.googleusercontent.com",
+                            "612106481875-ov63in07kf6rnr36i8ihsod2kti7nvce.apps.googleusercontent.com"
                     ))
                     .setIssuer("https://accounts.google.com")
                     .build();
@@ -91,15 +96,18 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             debugGoogleToken(idTokenString);
 
             GoogleIdToken idToken = verifier.verify(idTokenString);
-            if (idToken != null) {
-                return idToken.getPayload();
-            } else {
-                throw new RuntimeException("Invalid ID token: audience mismatch");
+            if (idToken == null) {
+                throw new RuntimeException("Invalid ID token: verification failed");
             }
+
+            return idToken.getPayload();
+
         } catch (Exception e) {
+            System.out.println("❌ Erreur de vérification Google ID Token: {}"+e.getMessage());
             throw new RuntimeException("Failed to verify Google ID token: " + e.getMessage(), e);
         }
     }
+
 
     public void debugGoogleToken(String idTokenString) {
         try {

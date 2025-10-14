@@ -72,6 +72,7 @@ public class FacebookServiceImpl implements FacebookService {
 
                     // Créer nouvel utilisateur social
                     User newUser = new User();
+                    newUser.setPassword(passwordEncoder.encode("foodeals123"));
                     newUser.setName(name);
                     newUser.setEmail(email);
                     newUser.setFacebookId(fbUser.getId());
