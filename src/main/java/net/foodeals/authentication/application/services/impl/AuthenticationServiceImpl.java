@@ -77,8 +77,9 @@ class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setRole(role);
         user.setDateOfBirth(request.birthDate());
+        user =userRepository.save(user);
         AuthenticationResponse token = getTokens(user);
-        return new ClientRegistredResponse(user.getName(), user.getEmail(), user.getPhone(),
+        return new ClientRegistredResponse(user.getId(),user.getName(), user.getEmail(), user.getPhone(),
                 null, null,
                 user.getRole().getName(), user.getAvatarPath(), user.getId(), token);
     }

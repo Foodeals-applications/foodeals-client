@@ -11,6 +11,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ClientRegistredResponse {
 
+    private Integer id ;
     private Name name;
     private String email;
     private String phone ;
