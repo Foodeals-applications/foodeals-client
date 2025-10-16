@@ -7,6 +7,8 @@ import net.foodeals.filters.application.services.SearchService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -36,47 +38,65 @@ public class SearchController {
         return ResponseEntity.ok(searchService.deleteRecent(query));
     }
 
-    @GetMapping("/quantity-sizes")
-    public ResponseEntity<?> getQuantitySizes() {
-        return ResponseEntity.ok(searchService.getQuantitySizes());
+
+    @GetMapping("/search-data")
+    public ResponseEntity<?> getSearchData(
+            @RequestParam(required = false) List<String> types) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        // Si aucun type n’est spécifié → on renvoie tout
+        if (types == null || types.isEmpty()) {
+            types = List.of("quantitySizes", "commerceCategories", "dateOptions",
+                    "priceRange", "trendingSearches", "deliveryMethods",
+                    "foodCategories", "productTypes");
+        }
+
+        for (String type : types) {
+            switch (type) {
+                case "quantitySizes":
+                    response.put("quantitySizes", searchService.getQuantitySizes());
+                    break;
+                case "commerceCategories":
+                    response.put("commerceCategories", searchService.getCommerceCategories());
+                    break;
+                case "dateOptions":
+                    response.put("dateOptions", searchService.getDateOptions());
+                    break;
+                case "priceRange":
+                    response.put("priceRange", searchService.getPriceRange());
+                    break;
+                case "trendingSearches":
+                    response.put("trendingSearches", searchService.getTrendingSearches());
+                    break;
+                case "deliveryMethods":
+                    response.put("deliveryMethods", searchService.getDeliveryMethods());
+                    break;
+                case "foodCategories":
+                    response.put("foodCategories", searchService.getFoodCategories());
+                    break;
+                case "productTypes":
+                    response.put("productTypes", searchService.getProductTypes());
+                    break;
+                default:
+                    // on ignore les types inconnus
+                    break;
+            }
+        }
+
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/commerce-categories")
-    public ResponseEntity<?> getCommerceCategories() {
-        return ResponseEntity.ok(searchService.getCommerceCategories());
-    }
-
-    @GetMapping("/date-options")
-    public ResponseEntity<?> getDateOptions() {
-        return ResponseEntity.ok(searchService.getDateOptions());
-    }
-
-    @GetMapping("/price-range")
-    public ResponseEntity<?> getPriceRange() {
-        return ResponseEntity.ok(searchService.getPriceRange());
-    }
-
-    @GetMapping("/trending")
-    public ResponseEntity<?> getTrendingSearches() {
-        return ResponseEntity.ok(searchService.getTrendingSearches());
-    }
 
 
 
-    @GetMapping("/delivery-methods")
-    public ResponseEntity<?> getDeliveryMethods() {
-        return ResponseEntity.ok(searchService.getDeliveryMethods());
-    }
 
-    @GetMapping("/food-categories")
-    public ResponseEntity<?> getFoodCategories() {
-        return ResponseEntity.ok(searchService.getFoodCategories());
-    }
 
-    @GetMapping("/product-types")
-    public ResponseEntity<?> getProductTypes() {
-        return ResponseEntity.ok(searchService.getProductTypes());
-    }
+
+
+
+
+
 
     @GetMapping("/global")
     public ResponseEntity<GlobalSearchResponse> globalSearch(

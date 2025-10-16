@@ -81,7 +81,7 @@ class AuthenticationServiceImpl implements AuthenticationService {
         AuthenticationResponse token = getTokens(user);
         return new ClientRegistredResponse(user.getId(),user.getName(), user.getEmail(), user.getPhone(),
                 null, null,
-                user.getRole().getName(), user.getAvatarPath(), user.getId(), token);
+                user.getRole().getName(), user.getAvatarPath(), token);
     }
 
     @Transactional

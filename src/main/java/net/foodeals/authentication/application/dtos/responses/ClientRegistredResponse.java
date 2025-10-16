@@ -19,6 +19,5 @@ public class ClientRegistredResponse {
     private List<String> solutions;
     private String role;
     private String avatarPath;
-    private Integer id;
     private AuthenticationResponse token;
 }
