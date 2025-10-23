@@ -15,6 +15,9 @@ import java.util.List;
 @NoArgsConstructor
 public class GlobalSearchResponse {
     private List<StoreResponse> stores;
-    private List<ProductResponse> products;
+    private List<StoreResponse> restaurants;
+    private List<StoreResponse> boulangeries;
+    private List<StoreResponse> hotels;
+    private List<StoreResponse> industries;
     private List<DealResponse> deals;
 }

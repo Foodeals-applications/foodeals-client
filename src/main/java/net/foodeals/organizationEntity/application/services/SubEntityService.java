@@ -73,6 +73,8 @@ public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntity
 
     public StoresByCategoryResponse getStoresByCategory(String categoryName);
 
+    public Map<String, Object> getStoresByCategory(UUID categoryId);
+
 }
 
     

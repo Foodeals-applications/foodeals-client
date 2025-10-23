@@ -226,6 +226,11 @@ public class SubEntityController {
         return ResponseEntity.ok(Map.of(key, list));
     }
 
+    @GetMapping("/{categoryId}/stores")
+    public Map<String, Object> getStoresByCategory(@PathVariable UUID categoryId) {
+        return subEntityService.getStoresByCategory(categoryId);
+    }
+
 
     
     private String generatePhotoUrl(String name) {

@@ -3,8 +3,10 @@ package net.foodeals.organizationEntity.domain.repositories;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -76,4 +78,9 @@ public interface SubEntityRepository extends JpaRepository<SubEntity, UUID> {
     SubEntity findTop5ByNameContainingIgnoreCase(String q);
 
     Collection<SubEntity> searchByNameContainingIgnoreCase(String q);
+
+    List<SubEntity> findAllBySubEntityDomains_Id(UUID categoryId);
+
+    @Query("SELECT d FROM SubEntityDomain d WHERE d.id = :id")
+    Optional<SubEntityDomain> findCategoryById(UUID id);
 }

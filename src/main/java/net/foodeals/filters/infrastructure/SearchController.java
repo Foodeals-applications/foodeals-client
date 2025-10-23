@@ -87,28 +87,24 @@ public class SearchController {
         return ResponseEntity.ok(response);
     }
 
-
-
-
-
-
-
-
-
-
-
-
     @GetMapping("/global")
     public ResponseEntity<GlobalSearchResponse> globalSearch(
-            @RequestParam String q,
-            @RequestParam(defaultValue = "all") String type,
+            @RequestParam(required = false, defaultValue = "") String q,
+            @RequestParam(required = false, defaultValue = "all") String category,
+            @RequestParam(required = false) String price,
+            @RequestParam(required = false) String distance,
+            @RequestParam(required = false) String rating,
             @RequestParam String location
     ) {
+        // 🔹 Extraction des coordonnées
         String[] loc = location.split(",");
         double lat = Double.parseDouble(loc[0]);
         double lng = Double.parseDouble(loc[1]);
 
-        GlobalSearchResponse response = searchService.globalSearch(q, type, lat, lng);
+        // 🔹 Appel du service
+        GlobalSearchResponse response = searchService.globalFilter(q, category, price, distance, rating, lat, lng);
+
         return ResponseEntity.ok(response);
     }
+
 }

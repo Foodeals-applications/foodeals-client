@@ -31,6 +31,10 @@ public class SubEntityDomain extends AbstractEntity<UUID> {
     @ManyToMany(mappedBy = "subEntityDomains", cascade = CascadeType.ALL)
     private List<SubEntity> subEntities;
 
+    private String description;
+
+    private String photoUrl ;
+
     @OneToMany(mappedBy = "subEntityDomain", cascade = CascadeType.ALL)
     private List<SubEntityProductCategory>subEntityProductCategories;
 

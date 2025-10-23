@@ -13,18 +13,17 @@ import net.foodeals.location.domain.repositories.RegionRepository;
 import net.foodeals.offer.application.dtos.responses.DealResponse;
 import net.foodeals.offer.application.dtos.responses.DealStoreResponse;
 import net.foodeals.offer.application.dtos.responses.SupplementDealResponse;
+import net.foodeals.offer.domain.entities.Box;
 import net.foodeals.offer.domain.entities.Deal;
 import net.foodeals.offer.domain.entities.Offer;
+import net.foodeals.offer.domain.repositories.BoxRepository;
 import net.foodeals.offer.domain.repositories.DealRepository;
 import net.foodeals.offer.domain.repositories.OfferRepository;
 import net.foodeals.order.domain.repositories.OrderRepository;
 import net.foodeals.organizationEntity.application.dtos.requests.SubEntityRequest;
 import net.foodeals.organizationEntity.application.dtos.responses.*;
 import net.foodeals.organizationEntity.application.services.SubEntityService;
-import net.foodeals.organizationEntity.domain.entities.Activity;
-import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
-import net.foodeals.organizationEntity.domain.entities.Solution;
-import net.foodeals.organizationEntity.domain.entities.SubEntity;
+import net.foodeals.organizationEntity.domain.entities.*;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityStatus;
 import net.foodeals.organizationEntity.domain.exceptions.SubEntityNotFoundException;
 import net.foodeals.organizationEntity.domain.repositories.ActivityRepository;
@@ -86,6 +85,7 @@ public class SubEntityServiceImpl implements SubEntityService {
     private final OfferRepository offerRepository;
     ;
     private final DealRepository dealRepository;
+    private final BoxRepository boxRepository;
     private final OrderRepository orderRepository;
     private final ModelMapper mapper;
 
@@ -889,7 +889,8 @@ public class SubEntityServiceImpl implements SubEntityService {
                             s.getCoverPath(),
                             distance,
                             s.getNumberOfLikes(),
-                            s.getNumberOfStars()
+                            s.getNumberOfStars(),
+                            null
                     );
                 })
                 .filter(dto -> radiusKm <= 0 || dto.getDistance() <= radiusKm) // appliquer filtre distance ici
@@ -915,11 +916,63 @@ public class SubEntityServiceImpl implements SubEntityService {
                         0,
                         s.getNumberOfLikes(),
                         s.getNumberOfStars()
+                        ,null
                 )) // mapping SubEntity → StoreResponse
                 .toList();
 
         return new StoresByCategoryResponse(stores, categoryName);
     }
+
+    @Override
+    public Map<String, Object> getStoresByCategory(UUID categoryId) {
+
+            // Fetch category info
+            SubEntityDomain category = subEntityRepository.findCategoryById(categoryId)
+                    .orElseThrow(() -> new RuntimeException("Category not found"));
+
+            // Fetch all stores belonging to this category
+            List<SubEntity> stores = subEntityRepository.findAllBySubEntityDomains_Id(categoryId);
+
+            // Build category object
+            Map<String, Object> categoryMap = new LinkedHashMap<>();
+            categoryMap.put("id", category.getId());
+            categoryMap.put("name", category.getName());
+            categoryMap.put("photoUrl", category.getPhotoUrl() != null ? category.getPhotoUrl() : "BG_One");
+            categoryMap.put("description", category.getDescription());
+
+            // Map each store
+            List<Map<String, Object>> storeList = stores.stream().map(store -> {
+                Map<String, Object> s = new LinkedHashMap<>();
+                s.put("id", store.getId());
+                s.put("name", store.getName());
+                s.put("logoUrl", store.getAvatarPath());
+
+                List<Map<String, Object>> products = store.getOffers().stream().map(offer -> {
+                    Map<String, Object> p = new LinkedHashMap<>();
+                    Deal deal =dealRepository.getDealByOfferId(offer.getId());
+                    Box box =boxRepository.getBoxByOfferId(offer.getId());
+                    p.put("id", offer.getId());
+                    p.put("title", deal!=null?deal.getTitle():box.getTitle());
+                    p.put("price", offer.getPrice());
+                    p.put("originalPrice", offer.getSalePrice());
+                    p.put("remaining", deal!=null?deal.getQuantity():box.getQuantity());
+                    p.put("imageUrl", deal!=null?deal.getProduct().getProductImagePath():box.getPhotoBoxPath());
+                    return p;
+                }).collect(Collectors.toList());
+
+                s.put("products", products);
+                return s;
+            }).collect(Collectors.toList());
+
+            // Assemble final response
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("category", categoryMap);
+            response.put("stores", storeList);
+
+            return response;
+        }
+
+
     public List<BestSellerResponse> getBestSellers(Double salesThreshold) {
 
         Double globalTotalSales = orderRepository.findGlobalTotalSales();

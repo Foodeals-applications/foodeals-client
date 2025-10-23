@@ -3,6 +3,7 @@ package net.foodeals.filters.application.services;
 
 import lombok.RequiredArgsConstructor;
 import net.foodeals.common.Utils.DistanceCalculator;
+import net.foodeals.filters.application.dtos.DomainResponse;
 import net.foodeals.filters.application.dtos.GlobalSearchResponse;
 import net.foodeals.offer.application.dtos.responses.DealResponse;
 import net.foodeals.offer.domain.entities.Deal;
@@ -10,11 +11,13 @@ import net.foodeals.offer.domain.repositories.DealRepository;
 import net.foodeals.order.domain.repositories.DeliveryOptionRepository;
 import net.foodeals.organizationEntity.application.dtos.responses.StoreResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.SubEntityResponse;
+import net.foodeals.organizationEntity.domain.entities.SubEntity;
 import net.foodeals.organizationEntity.domain.repositories.SubEntityRepository;
 import net.foodeals.product.application.dtos.responses.ProductResponse;
 import net.foodeals.product.domain.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,11 +53,7 @@ public class SearchService {
         return Map.of("trendingSearches", List.of("organic eggs", "vegan burgers", "local cheese"));
     }
 
-    public Map<String, Object> globalSearch(String q, String type, String location) {
-        var stores = storeRepository.findTop5ByNameContainingIgnoreCase(q);
-        var products = productRepository.findTop10ByNameContainingIgnoreCase(q);
-        return Map.of("stores", stores, "products", products, "deals", List.of());
-    }
+
 
 
     public Map<String, Object> getDeliveryMethods() {
@@ -100,52 +99,101 @@ public class SearchService {
         );
     }
 
-    public GlobalSearchResponse globalSearch(String q, String type, double lat, double lng) {
+    public GlobalSearchResponse globalFilter(
+            String q, String price, String category, String distanceStr, String ratingStr,
+            double lat, double lng
+    ) {
+        double maxDistance = distanceStr != null ? Double.parseDouble(distanceStr) : 9999;
+        double minRating = ratingStr != null ? Double.parseDouble(ratingStr) : 0;
 
-        boolean searchStores = type.equalsIgnoreCase("all") || type.equalsIgnoreCase("store");
-        boolean searchProducts = type.equalsIgnoreCase("all") || type.equalsIgnoreCase("product");
-        boolean searchDeals = type.equalsIgnoreCase("all") || type.equalsIgnoreCase("deal");
-
-        List<StoreResponse> stores = List.of();
-        List<ProductResponse> products = List.of();
-        List<DealResponse> deals = List.of();
-
-        if (searchStores) {
-            stores = storeRepository.searchByNameContainingIgnoreCase(q).stream()
-                    .map(store -> {
-                        double distance = DistanceCalculator.calculateDistance(
-                                lat, lng,
-                                store.getCoordinates().latitude().doubleValue(),
-                                store.getCoordinates().longitude().doubleValue()
-                        );
-                        return new StoreResponse(
-                                store.getId(),
-                                store.getName(),
-                                store.getAvatarPath(),
-                                store.getCoverPath(),
-                                distance,
-                                store.getNumberOfLikes(),
-                                store.getNumberOfStars()
-
-                        );
-                    })
-                    .collect(Collectors.toList());
+        double minPrice = 0, maxPrice = Double.MAX_VALUE;
+        if (price != null && price.contains("-")) {
+            String[] parts = price.split("-");
+            minPrice = Double.parseDouble(parts[0]);
+            maxPrice = Double.parseDouble(parts[1]);
         }
 
-        if (searchProducts) {
-            products = productRepository.searchByNameContainingIgnoreCase(q).stream()
-                    .map(ProductResponse::fromEntity)
-                    .collect(Collectors.toList());
-        }
+        // 🏬 1️⃣ — Récupération et filtrage des SubEntities
+        List<SubEntity> allSubEntities = storeRepository.findAll().stream()
+                .filter(sub -> q == null || sub.getName().toLowerCase().contains(q.toLowerCase()))
+                .filter(sub -> sub.getCoordinates() != null)
+                .filter(sub -> {
+                    double distance = DistanceCalculator.calculateDistance(
+                            lat, lng,
+                            sub.getCoordinates().latitude().doubleValue(),
+                            sub.getCoordinates().longitude().doubleValue()
+                    );
+                    return distance <= maxDistance;
+                })
+                .filter(sub -> sub.getNumberOfStars() == null || sub.getNumberOfStars() >= minRating)
+                .collect(Collectors.toList());
 
-        if (searchDeals) {
-            deals = dealRepository.searchByDescriptionContainingIgnoreCase(q).stream()
-                    .map(DealResponse::fromEntity)
-                    .collect(Collectors.toList());
-        }
+        // 🍽️ 2️⃣ — Catégories principales
+        List<StoreResponse> restaurants = filterByCategory(allSubEntities, "restaurant", lat, lng);
+        List<StoreResponse> boulangeries = filterByCategory(allSubEntities, "boulangerie", lat, lng);
+        List<StoreResponse> hotels = filterByCategory(allSubEntities, "hotel", lat, lng);
+        List<StoreResponse> industries = filterByCategory(allSubEntities, "industrie", lat, lng);
+        List<StoreResponse> stores = filterByCategory(allSubEntities, "store", lat, lng);
 
-        return new GlobalSearchResponse(stores, products, deals);
+        // 💰 3️⃣ — Deals filtrés (option prix / q)
+        List<DealResponse> deals = dealRepository.findAll().stream()
+                .filter(d -> q == null || d.getDescription().toLowerCase().contains(q.toLowerCase()))
+                .filter(d -> d.getPrice().amount().doubleValue() >= Double.MIN_VALUE &&
+                        d.getPrice().amount().doubleValue() <= Double.MAX_VALUE)
+                .map(DealResponse::fromEntity)
+                .limit(10)
+                .collect(Collectors.toList());
+
+        // 📦 4️⃣ — Construction de la réponse globale
+        return new GlobalSearchResponse(
+                stores,
+                restaurants,
+                boulangeries,
+                hotels,
+                industries,
+                deals
+        );
     }
+
+    private List<StoreResponse> filterByCategory(List<SubEntity> stores, String keyword, double lat, double lng) {
+        return stores.stream()
+                .filter(store -> {
+                    boolean matchByName = store.getName() != null &&
+                            store.getName().toLowerCase().contains(keyword.toLowerCase());
+
+                    boolean matchByDomain = store.getSubEntityDomains() != null &&
+                            store.getSubEntityDomains().stream()
+                                    .anyMatch(d -> d.getName() != null &&
+                                            d.getName().toLowerCase().contains(keyword.toLowerCase()));
+
+                    return matchByName || matchByDomain;
+                })
+                .map(store -> {
+                    double distance = DistanceCalculator.calculateDistance(
+                            lat, lng,
+                            store.getCoordinates().latitude().doubleValue(),
+                            store.getCoordinates().longitude().doubleValue()
+                    );
+
+                    List<DomainResponse> domains = store.getSubEntityDomains().stream()
+                            .map(d -> new DomainResponse(d.getId(), d.getName()))
+                            .collect(Collectors.toList());
+
+                    return new StoreResponse(
+                            store.getId(),
+                            store.getName(),
+                            store.getAvatarPath(),
+                            store.getCoverPath(),
+                            distance,
+                            store.getNumberOfLikes(),
+                            store.getNumberOfStars(),
+                            domains
+                    );
+                })
+                .limit(10)
+                .collect(Collectors.toList());
+    }
+
 
 
 }
