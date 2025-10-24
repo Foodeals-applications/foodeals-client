@@ -11,6 +11,9 @@ import net.foodeals.product.domain.entities.Product;
 import net.foodeals.user.domain.entities.User;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -89,18 +92,13 @@ public class Dlc extends AbstractEntity<UUID> {
 		
 	}
 	public String calculateTimeRemaining() {
-		long currentTime = System.currentTimeMillis();
-		long expirationTime = this.getExpiryDate().getTime();
-		long duration = expirationTime - currentTime;
-
-		if (duration < 0) {
-			return "Product expired";
-		}
-
-		long daysRemaining = TimeUnit.MILLISECONDS.toDays(duration);
-		long hoursRemaining = TimeUnit.MILLISECONDS.toHours(duration) % 24;
-
-		return String.format("%02dd/%02dh", daysRemaining, hoursRemaining);
+        if (this.expiryDate == null) return "Unknown";
+        long days = ChronoUnit.DAYS.between(LocalDate.now(), this.expiryDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate());
+        if (days < 0) return "Expired";
+        if (days == 0) return "Expires today";
+        return days + " days";
 	}
 	
 	private int extractDaysRemaining(String timeRemaining) {
