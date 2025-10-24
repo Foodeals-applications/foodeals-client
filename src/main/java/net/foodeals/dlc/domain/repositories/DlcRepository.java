@@ -6,10 +6,12 @@ import net.foodeals.dlc.domain.enums.ValorisationType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface DlcRepository extends BaseRepository<Dlc, UUID> {
 	
 	 Page<Dlc> findByValorisationType(ValorisationType valorisationType, Pageable pageable);
 
+    Optional<Dlc> findByProductBarcode(String barcode);
 }

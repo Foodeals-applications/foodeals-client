@@ -5,10 +5,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.dlc.application.dtos.requests.CreateDlcRequest;
 import net.foodeals.dlc.application.dtos.requests.CreateUserProductRequest;
+import net.foodeals.dlc.application.dtos.requests.ScanActions;
 import net.foodeals.dlc.application.dtos.requests.UpdateDlcRequest;
-import net.foodeals.dlc.application.dtos.responses.DlcDto;
-import net.foodeals.dlc.application.dtos.responses.PaginatedUserProducts;
-import net.foodeals.dlc.application.dtos.responses.UserProductResponse;
+import net.foodeals.dlc.application.dtos.responses.*;
 import net.foodeals.dlc.application.services.DlcService;
 import net.foodeals.dlc.domain.entities.Dlc;
 import net.foodeals.dlc.domain.enums.ValorisationType;
@@ -18,6 +17,7 @@ import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -121,5 +121,38 @@ public class DlcServiceImpl implements DlcService {
         */
 
         return DlcMapper.toUserProductResponse(dlc);
+    }
+
+    @Override
+    public ScanLookupResponse lookupBarcode(String barcode) {
+        Product prod = productRepository.findByBarcode(barcode).orElse(null);
+        Dlc userDlc = dlcRepository.findByProductBarcode(barcode).orElse(null);
+
+
+        ScanLookupResponse resp = new ScanLookupResponse();
+        resp.setFound(prod != null);
+        resp.setGlobalProduct(prod == null ? null : DlcMapper.toGlobalProductDto(prod));
+        resp.setUserProduct(userDlc == null ? null : DlcMapper.toUserProductResponse(userDlc));
+        resp.setActions(new ScanActions(prod != null, userDlc == null));
+        resp.setMessage(prod != null ? "Found " + prod.getName() : "Not found");
+        return resp;
+    }
+
+    @Override
+    public ScanCreateResponse createFromBarcode(String barcode) {
+        Product prod = productRepository.findByBarcode(barcode)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+
+
+        Dlc dlc = new Dlc();
+        dlc.setProduct(prod);
+        dlc.setExpiryDate(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 30)); // default 30 days
+        dlc.setQuantity(1);
+        dlc.setTimeRemaining(dlc.calculateTimeRemaining());
+        dlc.calculateValType();
+        dlcRepository.save(dlc);
+
+
+        return DlcMapper.toScanCreateResponse(dlc);
     }
 }

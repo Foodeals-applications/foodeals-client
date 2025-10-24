@@ -5,6 +5,8 @@ import net.foodeals.dlc.application.dtos.requests.CreateDlcRequest;
 import net.foodeals.dlc.application.dtos.requests.CreateUserProductRequest;
 import net.foodeals.dlc.application.dtos.requests.UpdateDlcRequest;
 import net.foodeals.dlc.application.dtos.responses.DlcDto;
+import net.foodeals.dlc.application.dtos.responses.ScanCreateResponse;
+import net.foodeals.dlc.application.dtos.responses.ScanLookupResponse;
 import net.foodeals.dlc.application.dtos.responses.UserProductResponse;
 import net.foodeals.dlc.application.services.DlcService;
 ;
@@ -12,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -80,4 +83,18 @@ public class DlcController {
         dlcService.deleteDlc(id);
         return ResponseEntity.ok().body(java.util.Collections.singletonMap("message", "Product deleted"));
     }
+
+    @PostMapping("/lookup")
+    public ResponseEntity<ScanLookupResponse> lookup(@RequestBody Map<String, String> body) {
+        String barcode = body.get("barcode");
+        return ResponseEntity.ok(dlcService.lookupBarcode(barcode));
+    }
+
+
+    @PostMapping("/create-from-barcode")
+    public ResponseEntity<ScanCreateResponse> createFromBarcode(@RequestBody Map<String, String> body) {
+        String barcode = body.get("barcode");
+        return ResponseEntity.status(201).body(dlcService.createFromBarcode(barcode));
+    }
+
 }
