@@ -13,6 +13,8 @@ import net.foodeals.delivery.domain.entities.DeliveryPosition;
 import net.foodeals.delivery.domain.enums.DeliveryStatus;
 import net.foodeals.delivery.domain.repositories.DeliveryPositionRepository;
 import net.foodeals.delivery.domain.repositories.DeliveryRepository;
+import net.foodeals.dlc.domain.entities.Dlc;
+import net.foodeals.dlc.domain.repositories.DlcRepository;
 import net.foodeals.location.domain.entities.Address;
 import net.foodeals.location.domain.enums.AddressType;
 import net.foodeals.location.domain.repositories.AddressRepository;
@@ -33,12 +35,13 @@ import net.foodeals.organizationEntity.domain.entities.enums.EntityType;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityStatus;
 import net.foodeals.organizationEntity.domain.entities.enums.SubEntityType;
 import net.foodeals.organizationEntity.domain.repositories.*;
-import net.foodeals.product.domain.entities.PaymentMethodProduct;
 import net.foodeals.product.domain.entities.Product;
 import net.foodeals.product.domain.entities.ProductCategory;
 import net.foodeals.product.domain.entities.Supplement;
 import net.foodeals.product.domain.enums.SupplementCategory;
-import net.foodeals.product.domain.repositories.*;
+import net.foodeals.product.domain.repositories.ProductCategoryRepository;
+import net.foodeals.product.domain.repositories.ProductRepository;
+import net.foodeals.product.domain.repositories.SupplementRepository;
 import net.foodeals.referals.domain.entities.Referral;
 import net.foodeals.referals.domain.repositories.ReferralRepository;
 import net.foodeals.support.domain.entities.SupportTicket;
@@ -53,6 +56,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -104,14 +108,15 @@ public class OrganizationSeeder implements CommandLineRunner {
     private final PaymentMethodRepository paymentMethodRepository;
     private final DeliveryOptionRepository deliveryOptionRepository;
 
+    private final DlcRepository dlcRepository;
 
 
     @Override
     public void run(String... args) throws Exception {
         SubEntity goldenTolipCasa = null;
         SubEntity kfcCasa = null;
-        Box box2=null;
-        Product product2=null;
+        Box box2 = null;
+        Product product2 = null;
         if (!organizationEntityRepository.findByName("Carrefour").isPresent()) {
 
             /**
@@ -121,37 +126,25 @@ public class OrganizationSeeder implements CommandLineRunner {
             User partnerManager = createUser("Ahmed", "Ben Ali", "ahmed.ben.ali@carrefour.ma", "0650123456");
             User subEntityManager = createUser("Sara", "El Fassi", "sara.elfassi@carrefourmarket.ma", "0650765432");
 
-            Address mainAddress = createAddress("123 Carrefour St", "Casablanca", "20000", "Morocco","Casablanca-Settat");
+            Address mainAddress = createAddress("123 Carrefour St", "Casablanca", "20000", "Morocco", "Casablanca-Settat");
             OrganizationEntity carrefour = createOrganizationEntity("Carrefour", activity1, mainAddress, partnerManager);
 
-            Address subEntityAddress = createAddress("12 Carrefour St Maaref", "Casablanca", "20000", "Morocco","Casablanca-Settat");
+            Address subEntityAddress = createAddress("12 Carrefour St Maaref", "Casablanca", "20000", "Morocco", "Casablanca-Settat");
 
             List<SubEntityDomain> domains = new ArrayList<>();
             Optional<SubEntityDomain> domainSuperMarchesOpt = subEntityDomainRepository.findByName("Supermarchés");
             Optional<SubEntityDomain> domainSuperettesOpt = subEntityDomainRepository.findByName("Superettes");
             domains.add(domainSuperettesOpt.get());
             domains.add(domainSuperMarchesOpt.get());
-            SubEntity carrefourMarket =
-                    createSubEntity("Carrefour Market", carrefour, subEntityManager, activity1,
-                            subEntityAddress, 39, true, 4.5f, domains);
+            SubEntity carrefourMarket = createSubEntity("Carrefour Market", carrefour, subEntityManager, activity1, subEntityAddress, 39, true, 4.5f, domains);
 
 
             // Ajout de produits associés à la sous-entité
-            Product product1 = createProduct(carrefourMarket,
-                    "Pommes Bio",
-                    "Pommes fraîches et biologiques.",
-                    new BigDecimal("5.99"),
-                    "Supermarchés", 20);
-            product2 = createProduct(carrefourMarket, "Lait entier",
-                    "Bouteille de lait entier 1L.", new BigDecimal("1.99"), "Supermarchés", 10);
-            Product product3 = createProduct(carrefourMarket, "Buche de Noël",
-                    "Délicieux gâteau de Noël.", new BigDecimal("15.99"), "Supermarchés", 6);
+            Product product1 = createProduct(carrefourMarket, "Pommes Bio", "Pommes fraîches et biologiques.", new BigDecimal("5.99"), "Supermarchés", 20);
+            product2 = createProduct(carrefourMarket, "Lait entier", "Bouteille de lait entier 1L.", new BigDecimal("1.99"), "Supermarchés", 10);
+            Product product3 = createProduct(carrefourMarket, "Buche de Noël", "Délicieux gâteau de Noël.", new BigDecimal("15.99"), "Supermarchés", 6);
 
-            Product product4 = createProduct(carrefourMarket,
-                    "Lait entier fraise",
-                    "Pommes fraîches et biologiques.",
-                    new BigDecimal("5.99"),
-                    "Supermarchés", 20);
+            Product product4 = createProduct(carrefourMarket, "Lait entier fraise", "Pommes fraîches et biologiques.", new BigDecimal("5.99"), "Supermarchés", 20);
 
             // Ajout d'Offers, Deals et Boxes
             Offer carrefourOffer1 = createOffer(carrefourMarket, new BigDecimal("29.99"), new BigDecimal("49.99"), 32, 4.2f);
@@ -215,18 +208,16 @@ public class OrganizationSeeder implements CommandLineRunner {
             User hotelManager = createUser("Ismail", "Ben Mabrouk", "ismail.mabrouk@golden-tolip.ma", "0650123456");
             User subEntityHotelManager = createUser("Mourad", "Ramhi", "mourad.ramhi@golden-tolip.ma", "0650765432");
 
-            Address hotelMainAddress = createAddress("123 Rue Golden St", "Casablanca", "20000", "Morocco","Casablanca-Settat");
-            OrganizationEntity goldenTolip = createOrganizationEntity("Golden-Tolip", activityHotel, hotelMainAddress,
-                    hotelManager);
+            Address hotelMainAddress = createAddress("123 Rue Golden St", "Casablanca", "20000", "Morocco", "Casablanca-Settat");
+            OrganizationEntity goldenTolip = createOrganizationEntity("Golden-Tolip", activityHotel, hotelMainAddress, hotelManager);
 
-            Address subEntityHotelAddress = createAddress("12  Rue Golden St Maaref", "Casablanca", "20000", "Morocco","Casablanca-Settat");
+            Address subEntityHotelAddress = createAddress("12  Rue Golden St Maaref", "Casablanca", "20000", "Morocco", "Casablanca-Settat");
 
             List<SubEntityDomain> domainsHotel = new ArrayList<>();
             Optional<SubEntityDomain> domainHotel = subEntityDomainRepository.findByName("Hôtels");
             domainsHotel.add(domainHotel.get());
 
-            goldenTolipCasa = createSubEntity("Golden Tolip Casa", goldenTolip, subEntityHotelManager, activityHotel,
-                    subEntityHotelAddress, 400, false, 3.8f, domainsHotel);
+            goldenTolipCasa = createSubEntity("Golden Tolip Casa", goldenTolip, subEntityHotelManager, activityHotel, subEntityHotelAddress, 400, false, 3.8f, domainsHotel);
 
 
             /**
@@ -237,19 +228,16 @@ public class OrganizationSeeder implements CommandLineRunner {
             User restautantManager = createUser("Chafik", "Jarraya", "chafik.jarraya@kfc.ma", "0650123456");
             User subEntityRestaurantManager = createUser("Salim", "El iamani", "salim.eliamani@kfc.ma", "0650765432");
 
-            Address restautantMainAddress = createAddress("123 Mohamed V St", "Casablanca", "20000", "Morocco","Casablanca-Settat");
-            OrganizationEntity kfc = createOrganizationEntity("KFC", activityRestaurant,
-                    restautantMainAddress,
-                    restautantManager);
+            Address restautantMainAddress = createAddress("123 Mohamed V St", "Casablanca", "20000", "Morocco", "Casablanca-Settat");
+            OrganizationEntity kfc = createOrganizationEntity("KFC", activityRestaurant, restautantMainAddress, restautantManager);
 
-            Address subEntityRestaurantAddress = createAddress("12  Rue Ibnou Sina Maaref", "Casablanca", "20000", "Morocco","Casablanca-Settat");
+            Address subEntityRestaurantAddress = createAddress("12  Rue Ibnou Sina Maaref", "Casablanca", "20000", "Morocco", "Casablanca-Settat");
 
             List<SubEntityDomain> domainsRestaurant = new ArrayList<>();
             Optional<SubEntityDomain> domainRestaurant = subEntityDomainRepository.findByName("Restaurants");
             domainsRestaurant.add(domainRestaurant.get());
 
-            kfcCasa = createSubEntity("KFC Casa", kfc, subEntityRestaurantManager, activityRestaurant,
-                    subEntityRestaurantAddress, 400, true, 4.8F, domainsRestaurant);
+            kfcCasa = createSubEntity("KFC Casa", kfc, subEntityRestaurantManager, activityRestaurant, subEntityRestaurantAddress, 400, true, 4.8F, domainsRestaurant);
 
 
             Offer kfcOffer1 = createOffer(kfcCasa, new BigDecimal("129.99"), new BigDecimal("89.99"), 8, 3.3f);
@@ -257,10 +245,8 @@ public class OrganizationSeeder implements CommandLineRunner {
             Offer kfcOffer2 = createOffer(kfcCasa, new BigDecimal("139.99"), new BigDecimal("89.99"), 10, 5f);
             createOpenTimes(kfcOffer2);
 
-            Product productKfc1 = createProduct(kfcCasa, "Tinders", "Tinders Kabab.",
-                    new BigDecimal("5.99"), "Restaurants", 20);
-            Product productKfc2 = createProduct(kfcCasa, "Chicken wings",
-                    "Box chings wings.", new BigDecimal("1.99"), "Restaurants", 10);
+            Product productKfc1 = createProduct(kfcCasa, "Tinders", "Tinders Kabab.", new BigDecimal("5.99"), "Restaurants", 20);
+            Product productKfc2 = createProduct(kfcCasa, "Chicken wings", "Box chings wings.", new BigDecimal("1.99"), "Restaurants", 10);
             Deal dealWings = createDealWithOfferAndProduct("23 wings magics", "Réduction spéciale.", kfcOffer1, 1, DealStatus.AVAILABLE, Category.FRUITS_AND_VEGETABLES, productKfc1);
             Deal dealTinders = createDealWithOfferAndProduct("Deux tinders achétes un gratuit", "Offre spéciale étudiant.", kfcOffer2, 2, DealStatus.AVAILABLE, Category.FROZEN_PRODUCTS, productKfc2);
             createSupplement("Coca", SupplementCategory.DRINK, dealWings, null);
@@ -288,63 +274,46 @@ public class OrganizationSeeder implements CommandLineRunner {
 
         User subEntityIndustryManager = null;
         if (!userRepository.findByEmail("mounir.bansalha@delice.ma").isPresent()) {
-            subEntityIndustryManager = createUser("Mounir", "Ben Salha",
-                    "mounir.bansalha@delice.ma", "0650865432");
+            subEntityIndustryManager = createUser("Mounir", "Ben Salha", "mounir.bansalha@delice.ma", "0650865432");
         }
 
 
-        Address industryMainAddress = createAddress("123 Charles Egaul ", "Casablanca", "20000", "Morocco","Casablanca-Settat");
-        OrganizationEntity delice = createOrganizationEntity("Delice", activityIndustry,
-                industryMainAddress,
-                industryManager);
+        Address industryMainAddress = createAddress("123 Charles Egaul ", "Casablanca", "20000", "Morocco", "Casablanca-Settat");
+        OrganizationEntity delice = createOrganizationEntity("Delice", activityIndustry, industryMainAddress, industryManager);
 
-        Address subEntityIndustryAddress = createAddress("Qaurtie industriel Casa", "Casablanca", "20000", "Morocco","Casablanca-Settat");
+        Address subEntityIndustryAddress = createAddress("Qaurtie industriel Casa", "Casablanca", "20000", "Morocco", "Casablanca-Settat");
 
         List<SubEntityDomain> domainsIndustry = new ArrayList<>();
         Optional<SubEntityDomain> domainIndustry = subEntityDomainRepository.findByName("Industriels");
         domainsIndustry.add(domainIndustry.get());
 
-        SubEntity deliceCasa =
-                createSubEntity("Delice Casa", delice, subEntityIndustryManager,
-                        activityIndustry,
-                        subEntityIndustryAddress, 400, true, 4.8F,
-                        domainsIndustry);
+        SubEntity deliceCasa = createSubEntity("Delice Casa", delice, subEntityIndustryManager, activityIndustry, subEntityIndustryAddress, 400, true, 4.8F, domainsIndustry);
 
 
         /**
          * Création agriculture         */
 
         Activity activityAgriculture = createActivity("Agricultures");
-        User agricultureManager = createUser("Samir", "Hamdani",
-                "samir.hamdani@zalar-holding.ma", "0658123456");
-        User subEntityAgriculureManager = createUser("Wafa", "Moutawakil",
-                "wafa.moutawakil@zalar-holding.ma", "0659865432");
+        User agricultureManager = createUser("Samir", "Hamdani", "samir.hamdani@zalar-holding.ma", "0658123456");
+        User subEntityAgriculureManager = createUser("Wafa", "Moutawakil", "wafa.moutawakil@zalar-holding.ma", "0659865432");
 
-        Address agricultureMainAddress = createAddress("15 rue agriculture ", "Casablanca", "20000", "Morocco","Casablanca-Settat");
-        OrganizationEntity zalar = createOrganizationEntity("Zalar Holding", activityAgriculture,
-                agricultureMainAddress,
-                agricultureManager);
+        Address agricultureMainAddress = createAddress("15 rue agriculture ", "Casablanca", "20000", "Morocco", "Casablanca-Settat");
+        OrganizationEntity zalar = createOrganizationEntity("Zalar Holding", activityAgriculture, agricultureMainAddress, agricultureManager);
 
-        Address subEntityAgrocultureAddress = createAddress("Qaurtie agriculture Casa", "Casablanca", "20000", "Morocco","Casablanca-Settat");
+        Address subEntityAgrocultureAddress = createAddress("Qaurtie agriculture Casa", "Casablanca", "20000", "Morocco", "Casablanca-Settat");
 
         List<SubEntityDomain> domainsAgriculture = new ArrayList<>();
         Optional<SubEntityDomain> domainAgriculture = subEntityDomainRepository.findByName("Agricultures");
         domainsAgriculture.add(domainAgriculture.get());
 
-        SubEntity zalarCasa =
-                createSubEntity("Zalar Holding Casa", delice, subEntityAgriculureManager,
-                        activityAgriculture,
-                        subEntityAgrocultureAddress, 400, true, 4.8F,
-                        domainsAgriculture);
+        SubEntity zalarCasa = createSubEntity("Zalar Holding Casa", delice, subEntityAgriculureManager, activityAgriculture, subEntityAgrocultureAddress, 400, true, 4.8F, domainsAgriculture);
 
 
         // OFFERS & DEALS POUR HÔTEL (Golden Tolip)
         Offer hotelOffer1 = createOffer(goldenTolipCasa, new BigDecimal("399.00"), new BigDecimal("299.00"), 12, 4.0f);
         createOpenTimes(hotelOffer1);
 
-        Product hotelProduct1 = createProduct(goldenTolipCasa, "Nuitée Standard",
-                "Chambre standard avec petit déjeuner", new BigDecimal("299.00"),
-                "Hôtels", 10);
+        Product hotelProduct1 = createProduct(goldenTolipCasa, "Nuitée Standard", "Chambre standard avec petit déjeuner", new BigDecimal("299.00"), "Hôtels", 10);
         Deal hotelDeal1 = createDealWithOfferAndProduct("Offre Nuitée", "Promotion sur chambre avec PDJ.", hotelOffer1, 1, DealStatus.AVAILABLE, Category.WHOLESALER_DAIRY_PRODUCTS, hotelProduct1);
 
         // OFFERS & DEALS POUR INDUSTRIE (Délice)
@@ -362,21 +331,15 @@ public class OrganizationSeeder implements CommandLineRunner {
         Deal agricultureDeal1 = createDealWithOfferAndProduct("Offre Poulets Bio", "Réduction sur élevage durable", agricultureOffer1, 1, DealStatus.AVAILABLE, Category.WHOLESALER_DAIRY_PRODUCTS, agricultureProduct1);
 
         // Coupon qui expire demain (after now)
-        createCoupon(kfcCasa, "CARREFOUR10", 10f,
-                new Date(System.currentTimeMillis() + 86400000L), true); // Enabled, expire demain
+        createCoupon(kfcCasa, "CARREFOUR10", 10f, new Date(System.currentTimeMillis() + 86400000L), true); // Enabled, expire demain
 
 // Coupon qui a expiré hier (before now)
-        createCoupon(kfcCasa, "CARREFOUR20", 20f,
-                new Date(System.currentTimeMillis() - 86400000L), true);
+        createCoupon(kfcCasa, "CARREFOUR20", 20f, new Date(System.currentTimeMillis() - 86400000L), true);
 
 
-        createBanner(
-                "https://cdn.monsite.com/banner1.jpg",
-                "https://promo.monsite.com");
+        createBanner("https://cdn.monsite.com/banner1.jpg", "https://promo.monsite.com");
 
-        createBanner(
-                "https://cdn.monsite.com/banner2.jpg",
-                "https://offre.monsite.com");
+        createBanner("https://cdn.monsite.com/banner2.jpg", "https://offre.monsite.com");
 
         // Ajouter favoris à un client
         User client = userRepository.findByEmail("mohamed.benibrahim@example.com").orElse(null);
@@ -509,8 +472,8 @@ public class OrganizationSeeder implements CommandLineRunner {
         // ✅ Seed Delivery Options
         createDeliveryOption("HOME", "Home Delivery", 20.0, "MAD", "30-45 min");
         createDeliveryOption("PICKUP", "Pickup Point", 0.0, "MAD", "Ready in 15 min");
-        addOtherAddressToUser(client, "Rue des Fleurs 45", "Casablanca", "20100", "Morocco","Casablanca-Settat");
-        addOtherAddressToUser(client, "Résidence Oasis, Maarif", "Casablanca", "20200", "Morocco","Casablanca-Settat");
+        addOtherAddressToUser(client, "Rue des Fleurs 45", "Casablanca", "20100", "Morocco", "Casablanca-Settat");
+        addOtherAddressToUser(client, "Résidence Oasis, Maarif", "Casablanca", "20200", "Morocco", "Casablanca-Settat");
 
         // Dans ton OrganizationSeeder (à la fin du run par ex.)
         if (client != null) {
@@ -528,7 +491,7 @@ public class OrganizationSeeder implements CommandLineRunner {
 
             // 2. Avec une Box
 
-            CartItem cartItemBox = new CartItem(cart,box2, 1, ModalityType.PICKUP);
+            CartItem cartItemBox = new CartItem(cart, box2, 1, ModalityType.PICKUP);
             cartItemBox.setCart(cart);
             cartItemBox.setSubEntity(goldenTolipCasa);
             cartItemBox = cartItemRepository.save(cartItemBox);
@@ -541,12 +504,52 @@ public class OrganizationSeeder implements CommandLineRunner {
             cartItemProduct = cartItemRepository.save(cartItemProduct);
 
             // Attacher les items au panier
-          //  cart.setItems(List.of(cartItemDeal, cartItemBox, cartItemProduct));
+            //  cart.setItems(List.of(cartItemDeal, cartItemBox, cartItemProduct));
             cartRepository.save(cart);
 
             System.out.println("✅ Cart créé avec des items pour " + client.getEmail());
         }
 
+        // ==========================
+        // ✅ SEED DES DLC (Dates Limite de Consommation)
+        // ==========================
+        System.out.println("⏳ Création des DLC pour tests...");
+
+// On suppose que tu as une entité  reliée à Product
+// Exemple : Dlc(product, expiryDate, initialStock)
+        Date now = new Date();
+        Calendar cal = Calendar.getInstance();
+
+// DLC expirée hier
+        cal.setTime(now);
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        Date expiredDate = cal.getTime();
+
+// DLC qui expire dans 3 jours
+        cal.setTime(now);
+        cal.add(Calendar.DAY_OF_MONTH, 3);
+        Date soonDate = cal.getTime();
+        // DLC qui expire dans 10 jours
+        cal.setTime(now);
+        cal.add(Calendar.DAY_OF_MONTH, 10);
+        Date laterDate = cal.getTime();
+
+// On prend quelques produits existants du seeder
+        List<Product> existingProducts = productRepository.findAll();
+        if (!existingProducts.isEmpty()) {
+            Product productA = existingProducts.get(0);
+            Product productB = existingProducts.get(1);
+            Product productC = existingProducts.get(2);
+
+            Dlc dlcExpired = new Dlc(productA, expiredDate, 10);
+            Dlc dlcSoon = new Dlc(productB, soonDate, 15);
+            Dlc dlcLater = new Dlc(productC, laterDate, 30);
+
+            dlcRepository.saveAll(List.of(dlcExpired, dlcSoon, dlcLater));
+            System.out.println("✅ DLC créés pour produits : " + productA.getName() + ", " + productB.getName() + ", " + productC.getName());
+        } else {
+            System.out.println("⚠️ Aucun produit trouvé pour créer des DLC.");
+        }
 
     }
 
@@ -583,7 +586,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     }
 
     // Méthode pour créer une adresse
-    private Address createAddress(String address, String city, String zip, String country,String region) {
+    private Address createAddress(String address, String city, String zip, String country, String region) {
         Address addr = new Address();
         addr.setAddress(address);
         addr.setExtraAddress("Quartier " + city); // ou autre logique
@@ -607,8 +610,8 @@ public class OrganizationSeeder implements CommandLineRunner {
     }
 
 
-    private void addOtherAddressToUser(User user, String address, String city, String zip, String country,String region) {
-        Address addr = createAddress(address, city, zip, country,region);
+    private void addOtherAddressToUser(User user, String address, String city, String zip, String country, String region) {
+        Address addr = createAddress(address, city, zip, country, region);
         user.getOtherAddresses().add(addr);
         userRepository.save(user);
     }
@@ -644,8 +647,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     }
 
     // Méthode pour créer un produit associé à une sous-entité
-    private Product createProduct(SubEntity subEntity, String name, String description,
-                                  BigDecimal price, String category, Integer stock) {
+    private Product createProduct(SubEntity subEntity, String name, String description, BigDecimal price, String category, Integer stock) {
         Product product = new Product();
         product.setName(name);
         product.setProductImagePath("/images/" + name.toLowerCase().replace(" ", "-") + "-avatar.png");
@@ -655,6 +657,11 @@ public class OrganizationSeeder implements CommandLineRunner {
         ProductCategory productCategory = productCategoryRepository.findByName(category).orElse(null);
         product.setCategory(productCategory);
         product.setStock(stock);
+        Random random = new Random();
+        Calendar cal = Calendar.getInstance();
+        int randomDays = random.nextInt(30) + 1;
+        cal.add(Calendar.DAY_OF_YEAR, randomDays);
+        Date randomExpiryDate = cal.getTime();
         return productRepository.save(product);
     }
 
@@ -670,11 +677,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     }
 
     // Méthode pour créer une offre
-    private Offer createOffer(SubEntity subEntity,
-                              BigDecimal salePrice,
-                              BigDecimal price,
-                              Integer numberOfFeedback,
-                              Float numberOfStars) {
+    private Offer createOffer(SubEntity subEntity, BigDecimal salePrice, BigDecimal price, Integer numberOfFeedback, Float numberOfStars) {
         Offer offer = new Offer();
         offer.setReduction(25);
         offer.setType("flash");
@@ -709,19 +712,13 @@ public class OrganizationSeeder implements CommandLineRunner {
         boolean isFeatured = ThreadLocalRandom.current().nextBoolean();
         deal.setFeatured(isFeatured);
 
-        boolean isActive= ThreadLocalRandom.current().nextBoolean();
+        boolean isActive = ThreadLocalRandom.current().nextBoolean();
         deal.setActive(isActive);
         return dealRepository.save(deal);
     }
 
     // Méthode pour créer une box associée à un produit
-    private Box createBoxWithOffer(String title,
-                                   String description,
-                                   Offer offer,
-                                   BoxType type,
-                                   BoxStatus status,
-                                   Category category,
-                                   Product product
+    private Box createBoxWithOffer(String title, String description, Offer offer, BoxType type, BoxStatus status, Category category, Product product
 
     ) {
         Box box = new Box(type);
@@ -738,7 +735,7 @@ public class OrganizationSeeder implements CommandLineRunner {
         boolean isFeatured = ThreadLocalRandom.current().nextBoolean();
         box.setFeatured(isFeatured);
 
-        boolean isActive= ThreadLocalRandom.current().nextBoolean();
+        boolean isActive = ThreadLocalRandom.current().nextBoolean();
         box.setActive(isActive);
         return boxRepository.save(box);
     }
@@ -760,13 +757,7 @@ public class OrganizationSeeder implements CommandLineRunner {
     }
 
 
-    private Transaction createTransaction(String paymentId,
-                                          String reference,
-                                          String context,
-                                          Price price,
-                                          TransactionStatus status,
-                                          TransactionType type,
-                                          Order order) {
+    private Transaction createTransaction(String paymentId, String reference, String context, Price price, TransactionStatus status, TransactionType type, Order order) {
         Transaction transaction = new Transaction();
 
         transaction.setPaymentId(paymentId);       // Défini l'ID du paiement
@@ -786,15 +777,7 @@ public class OrganizationSeeder implements CommandLineRunner {
         String reference = "C-180926-345";
 
         // Initialiser et retourner une nouvelle transaction
-        return createTransaction(
-                paymentId,
-                reference,
-                "Paiement effectué",
-                price,
-                TransactionStatus.COMPLETED,
-                TransactionType.CASH,
-                order
-        );
+        return createTransaction(paymentId, reference, "Paiement effectué", price, TransactionStatus.COMPLETED, TransactionType.CASH, order);
     }
 
 
@@ -814,10 +797,7 @@ public class OrganizationSeeder implements CommandLineRunner {
 
     private void createBanner(String imageUrl, String link) {
         // Vérifie si la bannière existe déjà (pour éviter doublons)
-        boolean exists = bannerRepository
-                .findAll()
-                .stream()
-                .anyMatch(b -> b.getImageUrl().equals(imageUrl) && b.getLink().equals(link));
+        boolean exists = bannerRepository.findAll().stream().anyMatch(b -> b.getImageUrl().equals(imageUrl) && b.getLink().equals(link));
 
         if (!exists) {
             Banner banner = new Banner(imageUrl, link);
@@ -881,6 +861,7 @@ public class OrganizationSeeder implements CommandLineRunner {
 
 
     }
+
     private void createDeliveryOption(String type, String label, Double cost, String currency, String estimatedTime) {
 
         DeliveryOption option = new DeliveryOption();
