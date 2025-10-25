@@ -111,5 +111,7 @@ public class Dlc extends AbstractEntity<UUID> {
 	}
 
 
-
+    public Boolean getNotifyOnStatusChange() {
+        return null;
+    }
 }

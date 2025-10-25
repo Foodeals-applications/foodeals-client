@@ -9,6 +9,7 @@ import net.foodeals.dlc.domain.enums.ValorisationType;
 import net.foodeals.product.domain.entities.Product;
 
 import java.util.Collections;
+import java.util.Date;
 
 public class DlcMapper {
     public static DlcDto toDto(Dlc dlc) {
@@ -25,22 +26,110 @@ public class DlcMapper {
 
     public static UserProductResponse toUserProductResponse(Dlc dlc) {
         UserProductResponse r = new UserProductResponse();
+
+        // id
         r.setId(dlc.getId());
+
+        // userId : prendre le premier user si présent (adapter si tu veux une liste)
+        if (dlc.getUsers() != null && !dlc.getUsers().isEmpty() && dlc.getUsers().get(0) != null) {
+            r.setUserId(dlc.getUsers().get(0).getId().toString());
+        } else {
+            r.setUserId(null); // ou une valeur par défaut si souhaité
+        }
+
+        // product info
         if (dlc.getProduct() != null) {
             r.setProductId(dlc.getProduct().getId());
             r.setName(dlc.getProduct().getName());
             r.setBarcode(dlc.getProduct().getBarcode());
-            r.setImageUrls(Collections.singletonList(dlc.getProduct().getProductImagePath()));
+            // imageUrls safe
+            String img = dlc.getProduct().getProductImagePath();
+            r.setImageUrls(img != null ? Collections.singletonList(img) : Collections.emptyList());
+
+            // price (ADAPT selon le nom de la méthode dans Price)
+            try {
+                if (dlc.getProduct().getPrice() != null) {
+                    // supposons Price a getAmount() qui retourne BigDecimal
+                    r.setPrice(dlc.getProduct().getPrice().amount().doubleValue());
+                } else {
+                    r.setPrice(null);
+                }
+            } catch (NoSuchMethodError | RuntimeException ex) {
+                // Si ta classe Price utilise un autre getter (getValue, getPrice, etc.), adapte ici.
+                r.setPrice(null);
+            }
         } else {
-            r.setName(dlc.getMotif());
+            // produit "manuel"
+            r.setName(dlc.getMotif() != null ? dlc.getMotif() : dlc.getReason());
+            r.setImageUrls(Collections.emptyList());
+            r.setProductId(null);
+            r.setBarcode(null);
+            r.setPrice(null);
         }
+
+        // quantités / unité
         r.setQuantity(dlc.getQuantity());
-        r.setExpiresAt(dlc.getExpiryDate());
+        r.setUnit(r.getUnit() == null ? "pcs" : r.getUnit());
+
+        // statut / valorisation
         r.setStatus(mapStatus(dlc.getValorisationType()));
-        r.setCreatedAt(null);
-        r.setUpdatedAt(null);
+
+        // notification flag (si champ présent dans Dlc sinon true par défaut)
+        try {
+            // si Dlc a getNotifyOnStatusChange()
+            r.setNotifyOnStatusChange(dlc.getNotifyOnStatusChange() != null ? dlc.getNotifyOnStatusChange() : Boolean.TRUE);
+        } catch (NoSuchMethodError | RuntimeException e) {
+            r.setNotifyOnStatusChange(Boolean.TRUE);
+        }
+
+        // note / location (adapter noms de champs si différents)
+        r.setNote(dlc.getReason() != null ? dlc.getReason() : dlc.getMotif());
+        if (dlc.getProduct() != null && dlc.getProduct().getSubEntity() != null) {
+            r.setLocation(dlc.getProduct().getSubEntity().getName());
+        } else {
+            r.setLocation(null);
+        }
+
+
+        // createdAt / updatedAt : conversion Instant -> Date attendu par DTO
+        // ADAPT : si dlc.getCreatedAt() retourne Instant, on convertit ; si déjà Date, cast direct.
+        try {
+            if (dlc.getCreatedAt() != null) {
+                // suppose getCreatedAt() retourne Instant
+                r.setCreatedAt(Date.from(dlc.getCreatedAt()));
+            } else {
+                r.setCreatedAt(null);
+            }
+        } catch (ClassCastException ex) {
+            // si getCreatedAt() retourne déjà Date
+            try {
+                r.setCreatedAt(Date.from(dlc.getCreatedAt()));
+            } catch (ClassCastException ex2) {
+                r.setCreatedAt(null);
+            }
+        } catch (Throwable t) {
+            r.setCreatedAt(null);
+        }
+
+        try {
+            if (dlc.getUpdatedAt() != null) {
+                r.setUpdatedAt(Date.from(dlc.getUpdatedAt()));
+            } else {
+                r.setUpdatedAt(null);
+            }
+        } catch (ClassCastException ex) {
+            try {
+                r.setUpdatedAt(Date.from(dlc.getUpdatedAt()));
+            } catch (ClassCastException ex2) {
+                r.setUpdatedAt(null);
+            }
+        } catch (Throwable t) {
+            r.setUpdatedAt(null);
+        }
+
         return r;
     }
+
 
     public static GlobalProductDto toGlobalProductDto(Product p) {
         GlobalProductDto g = new GlobalProductDto();

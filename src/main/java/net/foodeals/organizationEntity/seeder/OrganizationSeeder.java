@@ -652,18 +652,31 @@ public class OrganizationSeeder implements CommandLineRunner {
         product.setName(name);
         product.setProductImagePath("/images/" + name.toLowerCase().replace(" ", "-") + "-avatar.png");
         product.setDescription(description);
-        product.setPrice(new Price(price, Currency.getInstance("MAD")));
-        product.setSubEntity(subEntity); // Associer explicitement le produit à la sous-entité
+        product.setPrice(new Price(price != null ? price : BigDecimal.valueOf(10), Currency.getInstance("MAD")));
+        product.setSubEntity(subEntity);
+
         ProductCategory productCategory = productCategoryRepository.findByName(category).orElse(null);
         product.setCategory(productCategory);
-        product.setStock(stock);
+        product.setStock(stock != null ? stock : 1);
+        product.setBrand("Generic Brand");
+
+        // ✅ Génération d’un barcode si absent
+        String barcode = "BAR" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        product.setBarcode(barcode);
+
+        // ✅ Sauvegarde du produit
+        Product savedProduct = productRepository.save(product);
+
+        // ✅ Création d’une date d’expiration réaliste
         Random random = new Random();
+        int randomDays = random.nextInt(20) + 5; // entre 5 et 25 jours
         Calendar cal = Calendar.getInstance();
-        int randomDays = random.nextInt(30) + 1;
         cal.add(Calendar.DAY_OF_YEAR, randomDays);
         Date randomExpiryDate = cal.getTime();
         return productRepository.save(product);
     }
+
+
 
     private Supplement createSupplement(String name, SupplementCategory category, Deal deal, Box box) {
         Supplement supplement = new Supplement();
