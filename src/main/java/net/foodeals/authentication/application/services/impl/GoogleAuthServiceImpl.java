@@ -14,11 +14,11 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import net.foodeals.authentication.application.services.JwtService;
-import net.foodeals.user.domain.entities.Role;
-import net.foodeals.user.domain.entities.User;
-import net.foodeals.user.domain.repositories.RoleRepository;
-import net.foodeals.user.domain.repositories.UserRepository;
-import net.foodeals.user.domain.valueObjects.Name;
+import net.foodeals.core.domain.entities.Name;
+import net.foodeals.core.domain.entities.Role;
+import net.foodeals.core.domain.entities.User;
+import net.foodeals.core.repositories.RoleRepository;
+import net.foodeals.core.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

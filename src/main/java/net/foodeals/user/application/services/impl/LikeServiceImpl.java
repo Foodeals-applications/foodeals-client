@@ -2,9 +2,9 @@ package net.foodeals.user.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import net.foodeals.core.domain.entities.Like;
+import net.foodeals.core.repositories.LikeRepository;
 import net.foodeals.user.application.services.LikeService;
-import net.foodeals.user.domain.entities.Like;
-import net.foodeals.user.domain.repositories.LikeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;

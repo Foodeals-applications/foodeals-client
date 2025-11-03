@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.foodeals.location.domain.enums.AddressType;
+import net.foodeals.core.domain.enums.AddressType;
 
 
 @AllArgsConstructor

@@ -3,6 +3,8 @@ package net.foodeals.organizationEntity.application.services.impl;
 import java.util.List;
 import java.util.UUID;
 
+import net.foodeals.core.domain.entities.OrganizationEntity;
+import net.foodeals.core.repositories.OrganizationEntityRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -10,8 +12,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.organizationEntity.application.dtos.requests.OrganizationEntityRequest;
 import net.foodeals.organizationEntity.application.services.OrganizationEntityService;
-import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
-import net.foodeals.organizationEntity.domain.repositories.OrganizationEntityRepository;
 
 
 @Service

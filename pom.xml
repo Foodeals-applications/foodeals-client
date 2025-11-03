@@ -10,7 +10,7 @@
     </parent>
     <groupId>net.foodeals</groupId>
     <artifactId>foodeals-client</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>foodeals client</name>
     <description>saas project foodeals</description>
     <url/>
@@ -220,7 +220,7 @@
         <dependency>
             <groupId>net.foodeals</groupId>
             <artifactId>foodeals-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <dependencyManagement>

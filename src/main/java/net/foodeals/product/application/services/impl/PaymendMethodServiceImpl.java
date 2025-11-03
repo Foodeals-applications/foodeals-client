@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.foodeals.core.domain.entities.PaymentMethodProduct;
+import net.foodeals.core.repositories.PaymentMethodProductRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -13,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import net.foodeals.product.application.dtos.requests.PaymentMethodRequest;
 import net.foodeals.product.application.dtos.responses.PaymentMethodResponse;
 import net.foodeals.product.application.services.PaymentMethodService;
-import net.foodeals.product.domain.entities.PaymentMethodProduct;
-import net.foodeals.product.domain.repositories.PaymentMethodProductRepository;
 
 @Service
 @Transactional

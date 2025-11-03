@@ -1,6 +1,9 @@
 
 package net.foodeals.location.infrastructure.seeder;
 
+import net.foodeals.core.domain.entities.*;
+import net.foodeals.core.repositories.CityRepository;
+import net.foodeals.core.repositories.RegionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -8,17 +11,10 @@ import org.springframework.stereotype.Component;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.location.application.dtos.requests.CountryRequest;
 import net.foodeals.location.application.dtos.requests.StateRequest;
 import net.foodeals.location.application.services.CountryService;
 import net.foodeals.location.application.services.StateService;
-import net.foodeals.location.domain.entities.City;
-import net.foodeals.location.domain.entities.Country;
-import net.foodeals.location.domain.entities.Region;
-import net.foodeals.location.domain.entities.State;
-import net.foodeals.location.domain.repositories.CityRepository;
-import net.foodeals.location.domain.repositories.RegionRepository;
 
 @Component
 @RequiredArgsConstructor

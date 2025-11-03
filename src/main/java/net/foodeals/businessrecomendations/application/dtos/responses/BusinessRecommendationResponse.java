@@ -2,7 +2,7 @@ package net.foodeals.businessrecomendations.application.dtos.responses;
 
 
 import lombok.Data;
-import net.foodeals.businessrecomendations.domain.entities.BusinessRecommendation;
+import net.foodeals.core.domain.entities.BusinessRecommendation;
 
 import java.time.Instant;
 import java.util.UUID;

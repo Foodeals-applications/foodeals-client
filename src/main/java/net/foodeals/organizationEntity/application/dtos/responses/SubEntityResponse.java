@@ -8,9 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.foodeals.location.application.dtos.responses.AddressResponse;
-import net.foodeals.organizationEntity.domain.entities.enums.SubEntityStatus;
-import net.foodeals.user.application.dtos.responses.UserResponse;
 
 @Data
 @NoArgsConstructor

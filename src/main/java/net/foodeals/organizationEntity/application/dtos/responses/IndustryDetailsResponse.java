@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.foodeals.common.valueOjects.Coordinates;
+import net.foodeals.core.domain.entities.Coordinates;
+import net.foodeals.core.domain.enums.ModalityType;
 import net.foodeals.offer.application.dtos.responses.DealResponse;
-import net.foodeals.offer.domain.enums.ModalityType;
 import net.foodeals.product.application.dtos.responses.CategoryProductsResponse;
 import net.foodeals.product.application.dtos.responses.ProductOfferResponse;
 

@@ -1,14 +1,14 @@
 package net.foodeals.user.application.services;
 
 import net.foodeals.common.contracts.CrudService;
-import net.foodeals.common.valueOjects.Coordinates;
+import net.foodeals.core.domain.entities.Coordinates;
+import net.foodeals.core.domain.entities.User;
 import net.foodeals.user.application.dtos.requests.InfosProfileRequest;
 import net.foodeals.user.application.dtos.requests.UserRequest;
 import net.foodeals.user.application.dtos.responses.FavorisOfferPartenerResponse;
 import net.foodeals.user.application.dtos.responses.FavorisOfferResponse;
 import net.foodeals.user.application.dtos.responses.InfosProfileResponse;
 import net.foodeals.user.application.dtos.responses.UserStatisticsResponse;
-import net.foodeals.user.domain.entities.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ public interface UserService extends CrudService<User, Integer, UserRequest> {
 
 	void changePassword(Integer idUser, String password);
 	
-	User setPositionClient(Integer id ,Coordinates coordinates,int raduis);
+	User setPositionClient(Integer id , Coordinates coordinates, int raduis);
 
     List<FavorisOfferResponse> getListFavorisOffers();
 

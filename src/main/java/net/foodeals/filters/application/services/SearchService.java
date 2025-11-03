@@ -3,21 +3,16 @@ package net.foodeals.filters.application.services;
 
 import lombok.RequiredArgsConstructor;
 import net.foodeals.common.Utils.DistanceCalculator;
+import net.foodeals.core.domain.entities.SubEntity;
+import net.foodeals.core.repositories.DealRepository;
+import net.foodeals.core.repositories.DeliveryOptionRepository;
+import net.foodeals.core.repositories.ProductRepository;
+import net.foodeals.core.repositories.SubEntityRepository;
 import net.foodeals.filters.application.dtos.DomainResponse;
 import net.foodeals.filters.application.dtos.GlobalSearchResponse;
 import net.foodeals.offer.application.dtos.responses.DealResponse;
-import net.foodeals.offer.domain.entities.Deal;
-import net.foodeals.offer.domain.repositories.DealRepository;
-import net.foodeals.order.domain.repositories.DeliveryOptionRepository;
 import net.foodeals.organizationEntity.application.dtos.responses.StoreResponse;
-import net.foodeals.organizationEntity.application.dtos.responses.SubEntityResponse;
-import net.foodeals.organizationEntity.domain.entities.SubEntity;
-import net.foodeals.organizationEntity.domain.repositories.SubEntityRepository;
-import net.foodeals.product.application.dtos.responses.ProductResponse;
-import net.foodeals.product.domain.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

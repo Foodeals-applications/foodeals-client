@@ -1,10 +1,9 @@
 package net.foodeals.common.services.impl;
 
 import net.foodeals.common.services.ExcelService;
-import net.foodeals.dlc.domain.entities.Dlc;
-import net.foodeals.product.domain.entities.*;
-import net.foodeals.product.domain.exceptions.ProductNotFoundException;
-import net.foodeals.product.domain.repositories.*;
+import net.foodeals.core.domain.entities.*;
+import net.foodeals.core.exceptions.ProductNotFoundException;
+import net.foodeals.core.repositories.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -3,18 +3,13 @@ package net.foodeals.location.infrastructure.modelMapperConfig;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.foodeals.delivery.domain.entities.CoveredZones;
+import net.foodeals.core.domain.entities.*;
 import net.foodeals.location.application.dtos.responses.AddressResponse;
 import net.foodeals.location.application.dtos.responses.CityResponse;
 import net.foodeals.location.application.dtos.responses.CountryResponse;
 import net.foodeals.location.application.dtos.responses.CoveredZoneResponse;
 import net.foodeals.location.application.dtos.responses.RegionResponse;
 import net.foodeals.location.application.dtos.responses.StateResponse;
-import net.foodeals.location.domain.entities.Address;
-import net.foodeals.location.domain.entities.City;
-import net.foodeals.location.domain.entities.Region;
-import net.foodeals.location.domain.entities.Country;
-import net.foodeals.location.domain.entities.State;
 
 import java.util.List;
 

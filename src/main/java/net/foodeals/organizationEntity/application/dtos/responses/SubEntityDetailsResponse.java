@@ -2,7 +2,7 @@ package net.foodeals.organizationEntity.application.dtos.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import net.foodeals.common.valueOjects.Coordinates;
+import net.foodeals.core.domain.entities.Coordinates;
 import net.foodeals.product.application.dtos.responses.CategoryProductsResponse;
 import net.foodeals.product.application.dtos.responses.ProductOfferResponse;
 

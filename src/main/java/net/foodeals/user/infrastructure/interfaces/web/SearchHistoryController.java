@@ -3,6 +3,8 @@ package net.foodeals.user.infrastructure.interfaces.web;
 import java.util.List;
 import java.util.Map;
 
+import net.foodeals.core.domain.entities.SearchHistory;
+import net.foodeals.core.domain.entities.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.user.application.services.SearchHistoryService;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.SearchHistory;
-import net.foodeals.user.domain.entities.User;
 
 @RestController
 @RequestMapping("/v1/search-history")

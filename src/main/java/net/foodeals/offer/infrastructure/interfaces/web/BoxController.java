@@ -1,10 +1,8 @@
 package net.foodeals.offer.infrastructure.interfaces.web;
+import net.foodeals.core.domain.entities.Offer;
+import net.foodeals.core.domain.enums.BoxType;
 import net.foodeals.offer.application.dtos.responses.*;
 import net.foodeals.offer.application.services.BoxService;
-import net.foodeals.offer.domain.entities.Box;
-import net.foodeals.offer.domain.entities.Cart;
-import net.foodeals.offer.domain.entities.Offer;
-import net.foodeals.offer.domain.enums.BoxType;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +31,8 @@ public class BoxController {
     }
 
     @GetMapping("/list-box-surprise")
-    public ResponseEntity<List<Offer>> getBoxSurprise(  @RequestParam(defaultValue = "0") Integer pageNum,
-                                                @RequestParam(defaultValue = "10") Integer pageSize) {
+    public ResponseEntity<List<Offer>> getBoxSurprise(@RequestParam(defaultValue = "0") Integer pageNum,
+                                                      @RequestParam(defaultValue = "10") Integer pageSize) {
         List<Offer>offers= boxService.findOffersByBoxType(BoxType.MYSTERY_BOX);
         return ResponseEntity.ok(offers);
     }

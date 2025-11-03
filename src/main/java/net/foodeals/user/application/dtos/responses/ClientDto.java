@@ -1,7 +1,7 @@
 package net.foodeals.user.application.dtos.responses;
 
 import lombok.Data;
-import net.foodeals.user.domain.enums.UserStatus;
+import net.foodeals.core.domain.enums.UserStatus;
 
 @Data
 public class ClientDto {

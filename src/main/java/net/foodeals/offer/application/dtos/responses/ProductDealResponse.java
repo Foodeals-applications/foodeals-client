@@ -1,12 +1,11 @@
 package net.foodeals.offer.application.dtos.responses;
 
+import net.foodeals.core.domain.entities.Price;
+import net.foodeals.core.domain.enums.ProductType;
+
 import java.util.Date;
 import java.util.UUID;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import net.foodeals.common.valueOjects.Price;
-import net.foodeals.product.domain.enums.ProductType;
 
 public record ProductDealResponse (
 		UUID id ,

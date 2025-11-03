@@ -2,11 +2,11 @@ package net.foodeals.user.application.services;
 
 import lombok.RequiredArgsConstructor;
 
+import net.foodeals.core.domain.entities.Rating;
+import net.foodeals.core.domain.entities.User;
+import net.foodeals.core.repositories.RatingRepository;
 import net.foodeals.user.application.dtos.requests.RatingUpdateRequest;
 import net.foodeals.user.application.dtos.responses.RatingResponse;
-import net.foodeals.user.domain.entities.Rating;
-import net.foodeals.user.domain.entities.User;
-import net.foodeals.user.domain.repositories.RatingRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

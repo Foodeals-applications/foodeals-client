@@ -1,8 +1,8 @@
 package net.foodeals.delivery.application.dtos.requests.delivery;
 
 import jakarta.validation.constraints.NotNull;
+import net.foodeals.core.domain.entities.Coordinates;
 
-import net.foodeals.common.valueOjects.Coordinates;
 
 /**
  * DeliveryPositionRequest

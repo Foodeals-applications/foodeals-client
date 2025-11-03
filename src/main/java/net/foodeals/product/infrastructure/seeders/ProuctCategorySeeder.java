@@ -3,13 +3,13 @@ package net.foodeals.product.infrastructure.seeders;
 import java.util.List;
 import java.util.UUID;
 
+import net.foodeals.core.domain.entities.ProductCategory;
+import net.foodeals.core.repositories.ProductCategoryRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
-import net.foodeals.product.domain.entities.ProductCategory;
-import net.foodeals.product.domain.repositories.ProductCategoryRepository;
 
 @Order(4)
 @Component

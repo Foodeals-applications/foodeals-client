@@ -5,9 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import net.foodeals.core.domain.entities.SubEntity;
+import net.foodeals.core.domain.entities.User;
 import net.foodeals.offer.application.dtos.responses.DealStoreResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.*;
-import net.foodeals.user.domain.entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import net.foodeals.common.contracts.CrudService;
 import net.foodeals.organizationEntity.application.dtos.requests.SubEntityRequest;
-import net.foodeals.organizationEntity.domain.entities.SubEntity;
 
 @Service
 public interface SubEntityService extends CrudService<SubEntity, UUID, SubEntityRequest> {

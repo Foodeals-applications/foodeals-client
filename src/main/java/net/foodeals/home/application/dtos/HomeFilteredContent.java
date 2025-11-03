@@ -3,11 +3,10 @@ package net.foodeals.home.application.dtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.foodeals.offer.domain.entities.Deal;
-import net.foodeals.offer.domain.entities.Offer;
+import net.foodeals.core.domain.entities.Box;
+import net.foodeals.core.domain.entities.Deal;
+import net.foodeals.core.domain.entities.SubEntity;
 import net.foodeals.organizationEntity.application.dtos.responses.*;
-import net.foodeals.organizationEntity.domain.entities.SubEntity;
-import net.foodeals.offer.domain.entities.Box;
 
 import java.util.List;
 

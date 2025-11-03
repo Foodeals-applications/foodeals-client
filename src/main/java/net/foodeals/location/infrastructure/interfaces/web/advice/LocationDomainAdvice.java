@@ -1,10 +1,10 @@
 package net.foodeals.location.infrastructure.interfaces.web.advice;
 
 import net.foodeals.common.models.ErrorResponse;
-import net.foodeals.location.domain.exceptions.AddressNotFoundException;
-import net.foodeals.location.domain.exceptions.CityNotFoundException;
-import net.foodeals.location.domain.exceptions.CountryNotFoundException;
-import net.foodeals.location.domain.exceptions.StateNotFoundException;
+import net.foodeals.core.exceptions.AddressNotFoundException;
+import net.foodeals.core.exceptions.CityNotFoundException;
+import net.foodeals.core.exceptions.CountryNotFoundException;
+import net.foodeals.core.exceptions.StateNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

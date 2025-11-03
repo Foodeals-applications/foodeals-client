@@ -1,9 +1,9 @@
 package net.foodeals.offer.application.dtos.responses;
 
 
-import net.foodeals.common.valueOjects.Price; // adapte le package si différent
-import net.foodeals.product.domain.entities.Supplement;
-import net.foodeals.product.domain.enums.SupplementCategory;
+import net.foodeals.core.domain.entities.Price;
+import net.foodeals.core.domain.entities.Supplement;
+import net.foodeals.core.domain.enums.SupplementCategory;
 
 import java.util.UUID;
 

@@ -1,10 +1,11 @@
 package net.foodeals.offer.application.services;
 
+import net.foodeals.core.domain.enums.PublishAs;
+
 import java.util.List;
 
-import net.foodeals.offer.domain.enums.PublishAs.PublishAsPair;
 
 public interface PublishAsService {
 
-	 public List<PublishAsPair> getAllPublishAs() ;
+	 public List<PublishAs.PublishAsPair> getAllPublishAs() ;
 }

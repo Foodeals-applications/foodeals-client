@@ -1,8 +1,8 @@
 package net.foodeals.organizationEntity.application.services;
 
+import net.foodeals.core.domain.entities.Contact;
+import net.foodeals.core.repositories.ContactRepository;
 import net.foodeals.organizationEntity.application.dtos.requests.EntityContactDto;
-import net.foodeals.organizationEntity.domain.entities.Contact;
-import net.foodeals.organizationEntity.domain.repositories.ContactRepository;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -3,8 +3,8 @@ package net.foodeals.businessrecomendations.application.service;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.businessrecomendations.application.dtos.requests.BusinessRecommendationRequest;
 import net.foodeals.businessrecomendations.application.dtos.responses.BusinessRecommendationResponse;
-import net.foodeals.businessrecomendations.domain.entities.BusinessRecommendation;
-import net.foodeals.businessrecomendations.domain.repositories.BusinessRecommendationRepository;
+import net.foodeals.core.domain.entities.BusinessRecommendation;
+import net.foodeals.core.repositories.BusinessRecommendationRepository;
 import org.springframework.stereotype.Service;
 
 @Service

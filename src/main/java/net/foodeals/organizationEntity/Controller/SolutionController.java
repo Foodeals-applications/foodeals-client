@@ -2,6 +2,7 @@ package net.foodeals.organizationEntity.Controller;
 
 import java.util.List;
 
+import net.foodeals.core.domain.entities.Solution;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.organizationEntity.application.dtos.responses.SolutionResponse;
 import net.foodeals.organizationEntity.application.services.SolutionService;
-import net.foodeals.organizationEntity.domain.entities.Solution;
 
 @RestController
 @RequestMapping("v1/solutions")

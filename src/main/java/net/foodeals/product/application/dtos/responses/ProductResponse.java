@@ -7,9 +7,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import net.foodeals.product.domain.entities.Product;
-import net.foodeals.product.domain.enums.ProductType;
-import net.foodeals.user.application.dtos.responses.UserResponse;
+import net.foodeals.core.domain.entities.Product;
 
 @Data
 @AllArgsConstructor

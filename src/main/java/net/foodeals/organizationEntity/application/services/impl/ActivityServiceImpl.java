@@ -2,11 +2,11 @@ package net.foodeals.organizationEntity.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.Activity;
+import net.foodeals.core.exceptions.ActivityNotFoundException;
+import net.foodeals.core.repositories.ActivityRepository;
 import net.foodeals.organizationEntity.application.dtos.requests.ActivityRequest;
 import net.foodeals.organizationEntity.application.services.ActivityService;
-import net.foodeals.organizationEntity.domain.entities.Activity;
-import net.foodeals.organizationEntity.domain.exceptions.ActivityNotFoundException;
-import net.foodeals.organizationEntity.domain.repositories.ActivityRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 

@@ -2,12 +2,12 @@ package net.foodeals.order.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.Transaction;
+import net.foodeals.core.exceptions.TransactionNotFoundException;
+import net.foodeals.core.repositories.TransactionRepository;
 import net.foodeals.order.application.dtos.requests.TransactionRequest;
 import net.foodeals.order.application.services.OrderService;
 import net.foodeals.order.application.services.TransactionService;
-import net.foodeals.order.domain.entities.Transaction;
-import net.foodeals.order.domain.exceptions.TransactionNotFoundException;
-import net.foodeals.order.domain.repositories.TransactionRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

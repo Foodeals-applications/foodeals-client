@@ -1,9 +1,10 @@
 package net.foodeals.user.application.services;
 
+import net.foodeals.core.domain.entities.SearchHistory;
+
 import java.util.List;
 import java.util.Map;
 
-import net.foodeals.user.domain.entities.SearchHistory;
 
 public interface SearchHistoryService {
 	

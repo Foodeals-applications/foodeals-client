@@ -1,11 +1,7 @@
 package net.foodeals.offer.application.dtos.responses;
 
-
-
-
-
-import net.foodeals.offer.domain.entities.Deal;
-import net.foodeals.offer.domain.enums.DealStatus;
+import net.foodeals.core.domain.entities.Deal;
+import net.foodeals.core.domain.enums.DealStatus;
 
 import java.util.Date;
 import java.util.List;

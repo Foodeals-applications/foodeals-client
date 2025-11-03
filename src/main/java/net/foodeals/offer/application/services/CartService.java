@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import net.foodeals.core.domain.entities.Cart;
+import net.foodeals.core.domain.entities.Deal;
 import net.foodeals.offer.application.dtos.requests.CartRequest;
 import net.foodeals.offer.application.dtos.responses.CartResponse;
 import net.foodeals.offer.application.dtos.responses.RemoveItemResponse;
 import net.foodeals.offer.application.dtos.responses.SelectItemResponse;
 import net.foodeals.offer.application.dtos.responses.UpdateQuantityResponse;
-import net.foodeals.offer.domain.entities.Cart;
-import net.foodeals.offer.domain.entities.Deal;
 
 public interface CartService {
 

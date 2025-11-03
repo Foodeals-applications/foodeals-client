@@ -2,13 +2,12 @@ package net.foodeals.offer.application.services.impl;
 
 import java.util.List;
 
+import net.foodeals.core.domain.enums.PublishAs;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.offer.application.services.PublishAsService;
-import net.foodeals.offer.domain.enums.PublishAs;
-import net.foodeals.offer.domain.enums.PublishAs.PublishAsPair;
 
 
 @Service
@@ -17,7 +16,7 @@ import net.foodeals.offer.domain.enums.PublishAs.PublishAsPair;
 public class PublishAsServiceImpl implements PublishAsService{
 
 	@Override
-	public List<PublishAsPair> getAllPublishAs() {
+	public List<PublishAs.PublishAsPair> getAllPublishAs() {
 		return PublishAs.getPublishAsPairs();
 	}
 

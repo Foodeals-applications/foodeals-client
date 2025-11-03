@@ -1,8 +1,8 @@
 package net.foodeals.organizationEntity.application.services;
 
 import net.foodeals.common.contracts.CrudService;
+import net.foodeals.core.domain.entities.Activity;
 import net.foodeals.organizationEntity.application.dtos.requests.ActivityRequest;
-import net.foodeals.organizationEntity.domain.entities.Activity;
 
 import java.util.List;
 import java.util.Set;

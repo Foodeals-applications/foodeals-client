@@ -7,13 +7,14 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.foodeals.common.valueOjects.Coordinates;
+import net.foodeals.core.domain.entities.Coordinates;
+import net.foodeals.core.domain.entities.Name;
+import net.foodeals.core.domain.enums.Civility;
+import net.foodeals.core.domain.enums.Nationality;
+import net.foodeals.core.domain.enums.UserStatus;
 import net.foodeals.location.application.dtos.responses.AddressResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.SolutionResponse;
-import net.foodeals.user.domain.enums.Civility;
-import net.foodeals.user.domain.enums.Nationality;
-import net.foodeals.user.domain.enums.UserStatus;
-import net.foodeals.user.domain.valueObjects.Name;
+
 
 @Data
 @NoArgsConstructor

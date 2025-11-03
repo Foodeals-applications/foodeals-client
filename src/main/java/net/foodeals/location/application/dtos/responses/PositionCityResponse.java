@@ -1,9 +1,9 @@
 package net.foodeals.location.application.dtos.responses;
 
+import net.foodeals.core.domain.entities.Coordinates;
+
 import java.util.UUID;
 
-import net.foodeals.common.valueOjects.Coordinates;
-
-public record PositionCityResponse(UUID id,Coordinates coordinates) {
+public record PositionCityResponse(UUID id, Coordinates coordinates) {
 
 }

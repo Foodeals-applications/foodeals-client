@@ -1,11 +1,11 @@
 package net.foodeals.product.infrastructure.interfaces.web.advice;
 
 import net.foodeals.common.models.ErrorResponse;
-import net.foodeals.product.domain.exceptions.ProductBrandNotFoundException;
-import net.foodeals.product.domain.exceptions.ProductCategoryNotFoundException;
-import net.foodeals.product.domain.exceptions.ProductNotFoundException;
-import net.foodeals.product.domain.exceptions.ProductSubCategoryNotFoundException;
 
+import net.foodeals.core.exceptions.ProductBrandNotFoundException;
+import net.foodeals.core.exceptions.ProductCategoryNotFoundException;
+import net.foodeals.core.exceptions.ProductNotFoundException;
+import net.foodeals.core.exceptions.ProductSubCategoryNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -1,6 +1,6 @@
 package net.foodeals.organizationEntity.application.services;
 
-import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
+import net.foodeals.core.domain.entities.SubEntityProductCategory;
 
 import java.util.List;
 import java.util.UUID;

@@ -3,6 +3,7 @@ package net.foodeals.organizationEntity.Controller;
 import java.util.List;
 import java.util.UUID;
 
+import net.foodeals.core.domain.entities.Activity;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import net.foodeals.organizationEntity.application.dtos.requests.ActivityRequest;
 import net.foodeals.organizationEntity.application.dtos.responses.ActivityResponseDto;
 import net.foodeals.organizationEntity.application.services.ActivityService;
-import net.foodeals.organizationEntity.domain.entities.Activity;
 
 @RestController
 @RequestMapping("v1/activities")

@@ -1,7 +1,7 @@
 package net.foodeals.organizationEntity.application.dtos.requests;
 
 import lombok.Data;
-import net.foodeals.user.domain.valueObjects.Name;
+import net.foodeals.core.domain.entities.Name;
 
 @Data
 public class EntityContactDto {

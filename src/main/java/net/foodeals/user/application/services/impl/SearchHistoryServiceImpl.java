@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import net.foodeals.core.domain.entities.SearchHistory;
+import net.foodeals.core.repositories.SearchHistoryRepository;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import net.foodeals.user.application.services.SearchHistoryService;
-import net.foodeals.user.domain.entities.SearchHistory;
-import net.foodeals.user.domain.repositories.SearchHistoryRepository;
 
 @Service
 @RequiredArgsConstructor

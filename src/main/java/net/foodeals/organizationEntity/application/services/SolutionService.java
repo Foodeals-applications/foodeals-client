@@ -1,7 +1,7 @@
 package net.foodeals.organizationEntity.application.services;
 
-import net.foodeals.organizationEntity.domain.entities.Solution;
-import net.foodeals.organizationEntity.domain.repositories.SolutionRepository;
+import net.foodeals.core.domain.entities.Solution;
+import net.foodeals.core.repositories.SolutionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

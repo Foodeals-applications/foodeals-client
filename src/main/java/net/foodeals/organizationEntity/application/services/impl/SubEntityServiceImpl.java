@@ -4,43 +4,24 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.common.Utils.DistanceCalculator;
-import net.foodeals.common.valueOjects.Coordinates;
-import net.foodeals.location.domain.entities.Address;
-import net.foodeals.location.domain.repositories.AddressRepository;
-import net.foodeals.location.domain.repositories.CityRepository;
-import net.foodeals.location.domain.repositories.CountryRepository;
-import net.foodeals.location.domain.repositories.RegionRepository;
+import net.foodeals.core.domain.entities.*;
+import net.foodeals.core.domain.enums.SubEntityStatus;
+import net.foodeals.core.exceptions.ProductNotFoundException;
+import net.foodeals.core.exceptions.SubEntityNotFoundException;
+import net.foodeals.core.repositories.*;
 import net.foodeals.offer.application.dtos.responses.DealResponse;
 import net.foodeals.offer.application.dtos.responses.DealStoreResponse;
 import net.foodeals.offer.application.dtos.responses.SupplementDealResponse;
-import net.foodeals.offer.domain.entities.Box;
-import net.foodeals.offer.domain.entities.Deal;
-import net.foodeals.offer.domain.entities.Offer;
-import net.foodeals.offer.domain.repositories.BoxRepository;
-import net.foodeals.offer.domain.repositories.DealRepository;
-import net.foodeals.offer.domain.repositories.OfferRepository;
-import net.foodeals.order.domain.repositories.OrderRepository;
+
 import net.foodeals.organizationEntity.application.dtos.requests.SubEntityRequest;
 import net.foodeals.organizationEntity.application.dtos.responses.*;
 import net.foodeals.organizationEntity.application.services.SubEntityService;
-import net.foodeals.organizationEntity.domain.entities.*;
-import net.foodeals.organizationEntity.domain.entities.enums.SubEntityStatus;
-import net.foodeals.organizationEntity.domain.exceptions.SubEntityNotFoundException;
-import net.foodeals.organizationEntity.domain.repositories.ActivityRepository;
-import net.foodeals.organizationEntity.domain.repositories.OrganizationEntityRepository;
-import net.foodeals.organizationEntity.domain.repositories.SolutionRepository;
-import net.foodeals.organizationEntity.domain.repositories.SubEntityRepository;
+
 import net.foodeals.product.application.dtos.responses.CategoryProductsResponse;
 import net.foodeals.product.application.dtos.responses.PriceResponse;
 import net.foodeals.product.application.dtos.responses.ProductOfferResponse;
 import net.foodeals.product.application.dtos.responses.ProductResponse;
-import net.foodeals.product.domain.exceptions.ProductNotFoundException;
-import net.foodeals.product.domain.repositories.ProductCategoryRepository;
-import net.foodeals.product.domain.repositories.ProductRepository;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
-import net.foodeals.user.domain.repositories.LikeRepository;
-import net.foodeals.user.domain.repositories.UserRepository;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -350,7 +331,7 @@ public class SubEntityServiceImpl implements SubEntityService {
         List<String> categoriesWithOffers = categoryRepository.findActiveCategoryNamesBySubEntity(subEntityId);
 
         // Produits en promotion
-        List<ProductOfferResponse> productsOnOffer = productRepository.findProductsWithActiveOffers(subEntityId);
+        List<ProductOfferResponse> productsOnOffer = List.of(); // TODO a verifier
 
 
         // Produits triés par catégorie

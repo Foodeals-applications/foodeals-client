@@ -1,12 +1,13 @@
 package net.foodeals.dlc.infrastructure.interfaces.web.mappers;
 
+import net.foodeals.core.domain.entities.Dlc;
+import net.foodeals.core.domain.entities.Product;
+import net.foodeals.core.domain.enums.ValorisationType;
 import net.foodeals.dlc.application.dtos.requests.GlobalProductDto;
 import net.foodeals.dlc.application.dtos.responses.DlcDto;
 import net.foodeals.dlc.application.dtos.responses.ScanCreateResponse;
 import net.foodeals.dlc.application.dtos.responses.UserProductResponse;
-import net.foodeals.dlc.domain.entities.Dlc;
-import net.foodeals.dlc.domain.enums.ValorisationType;
-import net.foodeals.product.domain.entities.Product;
+
 
 import java.util.Collections;
 import java.util.Date;

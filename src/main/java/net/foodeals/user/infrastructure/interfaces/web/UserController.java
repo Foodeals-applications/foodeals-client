@@ -3,6 +3,7 @@ package net.foodeals.user.infrastructure.interfaces.web;
 import java.util.List;
 import java.util.Map;
 
+import net.foodeals.core.domain.entities.User;
 import net.foodeals.product.application.dtos.responses.ProductResponse;
 import net.foodeals.user.application.dtos.responses.*;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,6 @@ import net.foodeals.offer.application.services.OfferService;
 import net.foodeals.organizationEntity.application.services.SubEntityService;
 import net.foodeals.user.application.dtos.requests.PostionClientRequest;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController

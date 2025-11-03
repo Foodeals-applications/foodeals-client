@@ -1,8 +1,8 @@
 package net.foodeals.location.application.services;
 
-import net.foodeals.location.domain.entities.City;
-import net.foodeals.location.domain.entities.Region;
-import net.foodeals.location.domain.repositories.RegionRepository;
+import net.foodeals.core.domain.entities.City;
+import net.foodeals.core.domain.entities.Region;
+import net.foodeals.core.repositories.RegionRepository;
 import org.springframework.stereotype.Service;
 
 @Service

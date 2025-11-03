@@ -2,11 +2,11 @@ package net.foodeals.location.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.Country;
+import net.foodeals.core.exceptions.CountryNotFoundException;
+import net.foodeals.core.repositories.CountryRepository;
 import net.foodeals.location.application.dtos.requests.CountryRequest;
 import net.foodeals.location.application.services.CountryService;
-import net.foodeals.location.domain.entities.Country;
-import net.foodeals.location.domain.exceptions.CountryNotFoundException;
-import net.foodeals.location.domain.repositories.CountryRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

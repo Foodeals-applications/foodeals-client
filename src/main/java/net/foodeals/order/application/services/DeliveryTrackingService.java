@@ -1,13 +1,12 @@
 package net.foodeals.order.application.services;
 
 import lombok.RequiredArgsConstructor;
-import net.foodeals.delivery.domain.entities.Delivery;
-import net.foodeals.delivery.domain.repositories.DeliveryRepository;
-import net.foodeals.order.application.dtos.responses.DeliveryTrackingResponse;
+import net.foodeals.core.domain.entities.Delivery;
+import net.foodeals.core.domain.entities.Order;
+import net.foodeals.core.repositories.DeliveryRepository;
 import net.foodeals.order.application.dtos.responses.DeliveryTrackingResponse;
 import net.foodeals.order.application.dtos.responses.LocationDto;
 import net.foodeals.order.application.dtos.responses.PositionDto;
-import net.foodeals.order.domain.entities.Order;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;

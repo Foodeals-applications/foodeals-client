@@ -3,14 +3,14 @@ package net.foodeals.product.infrastructure.seeders;
 import java.util.List;
 import java.util.UUID;
 
+import net.foodeals.core.domain.entities.SubEntityDomain;
+import net.foodeals.core.repositories.ProductCategoryRepository;
+import net.foodeals.core.repositories.SubEntityDomainRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
-import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
-import net.foodeals.organizationEntity.domain.repositories.SubEntityDomainRepository;
-import net.foodeals.product.domain.repositories.ProductCategoryRepository;
 
 @Order(5)
 @Component

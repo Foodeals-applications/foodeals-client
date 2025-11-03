@@ -2,6 +2,7 @@ package net.foodeals.organizationEntity.Controller;
 
 import java.time.LocalDate;
 
+import net.foodeals.core.domain.entities.OrganizationEntity;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.organizationEntity.application.dtos.responses.StatisticsResponse;
 import net.foodeals.organizationEntity.application.services.StatisticsService;
-import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
 import net.foodeals.user.application.services.UserService;
 
 @RestController

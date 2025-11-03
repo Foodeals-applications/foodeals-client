@@ -3,10 +3,10 @@ package net.foodeals.organizationEntity.seeder;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
-import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
-import net.foodeals.organizationEntity.domain.repositories.SubEntityDomainRepository;
-import net.foodeals.organizationEntity.domain.repositories.SubEntityProductCategoryRepository;
+import net.foodeals.core.domain.entities.SubEntityDomain;
+import net.foodeals.core.domain.entities.SubEntityProductCategory;
+import net.foodeals.core.repositories.SubEntityDomainRepository;
+import net.foodeals.core.repositories.SubEntityProductCategoryRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;

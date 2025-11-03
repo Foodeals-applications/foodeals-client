@@ -2,8 +2,8 @@ package net.foodeals.location.application.dtos.requests;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import net.foodeals.common.valueOjects.Coordinates;
-import net.foodeals.location.domain.enums.AddressType;
+import net.foodeals.core.domain.entities.Coordinates;
+import net.foodeals.core.domain.enums.AddressType;
 
 import java.util.UUID;
 

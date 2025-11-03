@@ -1,12 +1,12 @@
 package net.foodeals.order.application.services;
 
 import net.foodeals.common.contracts.CrudService;
+import net.foodeals.core.domain.entities.Coupon;
+import net.foodeals.core.domain.entities.User;
 import net.foodeals.order.application.dtos.requests.CouponRequest;
 import net.foodeals.order.application.dtos.responses.ActivateCouponResponse;
 import net.foodeals.order.application.dtos.responses.AddCouponResponse;
 import net.foodeals.order.application.dtos.responses.CouponsResponse;
-import net.foodeals.order.domain.entities.Coupon;
-import net.foodeals.user.domain.entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

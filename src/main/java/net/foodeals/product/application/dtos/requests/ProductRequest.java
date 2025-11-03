@@ -2,8 +2,8 @@ package net.foodeals.product.application.dtos.requests;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import net.foodeals.common.valueOjects.Price;
-import net.foodeals.product.domain.enums.ProductType;
+import net.foodeals.core.domain.entities.Price;
+import net.foodeals.core.domain.enums.ProductType;
 
 import java.util.Date;
 import java.util.UUID;

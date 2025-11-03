@@ -1,14 +1,14 @@
 package net.foodeals.user.application.services.impl;
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.Authority;
+import net.foodeals.core.domain.entities.Role;
+import net.foodeals.core.exceptions.AuthorityNotFoundException;
+import net.foodeals.core.exceptions.RoleNotFoundException;
+import net.foodeals.core.repositories.RoleRepository;
 import net.foodeals.user.application.dtos.requests.RoleRequest;
 import net.foodeals.user.application.services.RoleService;
 import net.foodeals.user.application.services.FindAllAuthoritiesByIdsUseCase;
-import net.foodeals.user.domain.entities.Authority;
-import net.foodeals.user.domain.entities.Role;
-import net.foodeals.user.domain.exceptions.AuthorityNotFoundException;
-import net.foodeals.user.domain.exceptions.RoleNotFoundException;
-import net.foodeals.user.domain.repositories.RoleRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;

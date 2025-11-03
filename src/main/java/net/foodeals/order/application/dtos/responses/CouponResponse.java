@@ -1,7 +1,7 @@
 package net.foodeals.order.application.dtos.responses;
 
 import lombok.*;
-import net.foodeals.order.domain.entities.Coupon;
+import net.foodeals.core.domain.entities.Coupon;
 
 import java.util.Date;
 import java.util.UUID;

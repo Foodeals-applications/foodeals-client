@@ -4,6 +4,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import net.foodeals.core.domain.entities.*;
+import net.foodeals.core.exceptions.DeliveryNotFoundException;
+import net.foodeals.core.repositories.DeliveryRepository;
+import net.foodeals.core.repositories.OrderRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,16 +20,7 @@ import net.foodeals.delivery.application.dtos.requests.DeliveryPositionRequest;
 import net.foodeals.delivery.application.dtos.requests.delivery.DeliveryRequest;
 import net.foodeals.delivery.application.services.AddNewDeliveryPositionToDelivery;
 import net.foodeals.delivery.application.services.DeliveryService;
-import net.foodeals.delivery.domain.entities.Delivery;
-import net.foodeals.delivery.domain.entities.DeliveryPosition;
-import net.foodeals.delivery.domain.enums.DeliveryStatus;
-import net.foodeals.delivery.domain.exceptions.DeliveryNotFoundException;
-import net.foodeals.delivery.domain.repositories.DeliveryRepository;
-import net.foodeals.location.domain.entities.Address;
-import net.foodeals.order.domain.entities.Order;
-import net.foodeals.order.domain.repositories.OrderRepository;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
 
 /**
  * DeliveryServiceImpl

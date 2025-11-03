@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.foodeals.core.domain.entities.PickupCondition;
+import net.foodeals.core.repositories.PickupConditionRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -13,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import net.foodeals.product.application.dtos.requests.PickupConditionRequest;
 import net.foodeals.product.application.dtos.responses.PickupConditionResponse;
 import net.foodeals.product.application.services.PickupConditionService;
-import net.foodeals.product.domain.entities.PickupCondition;
-import net.foodeals.product.domain.repositories.PickupConditionRepository;
 
 @Service
 @Transactional

@@ -2,11 +2,11 @@ package net.foodeals.offer.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.Offer;
+import net.foodeals.core.domain.entities.OpenTime;
+import net.foodeals.core.repositories.OpenTimeRepository;
 import net.foodeals.offer.application.dtos.requests.OpenTimeDto;
 import net.foodeals.offer.application.services.OpenTimeService;
-import net.foodeals.offer.domain.entities.Offer;
-import net.foodeals.offer.domain.entities.OpenTime;
-import net.foodeals.offer.domain.repositories.OpenTimeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 

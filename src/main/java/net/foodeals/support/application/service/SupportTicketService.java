@@ -1,12 +1,12 @@
 package net.foodeals.support.application.service;
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.SupportTicket;
+import net.foodeals.core.domain.entities.User;
+import net.foodeals.core.repositories.SupportTicketRepository;
 import net.foodeals.support.application.dtos.requests.SupportTicketRequest;
 import net.foodeals.support.application.dtos.responses.SupportTicketListResponse;
 import net.foodeals.support.application.dtos.responses.SupportTicketResponse;
-import net.foodeals.support.domain.entities.SupportTicket;
-import net.foodeals.support.domain.repositories.SupportTicketRepository;
-import net.foodeals.user.domain.entities.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -3,6 +3,8 @@ package net.foodeals.location.application.services.impl;
 import java.util.List;
 import java.util.UUID;
 
+import net.foodeals.core.domain.entities.CoveredZones;
+import net.foodeals.core.repositories.CoveredZonesRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -10,10 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.delivery.application.services.impl.CoveredZonesService;
-import net.foodeals.delivery.domain.entities.CoveredZones;
-import net.foodeals.delivery.domain.repositories.CoveredZonesRepository;
 import net.foodeals.organizationEntity.application.dtos.requests.CoveredZonesDto;
-import net.foodeals.user.domain.exceptions.UserNotFoundException;
 
 @Service
 @Transactional

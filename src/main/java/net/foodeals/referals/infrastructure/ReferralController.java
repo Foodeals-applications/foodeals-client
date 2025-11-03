@@ -2,12 +2,12 @@ package net.foodeals.referals.infrastructure;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.User;
 import net.foodeals.referals.application.dtos.requests.ReferralInviteRequest;
 import net.foodeals.referals.application.dtos.responses.ReferralInviteResultResponse;
 import net.foodeals.referals.application.dtos.responses.ReferralStatsResponse;
 import net.foodeals.referals.application.service.ReferralService;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

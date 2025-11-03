@@ -1,14 +1,15 @@
 package net.foodeals.location.infrastructure.seeder;
 
+import net.foodeals.core.domain.entities.CoveredZones;
+import net.foodeals.core.domain.entities.Region;
+import net.foodeals.core.repositories.CoveredZonesRepository;
+import net.foodeals.core.repositories.RegionRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import jakarta.transaction.Transactional;
-import net.foodeals.delivery.domain.entities.CoveredZones;
-import net.foodeals.delivery.domain.repositories.CoveredZonesRepository;
-import net.foodeals.location.domain.entities.Region;
-import net.foodeals.location.domain.repositories.RegionRepository;
+
 
 @Component
 @Transactional

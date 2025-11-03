@@ -5,31 +5,17 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import net.foodeals.location.domain.entities.Address;
-import net.foodeals.location.domain.repositories.AddressRepository;
+import net.foodeals.core.domain.entities.*;
+import net.foodeals.core.repositories.*;
 import net.foodeals.offer.application.dtos.requests.CartRequest;
 import net.foodeals.offer.application.dtos.responses.*;
-import net.foodeals.offer.domain.entities.Box;
-import net.foodeals.offer.domain.enums.ModalityPaiement;
-import net.foodeals.offer.domain.repositories.BoxRepository;
-import net.foodeals.organizationEntity.domain.entities.SubEntity;
-import net.foodeals.product.domain.entities.Product;
-import net.foodeals.product.domain.repositories.ProductRepository;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
-import net.foodeals.user.domain.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.foodeals.common.valueOjects.Price;
 import net.foodeals.offer.application.services.CartService;
-import net.foodeals.offer.domain.entities.Cart;
-import net.foodeals.offer.domain.entities.CartItem;
-import net.foodeals.offer.domain.entities.Deal;
-import net.foodeals.offer.domain.repositories.CartItemRepository;
-import net.foodeals.offer.domain.repositories.CartRepository;
-import net.foodeals.offer.domain.repositories.DealRepository;
+
 
 @Service
 @Transactional
@@ -45,7 +31,7 @@ public class CartServiceImpl implements CartService {
 	private final ProductRepository productRepository;
 
 	@Override
-	public Cart addToCart(Integer userId, CartRequest request) {
+	public CartItem addToCart(Integer userId, CartRequest request) {
         Cart cart = cartRepository.findByUserId(userId).orElse(null);
 
         if (cart == null) {

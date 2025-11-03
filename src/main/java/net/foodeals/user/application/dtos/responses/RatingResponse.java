@@ -3,7 +3,7 @@ package net.foodeals.user.application.dtos.responses;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.foodeals.user.domain.entities.Rating;
+import net.foodeals.core.domain.entities.Rating;
 
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;

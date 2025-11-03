@@ -2,8 +2,7 @@ package net.foodeals.authentication.application.dtos.requests;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.NoArgsConstructor;
-import net.foodeals.user.domain.valueObjects.Name;
+import net.foodeals.core.domain.entities.Name;
 
 import java.util.UUID;
 

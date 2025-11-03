@@ -3,15 +3,11 @@ package net.foodeals.product.application.services.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
-import net.foodeals.product.application.dtos.requests.ProductCategoryRequest;
+import net.foodeals.core.domain.entities.Rayon;
+import net.foodeals.core.exceptions.ProductCategoryNotFoundException;
+import net.foodeals.core.repositories.RayonRepository;
 import net.foodeals.product.application.dtos.requests.RayonRequest;
-import net.foodeals.product.application.services.ProductCategoryService;
 import net.foodeals.product.application.services.RayonService;
-import net.foodeals.product.domain.entities.ProductCategory;
-import net.foodeals.product.domain.entities.Rayon;
-import net.foodeals.product.domain.exceptions.ProductCategoryNotFoundException;
-import net.foodeals.product.domain.repositories.ProductCategoryRepository;
-import net.foodeals.product.domain.repositories.RayonRepository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,8 +16,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
-import static net.foodeals.common.Utils.SlugUtil.makeUniqueSlug;
-import static net.foodeals.common.Utils.SlugUtil.toSlug;
 
 @Service
 @Transactional

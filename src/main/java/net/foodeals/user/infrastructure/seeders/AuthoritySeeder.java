@@ -2,8 +2,8 @@ package net.foodeals.user.infrastructure.seeders;
 
 import lombok.RequiredArgsConstructor;
 import net.foodeals.common.annotations.Seeder;
-import net.foodeals.user.domain.entities.Authority;
-import net.foodeals.user.domain.repositories.AuthorityRepository;
+import net.foodeals.core.domain.entities.Authority;
+import net.foodeals.core.repositories.AuthorityRepository;
 import org.springframework.boot.CommandLineRunner;
 
 import java.util.List;

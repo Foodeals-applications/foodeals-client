@@ -2,13 +2,13 @@ package net.foodeals.delivery.application.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import net.foodeals.common.annotations.UseCase;
+import net.foodeals.core.domain.entities.Delivery;
+import net.foodeals.core.domain.entities.DeliveryPosition;
+import net.foodeals.core.exceptions.DeliveryNotFoundException;
+import net.foodeals.core.repositories.DeliveryPositionRepository;
+import net.foodeals.core.repositories.DeliveryRepository;
 import net.foodeals.delivery.application.dtos.requests.DeliveryPositionRequest;
 import net.foodeals.delivery.application.services.AddNewDeliveryPositionToDelivery;
-import net.foodeals.delivery.domain.entities.Delivery;
-import net.foodeals.delivery.domain.entities.DeliveryPosition;
-import net.foodeals.delivery.domain.exceptions.DeliveryNotFoundException;
-import net.foodeals.delivery.domain.repositories.DeliveryPositionRepository;
-import net.foodeals.delivery.domain.repositories.DeliveryRepository;
 import org.modelmapper.ModelMapper;
 
 import jakarta.transaction.Transactional;

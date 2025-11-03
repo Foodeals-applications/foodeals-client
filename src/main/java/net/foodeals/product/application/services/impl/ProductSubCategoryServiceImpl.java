@@ -2,12 +2,12 @@ package net.foodeals.product.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.ProductSubCategory;
+import net.foodeals.core.exceptions.ProductCategoryNotFoundException;
+import net.foodeals.core.exceptions.ProductSubCategoryNotFoundException;
+import net.foodeals.core.repositories.ProductSubCategoryRepository;
 import net.foodeals.product.application.dtos.requests.ProductSubCategoryRequest;
 import net.foodeals.product.application.services.ProductSubCategoryService;
-import net.foodeals.product.domain.entities.ProductSubCategory;
-import net.foodeals.product.domain.exceptions.ProductCategoryNotFoundException;
-import net.foodeals.product.domain.exceptions.ProductSubCategoryNotFoundException;
-import net.foodeals.product.domain.repositories.ProductSubCategoryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -46,7 +46,7 @@ class ProductSubCategoryServiceImpl implements ProductSubCategoryService {
     public ProductSubCategory create(ProductSubCategoryRequest request) {
 
 
-        final String slug = makeUniqueSlug(toSlug(request.name()), repository);
+        final String slug = null;
         final ProductSubCategory productSubCategory = ProductSubCategory.create(request.name(), slug);
 
         return repository.save(productSubCategory);
@@ -59,7 +59,7 @@ class ProductSubCategoryServiceImpl implements ProductSubCategoryService {
 
         productSubCategory
                 .setName(request.name())
-                .setSlug(makeUniqueSlug(toSlug(request.name()), repository))
+                .setSlug(null)
                 ;
 
         return repository.save(productSubCategory);

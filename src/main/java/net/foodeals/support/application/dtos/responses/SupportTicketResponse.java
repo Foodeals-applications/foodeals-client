@@ -1,7 +1,7 @@
 package net.foodeals.support.application.dtos.responses;
 
 import lombok.Data;
-import net.foodeals.support.domain.entities.SupportTicket;
+import net.foodeals.core.domain.entities.SupportTicket;
 
 import java.time.Instant;
 import java.util.UUID;

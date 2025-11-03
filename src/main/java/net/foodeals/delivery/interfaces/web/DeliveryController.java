@@ -7,6 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import net.foodeals.core.domain.entities.*;
+import net.foodeals.core.domain.enums.DeliveryStatus;
+import net.foodeals.core.domain.enums.ModalityPaiement;
+import net.foodeals.core.repositories.DeliveryRepository;
+import net.foodeals.core.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
-import net.foodeals.common.valueOjects.Coordinates;
 import net.foodeals.delivery.application.dtos.requests.delivery.DeliveryPositionRequest;
 import net.foodeals.delivery.application.dtos.requests.delivery.DeliveryRequest;
 import net.foodeals.delivery.application.dtos.responses.DeliveryManDetailsResponse;
@@ -35,24 +39,15 @@ import net.foodeals.delivery.application.dtos.responses.DeliveryManPositionsResp
 import net.foodeals.delivery.application.dtos.responses.DeliveryTrackingResponse;
 import net.foodeals.delivery.application.dtos.responses.DetailsPartenerOfOrderResponse;
 import net.foodeals.delivery.application.services.DeliveryService;
-import net.foodeals.delivery.domain.entities.Delivery;
-import net.foodeals.delivery.domain.entities.DeliveryPosition;
-import net.foodeals.delivery.domain.enums.DeliveryStatus;
-import net.foodeals.delivery.domain.repositories.DeliveryRepository;
 import net.foodeals.location.application.dtos.responses.AddressResponse;
 import net.foodeals.location.application.dtos.responses.CityResponse;
-import net.foodeals.offer.domain.enums.ModalityPaiement;
 import net.foodeals.order.application.dtos.responses.DeliveryResponse;
 import net.foodeals.order.application.dtos.responses.OrderDetailsResponse;
 import net.foodeals.order.application.services.OrderService;
-import net.foodeals.order.domain.entities.Order;
 import net.foodeals.organizationEntity.application.dtos.responses.OrganizationEntityResponse;
 import net.foodeals.organizationEntity.application.services.OrganizationEntityService;
-import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
 import net.foodeals.user.application.dtos.responses.UserResponse;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
-import net.foodeals.user.domain.repositories.UserRepository;
 
 @RestController
 @RequestMapping("v1/deliveries")

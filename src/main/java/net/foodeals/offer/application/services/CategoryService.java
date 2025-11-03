@@ -1,11 +1,12 @@
 package net.foodeals.offer.application.services;
 
+import net.foodeals.core.domain.enums.Category;
+
 import java.util.List;
 
-import net.foodeals.offer.domain.enums.Category.CategoryPair;
 
 public interface CategoryService {
 	
-	 public List<CategoryPair> getAllCategories() ;
+	 public List<Category.CategoryPair> getAllCategories() ;
 
 }

@@ -2,19 +2,18 @@ package net.foodeals.location.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.Country;
+import net.foodeals.core.domain.entities.State;
+import net.foodeals.core.exceptions.StateNotFoundException;
+import net.foodeals.core.repositories.StateRepository;
 import net.foodeals.location.application.dtos.requests.StateRequest;
 import net.foodeals.location.application.services.CountryService;
 import net.foodeals.location.application.services.StateService;
-import net.foodeals.location.domain.entities.Country;
-import net.foodeals.location.domain.entities.State;
-import net.foodeals.location.domain.exceptions.StateNotFoundException;
-import net.foodeals.location.domain.repositories.StateRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 

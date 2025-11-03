@@ -1,8 +1,8 @@
 package net.foodeals.location.application.services;
 
 import net.foodeals.common.contracts.CrudService;
+import net.foodeals.core.domain.entities.City;
 import net.foodeals.location.application.dtos.requests.CityRequest;
-import net.foodeals.location.domain.entities.City;
 
 import java.util.UUID;
 

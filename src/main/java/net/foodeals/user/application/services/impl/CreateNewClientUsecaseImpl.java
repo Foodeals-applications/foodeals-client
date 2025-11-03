@@ -2,12 +2,12 @@ package net.foodeals.user.application.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import net.foodeals.common.annotations.UseCase;
+import net.foodeals.core.domain.entities.Role;
+import net.foodeals.core.domain.entities.User;
+import net.foodeals.core.repositories.UserRepository;
 import net.foodeals.user.application.dtos.requests.ClientRegisterRequest;
 import net.foodeals.user.application.services.RoleService;
 import net.foodeals.user.application.services.CreateNewClientUsecase;
-import net.foodeals.user.domain.entities.Role;
-import net.foodeals.user.domain.entities.User;
-import net.foodeals.user.domain.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 

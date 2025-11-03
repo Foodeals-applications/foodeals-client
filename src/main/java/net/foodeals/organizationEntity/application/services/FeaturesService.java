@@ -1,7 +1,7 @@
 package net.foodeals.organizationEntity.application.services;
 
-import net.foodeals.organizationEntity.domain.entities.Features;
-import net.foodeals.organizationEntity.domain.repositories.FeatureRepository;
+import net.foodeals.core.domain.entities.Features;
+import net.foodeals.core.repositories.FeatureRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

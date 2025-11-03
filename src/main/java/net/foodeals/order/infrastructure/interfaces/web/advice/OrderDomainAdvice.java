@@ -1,9 +1,9 @@
 package net.foodeals.order.infrastructure.interfaces.web.advice;
 
 import net.foodeals.common.models.ErrorResponse;
-import net.foodeals.order.domain.exceptions.OrderNotFoundException;
-import net.foodeals.order.domain.exceptions.TransactionNotFoundException;
-import net.foodeals.order.domain.exceptions.CouponNotFoundException;
+import net.foodeals.core.exceptions.CouponNotFoundException;
+import net.foodeals.core.exceptions.OrderNotFoundException;
+import net.foodeals.core.exceptions.TransactionNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -1,18 +1,18 @@
 package net.foodeals.order.application.services;
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.CartItem;
+import net.foodeals.core.domain.entities.Product;
+import net.foodeals.core.domain.entities.User;
+import net.foodeals.core.domain.enums.ModalityPaiement;
+import net.foodeals.core.repositories.CartRepository;
+import net.foodeals.core.repositories.DeliveryOptionRepository;
+import net.foodeals.core.repositories.PaymentMethodProductRepository;
 import net.foodeals.offer.application.dtos.responses.CartItemResponse;
-import net.foodeals.offer.domain.entities.CartItem;
-import net.foodeals.offer.domain.enums.ModalityPaiement;
-import net.foodeals.offer.domain.repositories.CartRepository;
 import net.foodeals.order.application.dtos.responses.CheckoutDataResponse;
 import net.foodeals.order.application.dtos.responses.DeliveryOptionResponse;
-import net.foodeals.order.domain.repositories.DeliveryOptionRepository;
 import net.foodeals.product.application.dtos.responses.PaymentMethodResponse;
-import net.foodeals.product.domain.entities.Product;
-import net.foodeals.product.domain.repositories.PaymentMethodProductRepository;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

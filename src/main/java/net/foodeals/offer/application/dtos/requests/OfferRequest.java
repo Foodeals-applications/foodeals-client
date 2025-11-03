@@ -1,7 +1,7 @@
 package net.foodeals.offer.application.dtos.requests;
 
 import jakarta.validation.constraints.NotNull;
-import net.foodeals.common.valueOjects.Price;
+import net.foodeals.core.domain.entities.Price;
 
 import java.util.UUID;
 

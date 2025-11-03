@@ -1,7 +1,8 @@
 package net.foodeals.order.application.dtos.responses;
 
+import net.foodeals.core.domain.enums.DeliveryStatus;
+
 import java.util.UUID;
-import net.foodeals.delivery.domain.enums.DeliveryStatus;
 
 public class DeliveryResponse {
 	public UUID id;

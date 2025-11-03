@@ -18,8 +18,14 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.foodeals.core.domain.entities.*;
+import net.foodeals.core.domain.enums.BoxStatus;
+import net.foodeals.core.domain.enums.BoxType;
+import net.foodeals.core.domain.enums.Category;
+import net.foodeals.core.domain.enums.OfferType;
+import net.foodeals.core.exceptions.BoxNotFoundException;
+import net.foodeals.core.repositories.*;
 import net.foodeals.offer.application.dtos.responses.*;
-import net.foodeals.offer.domain.enums.Category;
 import net.foodeals.product.application.dtos.responses.ProductOfferResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -36,26 +42,9 @@ import net.foodeals.common.Utils.DistanceCalculator;
 import net.foodeals.offer.application.dtos.requests.BoxDto;
 import net.foodeals.offer.application.dtos.requests.OpenTimeDto;
 import net.foodeals.offer.application.services.BoxService;
-import net.foodeals.offer.domain.entities.Box;
-import net.foodeals.offer.domain.entities.IOfferChoice;
-import net.foodeals.offer.domain.entities.ModifiyHistory;
-import net.foodeals.offer.domain.entities.Offer;
-import net.foodeals.offer.domain.entities.OpenTime;
-import net.foodeals.offer.domain.entities.RelaunchHistory;
-import net.foodeals.offer.domain.enums.BoxStatus;
-import net.foodeals.offer.domain.enums.BoxType;
-import net.foodeals.offer.domain.enums.OfferType;
-import net.foodeals.offer.domain.exceptions.BoxNotFoundException;
-import net.foodeals.offer.domain.repositories.BoxRepository;
-import net.foodeals.offer.domain.repositories.ModifiyHistoryRepository;
-import net.foodeals.offer.domain.repositories.OfferRepository;
-import net.foodeals.offer.domain.repositories.OpenTimeRepository;
-import net.foodeals.offer.domain.repositories.RelaunchHistoryRepository;
-import net.foodeals.offer.domain.valueObject.Offerable;
+
 import net.foodeals.product.application.services.ProductService;
-import net.foodeals.product.domain.entities.Product;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
 
 @Service
 @Transactional

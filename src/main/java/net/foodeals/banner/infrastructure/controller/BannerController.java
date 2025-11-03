@@ -1,10 +1,9 @@
 package net.foodeals.banner.infrastructure.controller;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import net.foodeals.banner.domain.entities.Banner;
-import net.foodeals.banner.domain.repositories.BannerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import net.foodeals.core.domain.entities.Banner;
+import net.foodeals.core.repositories.BannerRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

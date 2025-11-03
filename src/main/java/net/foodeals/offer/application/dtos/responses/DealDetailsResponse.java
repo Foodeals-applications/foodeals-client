@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.foodeals.offer.domain.enums.ModalityType;
-import net.foodeals.product.application.dtos.responses.SimilarProductResponse;
+import net.foodeals.core.domain.enums.ModalityType;
 
 import java.math.BigDecimal;
 import java.util.List;

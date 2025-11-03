@@ -1,7 +1,7 @@
 package net.foodeals.organizationEntity.application.dtos.requests;
 
 import lombok.Data;
-import net.foodeals.organizationEntity.domain.entities.enums.EntityType;
+import net.foodeals.core.domain.enums.EntityType;
 
 import java.util.List;
 

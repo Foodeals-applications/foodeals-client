@@ -1,12 +1,12 @@
 package net.foodeals.organizationEntity.application.services.impl;
 
 import lombok.AllArgsConstructor;
+import net.foodeals.core.domain.entities.SubEntityDomain;
+import net.foodeals.core.domain.entities.SubEntityProductCategory;
+import net.foodeals.core.repositories.SubEntityDomainRepository;
 import net.foodeals.organizationEntity.application.dtos.responses.SubEntityDomainResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.SubEntityProductCategoryResponse;
 import net.foodeals.organizationEntity.application.services.SubEntityDomainService;
-import net.foodeals.organizationEntity.domain.entities.SubEntityDomain;
-import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
-import net.foodeals.organizationEntity.domain.repositories.SubEntityDomainRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

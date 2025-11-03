@@ -2,11 +2,14 @@ package net.foodeals.user.infrastructure.modelMapperConfig;
 
 import java.util.List;
 
+import net.foodeals.core.domain.entities.Authority;
+import net.foodeals.core.domain.entities.Name;
+import net.foodeals.core.domain.entities.Role;
+import net.foodeals.core.domain.entities.User;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.context.DelegatingApplicationListener;
-import net.foodeals.user.domain.valueObjects.Name;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.location.application.dtos.responses.AddressResponse;
@@ -17,11 +20,6 @@ import net.foodeals.user.application.dtos.responses.RoleResponse;
 import net.foodeals.user.application.dtos.responses.UserResponse;
 import net.foodeals.user.application.dtos.responses.WorkScheduleResponse;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.Authority;
-import net.foodeals.user.domain.entities.Role;
-import net.foodeals.user.domain.entities.User;
-import net.foodeals.user.domain.entities.WorkSchedule;
-import net.foodeals.user.domain.enums.UserStatus;
 
 @Configuration
 @RequiredArgsConstructor

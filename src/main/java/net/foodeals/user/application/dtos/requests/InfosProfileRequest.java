@@ -6,7 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.foodeals.user.domain.valueObjects.Name;
+import net.foodeals.core.domain.entities.Name;
+
 
 @AllArgsConstructor
 @NoArgsConstructor

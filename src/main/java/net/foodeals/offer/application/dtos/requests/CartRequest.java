@@ -3,7 +3,7 @@ package net.foodeals.offer.application.dtos.requests;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import net.foodeals.offer.domain.enums.ModalityType;
+import net.foodeals.core.domain.enums.ModalityType;
 
 import java.util.UUID;
 

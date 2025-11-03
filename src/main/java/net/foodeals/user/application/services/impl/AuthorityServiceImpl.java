@@ -2,11 +2,11 @@ package net.foodeals.user.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.Authority;
+import net.foodeals.core.exceptions.AuthorityNotFoundException;
+import net.foodeals.core.repositories.AuthorityRepository;
 import net.foodeals.user.application.dtos.requests.AuthorityRequest;
 import net.foodeals.user.application.services.AuthorityService;
-import net.foodeals.user.domain.entities.Authority;
-import net.foodeals.user.domain.exceptions.AuthorityNotFoundException;
-import net.foodeals.user.domain.repositories.AuthorityRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

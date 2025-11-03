@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.foodeals.core.domain.entities.DeliveryMethod;
+import net.foodeals.core.repositories.DeliveryMethodRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -13,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import net.foodeals.product.application.dtos.requests.DeliveryMethodRequest;
 import net.foodeals.product.application.dtos.responses.DeliveryMethodResponse;
 import net.foodeals.product.application.services.DeliveryMethodService;
-import net.foodeals.product.domain.entities.DeliveryMethod;
-import net.foodeals.product.domain.repositories.DeliveryMethodRepository;
 
 @Service
 @Transactional

@@ -1,8 +1,8 @@
 package net.foodeals.notification.application.services;
 
+import net.foodeals.core.domain.entities.NotificationSettings;
+import net.foodeals.core.domain.entities.User;
 import net.foodeals.notification.application.dtos.responses.NotificationCountResponse;
-import net.foodeals.notification.domain.entity.NotificationSettings;
-import net.foodeals.user.domain.entities.User;
 
 public interface NotificationSettingsService {
 

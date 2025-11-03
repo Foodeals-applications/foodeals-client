@@ -2,6 +2,8 @@ package net.foodeals.delivery.interfaces.web;
 
 import java.util.UUID;
 
+import net.foodeals.core.domain.entities.*;
+import net.foodeals.core.repositories.DeliveryRepository;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
@@ -11,14 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.delivery.application.dtos.requests.delivery.DeliveryPositionRequest;
 import net.foodeals.delivery.application.dtos.responses.DeliveryTrackingResponse;
-import net.foodeals.delivery.domain.entities.Delivery;
-import net.foodeals.delivery.domain.entities.DeliveryPosition;
-import net.foodeals.delivery.domain.repositories.DeliveryRepository;
 import net.foodeals.order.application.services.OrderService;
-import net.foodeals.order.domain.entities.Order;
-import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
 
 @Controller
 @RequiredArgsConstructor

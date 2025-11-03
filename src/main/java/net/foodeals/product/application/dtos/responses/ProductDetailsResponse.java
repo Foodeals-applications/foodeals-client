@@ -3,12 +3,10 @@ package net.foodeals.product.application.dtos.responses;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import net.foodeals.core.domain.enums.ModalityType;
 import net.foodeals.offer.application.dtos.responses.OpenTimeResponse;
-import net.foodeals.offer.domain.entities.OpenTime;
-import net.foodeals.offer.domain.enums.ModalityType;
-import net.foodeals.order.application.dtos.responses.DeliveryResponse;
-import net.foodeals.organizationEntity.application.dtos.responses.SubEntityResponse;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;

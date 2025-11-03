@@ -2,7 +2,7 @@ package net.foodeals.user.application.dtos.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import net.foodeals.organizationEntity.domain.entities.SubEntity;
+import net.foodeals.core.domain.entities.SubEntity;
 
 import java.util.UUID;
 

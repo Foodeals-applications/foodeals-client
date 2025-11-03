@@ -3,13 +3,11 @@ package net.foodeals.offer.application.dtos.responses;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.foodeals.offer.domain.entities.Donate;
+import net.foodeals.core.domain.entities.Donate;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.foodeals.common.valueOjects.Price;
+import net.foodeals.core.domain.entities.Price;
 
 import java.util.UUID;
 

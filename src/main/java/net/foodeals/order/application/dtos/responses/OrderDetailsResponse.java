@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.foodeals.offer.domain.enums.ModalityPaiement;
+import net.foodeals.core.domain.enums.ModalityPaiement;
 
 import java.util.Date;
 import java.util.UUID;

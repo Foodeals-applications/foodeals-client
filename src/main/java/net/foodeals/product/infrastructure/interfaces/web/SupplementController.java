@@ -1,5 +1,6 @@
 package net.foodeals.product.infrastructure.interfaces.web;
 
+import net.foodeals.core.repositories.SupplementRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import net.foodeals.offer.application.dtos.responses.SupplementDealResponse;
-import net.foodeals.product.domain.repositories.SupplementRepository;
 
 @RestController
 @RequestMapping("v1/supplements")

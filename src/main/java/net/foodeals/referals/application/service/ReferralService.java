@@ -1,14 +1,14 @@
 package net.foodeals.referals.application.service;
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.Referral;
+import net.foodeals.core.domain.entities.User;
+import net.foodeals.core.repositories.ReferralRepository;
 import net.foodeals.notification.application.services.NotificationSettingsService;
 import net.foodeals.referals.application.dtos.requests.ReferralInviteRequest;
 import net.foodeals.referals.application.dtos.responses.ReferralInviteResultResponse;
 import net.foodeals.referals.application.dtos.responses.ReferralResponse;
 import net.foodeals.referals.application.dtos.responses.ReferralStatsResponse;
-import net.foodeals.referals.domain.entities.Referral;
-import net.foodeals.referals.domain.repositories.ReferralRepository;
-import net.foodeals.user.domain.entities.User;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

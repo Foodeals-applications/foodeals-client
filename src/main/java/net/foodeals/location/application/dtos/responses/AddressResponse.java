@@ -5,8 +5,8 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.foodeals.common.valueOjects.Coordinates;
-import net.foodeals.location.domain.enums.AddressType;
+import net.foodeals.core.domain.entities.Coordinates;
+import net.foodeals.core.domain.enums.AddressType;
 
 @Data
 @NoArgsConstructor

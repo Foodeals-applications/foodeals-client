@@ -2,12 +2,12 @@ package net.foodeals.notification.infrastructure.interfaces.web;
 
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.NotificationSettings;
+import net.foodeals.core.domain.entities.User;
 import net.foodeals.notification.application.dtos.responses.NotificationCountResponse;
 import net.foodeals.notification.application.dtos.responses.NotificationSettingsResponse;
 import net.foodeals.notification.application.services.NotificationSettingsService;
-import net.foodeals.notification.domain.entity.NotificationSettings;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,12 +1,12 @@
 package net.foodeals.support.infrastructure;
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.User;
 import net.foodeals.support.application.dtos.requests.SupportTicketRequest;
 import net.foodeals.support.application.dtos.responses.SupportTicketListResponse;
 import net.foodeals.support.application.dtos.responses.SupportTicketResponse;
 import net.foodeals.support.application.service.SupportTicketService;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

@@ -1,14 +1,14 @@
 package net.foodeals.offer.application.services;
 
 import net.foodeals.common.contracts.CrudService;
+import net.foodeals.core.domain.entities.Box;
+import net.foodeals.core.domain.entities.Offer;
+import net.foodeals.core.domain.enums.BoxType;
 import net.foodeals.offer.application.dtos.requests.BoxDto;
 import net.foodeals.offer.application.dtos.responses.BoxCategory;
 import net.foodeals.offer.application.dtos.responses.BoxDetailsResponse;
 import net.foodeals.offer.application.dtos.responses.BoxListResponse;
 import net.foodeals.offer.application.dtos.responses.FeaturedBoxesResponse;
-import net.foodeals.offer.domain.entities.Box;
-import net.foodeals.offer.domain.entities.Offer;
-import net.foodeals.offer.domain.enums.BoxType;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.Valid;
 
 public interface BoxService extends CrudService<Box, UUID, BoxDto>{
     Box create(BoxDto dto);

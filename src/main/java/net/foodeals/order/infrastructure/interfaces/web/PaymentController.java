@@ -1,15 +1,15 @@
 package net.foodeals.order.infrastructure.interfaces.web;
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.Order;
+import net.foodeals.core.domain.entities.Transaction;
+import net.foodeals.core.domain.entities.User;
+import net.foodeals.core.repositories.TransactionRepository;
 import net.foodeals.order.application.dtos.requests.ProcessPaymentRequest;
 import net.foodeals.order.application.dtos.responses.ProcessPaymentResponse;
 import net.foodeals.order.application.services.OrderService;
 import net.foodeals.order.application.services.PaymentService;
-import net.foodeals.order.domain.entities.Order;
-import net.foodeals.order.domain.entities.Transaction;
-import net.foodeals.order.domain.repositories.TransactionRepository;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

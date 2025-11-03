@@ -1,6 +1,8 @@
 package net.foodeals.offer.infrastructure.interfaces.web;
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.Cart;
+import net.foodeals.core.domain.entities.User;
 import net.foodeals.offer.application.dtos.requests.CartRequest;
 import net.foodeals.offer.application.dtos.requests.SelectItemRequest;
 import net.foodeals.offer.application.dtos.requests.SelectStoreItemsRequest;
@@ -10,12 +12,9 @@ import net.foodeals.offer.application.dtos.responses.RemoveItemResponse;
 import net.foodeals.offer.application.dtos.responses.SelectItemResponse;
 import net.foodeals.offer.application.dtos.responses.UpdateQuantityResponse;
 import net.foodeals.offer.application.services.CartService;
-import net.foodeals.offer.domain.entities.Cart;
-import net.foodeals.offer.domain.entities.CartItem;
 import net.foodeals.order.application.dtos.responses.CheckoutDataResponse;
 import net.foodeals.order.application.services.CheckoutService;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

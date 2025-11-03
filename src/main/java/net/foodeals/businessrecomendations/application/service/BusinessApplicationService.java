@@ -3,9 +3,9 @@ package net.foodeals.businessrecomendations.application.service;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.businessrecomendations.application.dtos.requests.BusinessRegisterRequest;
 import net.foodeals.businessrecomendations.application.dtos.responses.BusinessRegisterResponse;
-import net.foodeals.businessrecomendations.domain.entities.BusinessApplication;
-import net.foodeals.businessrecomendations.domain.enums.ApplicationStatus;
-import net.foodeals.businessrecomendations.domain.repositories.BusinessApplicationRepository;
+import net.foodeals.core.domain.entities.BusinessApplication;
+import net.foodeals.core.domain.enums.ApplicationStatus;
+import net.foodeals.core.repositories.BusinessApplicationRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;

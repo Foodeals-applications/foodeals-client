@@ -1,7 +1,7 @@
 package net.foodeals.dlc.application.dtos.responses;
 
 import lombok.Data;
-import net.foodeals.dlc.domain.enums.ValorisationType;
+import net.foodeals.core.domain.enums.ValorisationType;
 
 import java.util.Date;
 import java.util.UUID;

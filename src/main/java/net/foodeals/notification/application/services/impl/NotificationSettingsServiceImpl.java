@@ -2,14 +2,15 @@ package net.foodeals.notification.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.NotificationSettings;
+import net.foodeals.core.domain.entities.User;
+import net.foodeals.core.domain.enums.TypeRequest;
+import net.foodeals.core.repositories.NotificationRepository;
+import net.foodeals.core.repositories.NotificationSettingsRepository;
 import net.foodeals.notification.application.dtos.responses.NotificationCountResponse;
 import net.foodeals.notification.application.services.NotificationSettingsService;
-import net.foodeals.notification.domain.entity.NotificationSettings;
-import net.foodeals.notification.domain.enums.TypeRequest;
-import net.foodeals.notification.domain.repositories.NotificationRepository;
-import net.foodeals.notification.domain.repositories.NotificationSettingsRepository;
+
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
 import org.springframework.stereotype.Service;
 
 

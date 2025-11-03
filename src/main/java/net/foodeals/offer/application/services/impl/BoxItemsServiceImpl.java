@@ -2,13 +2,13 @@ package net.foodeals.offer.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.Box;
+import net.foodeals.core.domain.entities.BoxItem;
+import net.foodeals.core.domain.entities.Product;
+import net.foodeals.core.repositories.BoxItemRepository;
 import net.foodeals.offer.application.dtos.requests.BoxItemDto;
 import net.foodeals.offer.application.services.BoxItemService;
-import net.foodeals.offer.domain.entities.Box;
-import net.foodeals.offer.domain.entities.BoxItem;
-import net.foodeals.offer.domain.repositories.BoxItemRepository;
 import net.foodeals.product.application.services.ProductService;
-import net.foodeals.product.domain.entities.Product;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

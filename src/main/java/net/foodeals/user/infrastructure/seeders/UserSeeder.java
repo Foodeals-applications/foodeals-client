@@ -2,25 +2,13 @@ package net.foodeals.user.infrastructure.seeders;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.foodeals.common.valueOjects.Coordinates;
-import net.foodeals.location.application.dtos.requests.CountryRequest;
-import net.foodeals.location.application.dtos.requests.StateRequest;
+import net.foodeals.core.domain.entities.*;
+import net.foodeals.core.domain.enums.AddressType;
+import net.foodeals.core.domain.enums.UserStatus;
+import net.foodeals.core.repositories.*;
 import net.foodeals.location.application.services.CountryService;
 import net.foodeals.location.application.services.StateService;
-import net.foodeals.location.domain.entities.*;
-import net.foodeals.location.domain.enums.AddressType;
-import net.foodeals.location.domain.repositories.AddressRepository;
-import net.foodeals.location.domain.repositories.CityRepository;
-import net.foodeals.location.domain.repositories.CountryRepository;
-import net.foodeals.location.domain.repositories.RegionRepository;
 import net.foodeals.notification.application.services.NotificationSettingsService;
-import net.foodeals.notification.domain.entity.NotificationSettings;
-import net.foodeals.user.domain.entities.Role;
-import net.foodeals.user.domain.entities.User;
-import net.foodeals.user.domain.enums.UserStatus;
-import net.foodeals.user.domain.repositories.RoleRepository;
-import net.foodeals.user.domain.repositories.UserRepository;
-import net.foodeals.user.domain.valueObjects.Name;
 
 import java.time.LocalDate;
 

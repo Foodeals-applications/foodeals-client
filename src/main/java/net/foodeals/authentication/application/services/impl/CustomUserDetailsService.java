@@ -1,8 +1,7 @@
 package net.foodeals.authentication.application.services.impl;
 
+import net.foodeals.core.domain.entities.User;
 import net.foodeals.user.application.services.UserService;
-import net.foodeals.user.domain.entities.User;
-import net.foodeals.user.domain.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

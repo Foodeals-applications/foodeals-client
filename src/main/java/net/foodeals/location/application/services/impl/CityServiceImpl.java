@@ -2,13 +2,13 @@ package net.foodeals.location.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.City;
+import net.foodeals.core.domain.entities.State;
+import net.foodeals.core.exceptions.CityNotFoundException;
+import net.foodeals.core.repositories.CityRepository;
 import net.foodeals.location.application.dtos.requests.CityRequest;
 import net.foodeals.location.application.services.CityService;
 import net.foodeals.location.application.services.StateService;
-import net.foodeals.location.domain.entities.City;
-import net.foodeals.location.domain.entities.State;
-import net.foodeals.location.domain.exceptions.CityNotFoundException;
-import net.foodeals.location.domain.repositories.CityRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

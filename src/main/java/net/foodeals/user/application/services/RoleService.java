@@ -1,8 +1,8 @@
 package net.foodeals.user.application.services;
 
 import net.foodeals.common.contracts.CrudService;
+import net.foodeals.core.domain.entities.Role;
 import net.foodeals.user.application.dtos.requests.RoleRequest;
-import net.foodeals.user.domain.entities.Role;
 
 import java.util.List;
 import java.util.UUID;

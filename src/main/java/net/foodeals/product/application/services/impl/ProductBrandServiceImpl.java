@@ -2,16 +2,12 @@ package net.foodeals.product.application.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.ProductBrand;
+import net.foodeals.core.exceptions.ProductBrandNotFoundException;
+import net.foodeals.core.exceptions.ProductCategoryNotFoundException;
+import net.foodeals.core.repositories.ProductBrandRepository;
 import net.foodeals.product.application.dtos.requests.ProductBrandRequest;
-import net.foodeals.product.application.dtos.requests.ProductCategoryRequest;
 import net.foodeals.product.application.services.ProductBrandService;
-import net.foodeals.product.application.services.ProductCategoryService;
-import net.foodeals.product.domain.entities.ProductBrand;
-import net.foodeals.product.domain.entities.ProductCategory;
-import net.foodeals.product.domain.exceptions.ProductBrandNotFoundException;
-import net.foodeals.product.domain.exceptions.ProductCategoryNotFoundException;
-import net.foodeals.product.domain.repositories.ProductBrandRepository;
-import net.foodeals.product.domain.repositories.ProductCategoryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -50,7 +46,7 @@ class ProductBrandServiceImpl implements ProductBrandService {
     public ProductBrand create(ProductBrandRequest request) {
 
 
-        final String slug = makeUniqueSlug(toSlug(request.name()), repository);
+        final String slug = null;
         final ProductBrand productBrand = ProductBrand.create(request.name(), slug);
 
         return repository.save(productBrand);
@@ -63,7 +59,7 @@ class ProductBrandServiceImpl implements ProductBrandService {
 
         productBrand
                 .setName(request.name())
-                .setSlug(makeUniqueSlug(toSlug(request.name()), repository))
+                .setSlug(null)
                 ;
 
         return repository.save(productBrand);

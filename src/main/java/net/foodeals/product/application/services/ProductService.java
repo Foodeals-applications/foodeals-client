@@ -6,10 +6,10 @@ import java.util.UUID;
 
 
 import net.foodeals.common.contracts.CrudService;
+import net.foodeals.core.domain.entities.Product;
 import net.foodeals.product.application.dtos.requests.ProductRequest;
 import net.foodeals.product.application.dtos.requests.ProductReviewRequest;
 import net.foodeals.product.application.dtos.responses.*;
-import net.foodeals.product.domain.entities.Product;
 
 
 public interface ProductService extends CrudService<Product, UUID, ProductRequest> {

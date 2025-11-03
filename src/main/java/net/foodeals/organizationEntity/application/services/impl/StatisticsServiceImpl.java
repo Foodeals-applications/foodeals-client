@@ -8,21 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import net.foodeals.core.domain.entities.*;
+import net.foodeals.core.domain.enums.OrderStatus;
+import net.foodeals.core.domain.enums.OrderType;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.foodeals.offer.domain.entities.Offer;
 import net.foodeals.order.application.services.OrderService;
-import net.foodeals.order.domain.entities.Order;
-import net.foodeals.order.domain.enums.OrderStatus;
-import net.foodeals.order.domain.enums.OrderType;
-import net.foodeals.order.domain.repositories.OrderRepository;
 import net.foodeals.organizationEntity.application.dtos.responses.StatisticsResponse;
 import net.foodeals.organizationEntity.application.services.StatisticsService;
-import net.foodeals.organizationEntity.domain.entities.Activity;
-import net.foodeals.organizationEntity.domain.entities.OrganizationEntity;
-import net.foodeals.organizationEntity.domain.entities.SubEntity;
 
 @Service
 @Transactional
@@ -32,7 +27,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 	private final OrderService orderService;
 
 	public StatisticsResponse getStatistics(OrganizationEntity organizationEntity, LocalDate startDate,
-			LocalDate endDate) {
+                                            LocalDate endDate) {
 
 		Instant startInstant = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
 		Instant endInstant = endDate.atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant();

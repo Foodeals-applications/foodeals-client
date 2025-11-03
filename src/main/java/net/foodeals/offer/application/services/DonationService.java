@@ -1,14 +1,14 @@
 package net.foodeals.offer.application.services;
 
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.Donate;
+import net.foodeals.core.domain.entities.User;
+import net.foodeals.core.domain.enums.DonateStatus;
+import net.foodeals.core.repositories.DonateRepository;
+import net.foodeals.core.repositories.UserRepository;
 import net.foodeals.offer.application.dtos.requests.DonationRequest;
 import net.foodeals.offer.application.dtos.responses.DonationListResponse;
 import net.foodeals.offer.application.dtos.responses.DonationResponse;
-import net.foodeals.offer.domain.entities.Donate;
-import net.foodeals.offer.domain.enums.DonateStatus;
-import net.foodeals.offer.domain.repositories.DonateRepository;
-import net.foodeals.user.domain.entities.User;
-import net.foodeals.user.domain.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

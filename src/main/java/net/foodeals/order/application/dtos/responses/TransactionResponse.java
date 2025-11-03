@@ -1,8 +1,9 @@
 package net.foodeals.order.application.dtos.responses;
 
-import net.foodeals.common.valueOjects.Price;
-import net.foodeals.order.domain.enums.TransactionStatus;
-import net.foodeals.order.domain.enums.TransactionType;
+
+import net.foodeals.core.domain.entities.Price;
+import net.foodeals.core.domain.enums.TransactionStatus;
+import net.foodeals.core.domain.enums.TransactionType;
 
 import java.util.Date;
 import java.util.UUID;

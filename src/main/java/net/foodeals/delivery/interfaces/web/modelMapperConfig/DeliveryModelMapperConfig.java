@@ -1,12 +1,12 @@
 package net.foodeals.delivery.interfaces.web.modelMapperConfig;
 
+import net.foodeals.core.domain.entities.Delivery;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Configuration;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.foodeals.delivery.domain.entities.Delivery;
 import net.foodeals.order.application.dtos.responses.DeliveryResponse;
 
 @Configuration

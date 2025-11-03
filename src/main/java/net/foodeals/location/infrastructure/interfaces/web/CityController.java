@@ -2,11 +2,11 @@ package net.foodeals.location.infrastructure.interfaces.web;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.City;
 import net.foodeals.location.application.dtos.requests.CityRequest;
 import net.foodeals.location.application.dtos.responses.CityResponse;
 import net.foodeals.location.application.dtos.responses.PositionCityResponse;
 import net.foodeals.location.application.services.CityService;
-import net.foodeals.location.domain.entities.City;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;

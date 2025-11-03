@@ -1,18 +1,16 @@
 package net.foodeals.organizationEntity.application.services.impl;
 
 import lombok.AllArgsConstructor;
-import net.foodeals.offer.domain.repositories.DealRepository;
+import net.foodeals.core.domain.entities.SubEntity;
+import net.foodeals.core.domain.entities.SubEntityProductCategory;
+import net.foodeals.core.repositories.DealRepository;
+import net.foodeals.core.repositories.SubEntityProductCategoryRepository;
+import net.foodeals.core.repositories.SubEntityRepository;
 import net.foodeals.organizationEntity.application.dtos.responses.CategoryWithDealCountResponse;
 import net.foodeals.organizationEntity.application.dtos.responses.SubEntityProductCategoryResponse;
 import net.foodeals.organizationEntity.application.services.SubEntityProductCategoryService;
-import net.foodeals.organizationEntity.domain.entities.SubEntity;
-import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
-import net.foodeals.organizationEntity.domain.repositories.SubEntityProductCategoryRepository;
-import net.foodeals.organizationEntity.domain.repositories.SubEntityRepository;
 
 import org.springframework.stereotype.Service;
-
-import com.google.zxing.NotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;

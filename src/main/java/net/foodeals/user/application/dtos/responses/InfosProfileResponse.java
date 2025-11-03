@@ -1,14 +1,14 @@
 package net.foodeals.user.application.dtos.responses;
 
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.UUID;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.foodeals.user.domain.valueObjects.Name;
+import net.foodeals.core.domain.entities.Name;
+
 
 @AllArgsConstructor
 @NoArgsConstructor

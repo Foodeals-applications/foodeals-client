@@ -3,10 +3,10 @@ package net.foodeals.user.application.dtos.requests;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import net.foodeals.user.domain.entities.WorkSchedule;
-import net.foodeals.user.domain.enums.Civility;
-import net.foodeals.user.domain.enums.Nationality;
-import net.foodeals.user.domain.valueObjects.Name;
+import net.foodeals.core.domain.entities.Name;
+import net.foodeals.core.domain.entities.WorkSchedule;
+import net.foodeals.core.domain.enums.Civility;
+import net.foodeals.core.domain.enums.Nationality;
 import org.springframework.lang.Nullable;
 
 import java.util.List;

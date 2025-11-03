@@ -3,7 +3,7 @@ package net.foodeals.delivery.application.dtos.requests.delivery;
 import java.util.UUID;
 
 import jakarta.validation.constraints.NotNull;
-import net.foodeals.delivery.domain.enums.DeliveryStatus;
+import net.foodeals.core.domain.enums.DeliveryStatus;
 
 /**
  * DeliveryRequest

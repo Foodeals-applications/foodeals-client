@@ -2,10 +2,10 @@ package net.foodeals.product.infrastructure.interfaces.web;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.foodeals.core.domain.entities.ProductCategory;
 import net.foodeals.product.application.dtos.requests.ProductCategoryRequest;
 import net.foodeals.product.application.dtos.responses.ProductCategoryResponse;
 import net.foodeals.product.application.services.ProductCategoryService;
-import net.foodeals.product.domain.entities.ProductCategory;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
