@@ -21,7 +21,7 @@ public interface CartService {
 	 
 	 Cart getCartByUser(Integer  userId);
 
-    Map<String, Object> clearCart(Integer userId);
+     Map<String, Object> clearCart(Integer userId);
 
 	void deleteAllDealsByOrganizationFromCart(UUID organizationId);
 	

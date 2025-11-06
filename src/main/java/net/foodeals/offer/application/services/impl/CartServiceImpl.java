@@ -31,7 +31,7 @@ public class CartServiceImpl implements CartService {
 	private final ProductRepository productRepository;
 
 	@Override
-	public CartItem addToCart(Integer userId, CartRequest request) {
+	public Cart addToCart(Integer userId, CartRequest request) {
         Cart cart = cartRepository.findByUserId(userId).orElse(null);
 
         if (cart == null) {

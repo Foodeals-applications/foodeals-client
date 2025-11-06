@@ -26,7 +26,7 @@ public class UserDomainAdvice {
     }
 
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(RoleNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleRoleNotFoundException(RoleNotFoundException e) {
         final ErrorResponse errorReponse = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),

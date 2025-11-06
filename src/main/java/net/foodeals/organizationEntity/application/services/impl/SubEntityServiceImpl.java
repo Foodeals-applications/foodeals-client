@@ -365,7 +365,20 @@ public class SubEntityServiceImpl implements SubEntityService {
             List<String> categoriesWithOffers = categoryRepository.findActiveCategoryNamesBySubEntity(subEntityId);
 
             // Produits en promotion
-            List<ProductOfferResponse> productsOnOffer = productRepository.findProductsWithActiveOffers(subEntityId);
+
+            List<Product> products = productRepository.findProductsWithActiveOffers(subEntityId);
+
+            // Mappe chaque Product → ProductOfferResponse
+            List<ProductOfferResponse> productsOnOffer=products.stream()
+                    .map(p -> new ProductOfferResponse(
+                            p.getId(),
+                            p.getProductImagePath(),
+                            p.getName(),
+                            p.getPrice().amount(),
+                            p.getPrice().amount(),
+                            p.getStock()
+                    ))
+                    .toList();
 
 
             // Produits triés par catégorie
@@ -440,7 +453,18 @@ public class SubEntityServiceImpl implements SubEntityService {
             List<String> categoriesWithOffers = categoryRepository.findActiveCategoryNamesBySubEntity(subEntityId);
 
             // Produits en promotion
-            List<ProductOfferResponse> productsOnOffer = productRepository.findProductsWithActiveOffers(subEntityId);
+            List<ProductOfferResponse> productsOnOffer = productRepository
+                    .findProductsWithActiveOffers(subEntityId)
+                    .stream()
+                    .map(p -> new ProductOfferResponse(
+                            p.getId(),
+                            p.getProductImagePath(),
+                            p.getName(),
+                            p.getPrice().amount(),
+                            p.getPrice().amount(),
+                            p.getStock()
+                    ))
+                    .toList();
 
 
             // Produits triés par catégorie
@@ -524,7 +548,18 @@ public class SubEntityServiceImpl implements SubEntityService {
             List<String> categoriesWithOffers = categoryRepository.findActiveCategoryNamesBySubEntity(subEntityId);
 
             // Produits en promotion
-            List<ProductOfferResponse> productsOnOffer = productRepository.findProductsWithActiveOffers(subEntityId);
+            List<ProductOfferResponse> productsOnOffer = productRepository
+                    .findProductsWithActiveOffers(subEntityId)
+                    .stream()
+                    .map(p -> new ProductOfferResponse(
+                            p.getId(),
+                            p.getProductImagePath(),
+                            p.getName(),
+                            p.getPrice().amount(),
+                            p.getPrice().amount(),
+                            p.getStock()
+                    ))
+                    .toList();
 
 
             // Produits triés par catégorie
@@ -608,7 +643,18 @@ public class SubEntityServiceImpl implements SubEntityService {
             List<String> categoriesWithOffers = categoryRepository.findActiveCategoryNamesBySubEntity(subEntityId);
 
             // Produits en promotion
-            List<ProductOfferResponse> productsOnOffer = productRepository.findProductsWithActiveOffers(subEntityId);
+            List<ProductOfferResponse> productsOnOffer = productRepository
+                    .findProductsWithActiveOffers(subEntityId)
+                    .stream()
+                    .map(p -> new ProductOfferResponse(
+                            p.getId(),
+                            p.getProductImagePath(),
+                            p.getName(),
+                            p.getPrice().amount(),
+                            p.getPrice().amount(),
+                            p.getStock()
+                    ))
+                    .toList();
 
 
             // Produits triés par catégorie
@@ -661,7 +707,18 @@ public class SubEntityServiceImpl implements SubEntityService {
             List<String> categoriesWithOffers = categoryRepository.findActiveCategoryNamesBySubEntity(subEntityId);
 
             // Produits en promotion
-            List<ProductOfferResponse> productsOnOffer = productRepository.findProductsWithActiveOffers(subEntityId);
+            List<ProductOfferResponse> productsOnOffer = productRepository
+                    .findProductsWithActiveOffers(subEntityId)
+                    .stream()
+                    .map(p -> new ProductOfferResponse(
+                            p.getId(),
+                            p.getProductImagePath(),
+                            p.getName(),
+                            p.getPrice().amount(),
+                            p.getPrice().amount(),
+                            p.getStock()
+                    ))
+                    .toList();
 
 
             // Produits triés par catégorie

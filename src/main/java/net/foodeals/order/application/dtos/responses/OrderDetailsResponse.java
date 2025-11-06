@@ -1,13 +1,13 @@
 package net.foodeals.order.application.dtos.responses;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.foodeals.core.domain.enums.ModalityPaiement;
 
 import java.util.Date;
-import java.util.UUID;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,23 +15,108 @@ import java.util.UUID;
 @Getter
 public class OrderDetailsResponse {
 
-    private UUID id;
+    private String estimatedDeliveryTime;
+    private Date estimatedDeliveryDate;
+    private String deliveryDateFormatted;
 
-    private String productName;
+    private DeliveryPersonResponse deliveryPerson;
+    private DeliveryAddressResponse deliveryAddress;
+    private List<ItemResponse> items;
+    private PaymentResponse payment;
 
-    private String productDescription;
+    private String status;
+    private List<StatusHistoryResponse> statusHistory;
+    private TotalsResponse totals;
 
-    private String productPhoto;
+    // ======= Subclasses =======
 
-    private double price ;
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Setter
+    @Getter
+    public static class DeliveryPersonResponse {
+        private String id;
+        private String name;
+        private String distance;
+        private String image;
+        private String phone;
+        private double rating;
+        private String vehicleType;
+    }
 
-    private Date deliveryOrCollectionDate;
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Setter
+    @Getter
+    public static class DeliveryAddressResponse {
+        private String fullAddress;
+        private String street;
+        private String streetNumber;
+        private String city;
+        private String postalCode;
+        private String country;
+        private Coordinates coordinates;
+        private String additionalInfo;
 
-    private int hourOfCollectionOrDelivey;
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Setter
+        @Getter
+        public static class Coordinates {
+            private double latitude;
+            private double longitude;
+        }
+    }
 
-    private ModalityPaiement modalityPaiement;
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Setter
+    @Getter
+    public static class ItemResponse {
+        private String id;
+        private String productId;
+        private String name;
+        private int quantity;
+        private double price;
+        private double originalPrice;
+        private String image;
+        private String thumbnail;
+        private String notes;
+    }
 
-    private UUID dealId ;
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Setter
+    @Getter
+    public static class PaymentResponse {
+        private String method;
+        private String status;
+        private String cardLastFourDigits;
+        private String cardBrand;
+        private String transactionId;
+        private double amount;
+        private String currency;
+        private Date paidAt;
+    }
 
-    private String qrCode;
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Setter
+    @Getter
+    public static class StatusHistoryResponse {
+        private String status;
+        private Date timestamp;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Setter
+    @Getter
+    public static class TotalsResponse {
+        private double subtotal;
+        private double deliveryFee;
+        private double tax;
+        private double discount;
+        private double total;
+    }
 }

@@ -85,7 +85,7 @@ public class SubEntityProductCategoryServiceImpl implements SubEntityProductCate
             .distinct()
             .map(category -> {
                 long count = dealRepository.countDealsByCategory(category); // Assure-toi que ce repo existe
-                return new CategoryWithDealCountResponse(category.getId(),generatePhotoUrl(category.getName()), category.getName(), count);
+                return new CategoryWithDealCountResponse(category.getId(), category.getName(),generatePhotoUrl(category.getName()), count);
             })
             .collect(Collectors.toList());
         }

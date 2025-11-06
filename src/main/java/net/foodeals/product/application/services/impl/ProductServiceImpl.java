@@ -5,17 +5,23 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.foodeals.core.domain.entities.*;
 import net.foodeals.core.repositories.*;
+import net.foodeals.organizationEntity.application.dtos.requests.AdvancedFilterRequest;
+import net.foodeals.organizationEntity.application.dtos.responses.SearchResponse;
 import net.foodeals.product.application.dtos.requests.ProductRequest;
 import net.foodeals.product.application.dtos.requests.ProductReviewRequest;
 import net.foodeals.product.application.dtos.responses.*;
 import net.foodeals.product.application.services.ProductService;
+import net.foodeals.product.application.specs.ProductSpecs;
 import net.foodeals.user.application.services.UserService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -178,6 +184,156 @@ public class ProductServiceImpl implements ProductService {
         );
     }
 
+    @Override
+    public SearchResponse searchProducts(UUID storeId, String q, UUID categoryId, UUID domainId, Pageable pageable) {
+        if (q == null || q.trim().length() < 2) {
+            return new SearchResponse(List.of(), 0, pageable.getPageSize(), pageable.getPageNumber());
+        }
+
+        SubEntity store = subEntityRepository.findById(storeId).orElse(null);
+        if (store == null) {
+            throw new EntityNotFoundException("Store not found: " + storeId);
+        }
+
+        Page<Product> page = productRepository.searchInStore(storeId, q, pageable);
+        List<ProductSearchedDto> dto = page.getContent()
+                .stream()
+                .map(p -> toDto(p, store))
+                .collect(Collectors.toList());
+
+        return new SearchResponse(dto, page.getTotalElements(), pageable.getPageSize(), pageable.getPageNumber());
+    }
+
+    @Override
+    public Page<ProductSearchedDto> filterProducts(UUID storeId, List<UUID> categoryIds, UUID domainId,
+                                                   Double priceMin, Double priceMax, Boolean onlyAvailable,
+                                                   String sortBy, String sortOrder, Pageable pageable) {
+
+        Specification<Product> spec = Specification.where(ProductSpecs.inStore(storeId));
+
+        if (categoryIds != null && !categoryIds.isEmpty())
+            spec = spec.and(ProductSpecs.categoryIn(categoryIds));
+
+        if (domainId != null)
+            spec = spec.and(ProductSpecs.domainEquals(domainId));
+
+        if (priceMin != null && priceMax != null)
+            spec = spec.and(ProductSpecs.priceBetween(
+                    BigDecimal.valueOf(priceMin), BigDecimal.valueOf(priceMax)));
+
+        if (Boolean.TRUE.equals(onlyAvailable))
+            spec = spec.and(ProductSpecs.onlyAvailable(true));
+
+        Sort sort = Sort.by(
+                Sort.Direction.fromString(sortOrder == null ? "DESC" : sortOrder.toUpperCase()),
+                sortBy == null ? "name" : sortBy
+        );
+
+        Pageable p = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        Page<Product> page = productRepository.findAll(spec, p);
+        return page.map(product -> toDto(product, product.getSubEntity()));
+    }
+
+    @Override
+    public SearchResponse advancedFilter(UUID storeId, AdvancedFilterRequest request) {
+        int limit = Optional.ofNullable(request.pagination())
+                .map(AdvancedFilterRequest.Pagination::limit)
+                .orElse(20);
+        int offset = Optional.ofNullable(request.pagination())
+                .map(AdvancedFilterRequest.Pagination::offset)
+                .orElse(0);
+
+        Pageable p = PageRequest.of(offset / limit, limit);
+
+        Specification<Product> spec = Specification.where(ProductSpecs.inStore(storeId));
+
+        if (request.searchQuery() != null && !request.searchQuery().isBlank())
+            spec = spec.and(ProductSpecs.nameLike(request.searchQuery()));
+
+        if (request.categoryIds() != null && !request.categoryIds().isEmpty())
+            spec = spec.and(ProductSpecs.categoryIn(request.categoryIds()));
+
+        if (request.domainId() != null)
+            spec = spec.and(ProductSpecs.domainEquals(request.domainId()));
+
+        if (request.priceRange() != null)
+            spec = spec.and(ProductSpecs.priceBetween(
+                    request.priceRange().min(), request.priceRange().max()));
+
+        if (request.filters() != null && Boolean.TRUE.equals(request.filters().onlyAvailable()))
+            spec = spec.and(ProductSpecs.onlyAvailable(true));
+
+        Page<Product> page = productRepository.findAll(spec, p);
+        List<ProductSearchedDto> dto = page.getContent()
+                .stream()
+                .map(prod -> toDto(prod, prod.getSubEntity()))
+                .collect(Collectors.toList());
+
+        return new SearchResponse(dto, page.getTotalElements(), limit, offset);
+    }
+
+    @Override
+    public CategorizedProductsResponse getCategorizedProducts(UUID storeId, UUID domainId, String searchQuery) {
+        List<Object[]> raws = categoryRepository.findCategoriesWithCountsRaw(storeId);
+        List<CategorizedProductsDto> cats = new ArrayList<>();
+        long totalProducts = 0;
+
+        for (Object[] row : raws) {
+            UUID catId = (UUID) row[0];
+            String name = (String) row[1];
+            String description = (String) row[2];
+            String image = (String) row[3];
+            Long itemsCount = (Long) row[4];
+
+            Specification<Product> spec = Specification.where(ProductSpecs.inStore(storeId))
+                    .and((root, query, cb) -> cb.equal(root.get("category").get("id"), catId));
+
+            if (domainId != null)
+                spec = spec.and(ProductSpecs.domainEquals(domainId));
+
+            if (searchQuery != null && !searchQuery.isBlank())
+                spec = spec.and(ProductSpecs.nameLike(searchQuery));
+
+            List<Product> products = productRepository.findAll(spec, PageRequest.of(0, 50)).getContent();
+            List<ProductSearchedDto> prodDtos = products.stream()
+                    .map(p -> toDto(p, p.getSubEntity()))
+                    .collect(Collectors.toList());
+
+            cats.add(new CategorizedProductsDto(name, catId, image, prodDtos));
+            totalProducts += prodDtos.size();
+        }
+
+        return new CategorizedProductsResponse(cats, cats.size(), totalProducts);
+    }
+
+    private ProductSearchedDto toDto(Product p, SubEntity store) {
+        return new ProductSearchedDto(
+                p.getId(),
+                p.getName(),
+                p.getDescription(),
+                p.getProductImagePath(),
+                p.getPrice() != null ? p.getPrice().amount() : null,
+                p.getPrice() != null ? p.getPrice().amount() : null,
+                p.getStock(),
+                p.getCategory() != null ? p.getCategory().getId() : null,
+                p.getCategory() != null ? p.getCategory().getName() : null,
+                p.getStock() != null && p.getStock() > 0,
+                calculateDiscount(p).intValue(),
+                store != null && store.getNumberOfStars() != null
+                        ? store.getNumberOfStars().doubleValue() : 0.0,
+               10
+        );
+    }
+
+    private Double calculateDiscount(Product p) {
+        if (p.getPrice() == null || p.getPrice() == null) return null;
+        BigDecimal oldPrice = p.getPrice().amount();
+        BigDecimal newPrice = p.getPrice().amount();
+        if (oldPrice.compareTo(BigDecimal.ZERO) <= 0) return null;
+        return 100 * (oldPrice.doubleValue() - newPrice.doubleValue()) / oldPrice.doubleValue();
+    }
+
     /**
      * Mapper Product vers ProductResponse DTO.
      */
@@ -194,4 +350,6 @@ public class ProductServiceImpl implements ProductService {
                 true
         );
     }
+
+
 }

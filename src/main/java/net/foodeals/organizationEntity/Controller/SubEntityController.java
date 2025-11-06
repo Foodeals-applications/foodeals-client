@@ -8,14 +8,18 @@ import net.foodeals.core.domain.entities.User;
 import net.foodeals.offer.application.dtos.responses.DealStoreResponse;
 import net.foodeals.offer.application.services.BoxService;
 import net.foodeals.offer.application.services.DealService;
+import net.foodeals.organizationEntity.application.dtos.requests.AdvancedFilterRequest;
 import net.foodeals.organizationEntity.application.dtos.responses.*;
 import net.foodeals.organizationEntity.application.services.SubEntityCategoryService;
 import net.foodeals.organizationEntity.application.services.SubEntityService;
 import net.foodeals.product.application.dtos.requests.ProductReviewRequest;
 import net.foodeals.product.application.dtos.responses.ProductReviewResponse;
+import net.foodeals.product.application.dtos.responses.ProductSearchedDto;
 import net.foodeals.product.application.dtos.responses.ProductStoreResponse;
 import net.foodeals.product.application.services.ProductService;
 import net.foodeals.user.application.services.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -229,11 +233,77 @@ public class SubEntityController {
     }
 
 
+    @GetMapping("/{storeId}/products/search")
+    public ResponseEntity<?> searchProducts(
+            @PathVariable String storeId,
+            @RequestParam(name = "q") String q,
+            @RequestParam(name = "categoryId", required = false) UUID categoryId,
+            @RequestParam(name = "domainId", required = false) UUID domainId,
+            @RequestParam(name = "limit", required = false, defaultValue = "20") int limit,
+            @RequestParam(name = "offset", required = false, defaultValue = "0") int offset
+    ) {
+        UUID sId = UUID.fromString(storeId);
+        var res = productService.searchProducts(sId, q, categoryId, domainId, PageRequest.of(offset / limit, limit));
+        return ResponseEntity.ok().body(new ApiResponse(true, res));
+    }
+
+
+    @GetMapping("/{storeId}/products/filter")
+    public ResponseEntity<?> filterProducts(
+            @PathVariable String storeId,
+            @RequestParam(name = "categoryIds", required = false) List<UUID> categoryIds,
+            @RequestParam(name = "domainId", required = false) UUID domainId,
+            @RequestParam(name = "priceMin", required = false) Double priceMin,
+            @RequestParam(name = "priceMax", required = false) Double priceMax,
+            @RequestParam(name = "onlyAvailable", required = false, defaultValue = "true") Boolean onlyAvailable,
+            @RequestParam(name = "sortBy", required = false, defaultValue = "name") String sortBy,
+            @RequestParam(name = "sortOrder", required = false, defaultValue = "asc") String sortOrder,
+            @RequestParam(name = "limit", required = false, defaultValue = "20") int limit,
+            @RequestParam(name = "offset", required = false, defaultValue = "0") int offset
+    ) {
+        UUID sId = UUID.fromString(storeId);
+        Page<ProductSearchedDto> page = productService.filterProducts(sId, categoryIds, domainId, priceMin, priceMax, onlyAvailable, sortBy, sortOrder, PageRequest.of(offset / limit, limit));
+        return ResponseEntity.ok().body(new ApiResponse(true, MapPage.from(page)));
+    }
+
+
+    @PostMapping("/{storeId}/products/advanced-filter")
+    public ResponseEntity<?> advancedFilter(@PathVariable String storeId, @RequestBody AdvancedFilterRequest request) {
+        UUID sId = UUID.fromString(storeId);
+        var res = productService.advancedFilter(sId, request);
+        return ResponseEntity.ok().body(new ApiResponse(true, res));
+    }
+
+
+    @GetMapping("/{storeId}/products/categorized")
+    public ResponseEntity<?> categorizedProducts(
+            @PathVariable String storeId,
+            @RequestParam(name = "domainId", required = false) UUID domainId,
+            @RequestParam(name = "searchQuery", required = false) String searchQuery
+    ) {
+        UUID sId = UUID.fromString(storeId);
+        var res = productService.getCategorizedProducts(sId, domainId, searchQuery);
+        return ResponseEntity.ok().body(new ApiResponse(true, res));
+    }
+
     
     private String generatePhotoUrl(String name) {
         String baseUrl = "/images/"; // Votre domaine ou base d'URL
         String formattedName = name.trim().toLowerCase().replace(" ", "-"); // Transformation
         return baseUrl + formattedName + ".jpg"; // Exemple d'extension .jpg
+    }
+
+    public record ApiResponse(boolean success, Object data) {}
+
+    class MapPage {
+        public static Map<String, Object> from(Page<?> page) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("items", page.getContent());
+            m.put("total", page.getTotalElements());
+            m.put("limit", page.getSize());
+            m.put("offset", page.getNumber() * page.getSize());
+            return m;
+        }
     }
 
 
