@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -15,4 +17,6 @@ public class PaymentRequest {
     private String expiry;
     private String cvv;
     private double amount;
+    private String currency;
+    private UUID orderId;
 }

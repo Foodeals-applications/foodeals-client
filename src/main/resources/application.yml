@@ -69,3 +69,12 @@ web:
             authorization-uri: https://www.facebook.com/v17.0/dialog/oauth
             token-uri: https://graph.facebook.com/v17.0/oauth/access_token
             user-info-uri: https://graph.facebook.com/me?fields=id,name,email,picture
+
+# ====================================================
+# 🧾 Payzone API Configuration
+# ====================================================
+payzone:
+  merchant-id: ${PAYZONE_MERCHANT_ID:TEST_MERCHANT_123}
+  password: ${PAYZONE_PASSWORD:MySecurePassword123}
+  api-url: ${PAYZONE_API_URL:https://api.payzone.ma}
+  callback-url: ${PAYZONE_CALLBACK_URL:https://votre-site.com/api/payments/callback}
