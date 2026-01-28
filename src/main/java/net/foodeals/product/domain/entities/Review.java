@@ -1,8 +1,11 @@
 package net.foodeals.product.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.foodeals.common.models.AbstractEntity;
 import net.foodeals.user.domain.entities.User;
@@ -16,6 +19,8 @@ import java.util.UUID;
 @Builder
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Review extends AbstractEntity<UUID> {
 
     @Id

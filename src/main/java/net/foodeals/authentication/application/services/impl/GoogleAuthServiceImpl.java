@@ -2,26 +2,24 @@ package net.foodeals.authentication.application.services.impl;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import lombok.RequiredArgsConstructor;
-import net.foodeals.authentication.application.dtos.requests.GoogleLoginRequest;
-import net.foodeals.authentication.application.dtos.requests.LoginRequest;
-import net.foodeals.authentication.application.dtos.requests.RegisterRequest;
 import net.foodeals.authentication.application.dtos.responses.AuthenticationResponse;
 import net.foodeals.authentication.application.dtos.responses.LoginResponse;
-import net.foodeals.authentication.application.services.AuthenticationService;
 import net.foodeals.authentication.application.services.GoogleAuthService;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import net.foodeals.authentication.application.services.JwtService;
+import net.foodeals.organizationEntity.domain.entities.Solution;
 import net.foodeals.user.domain.entities.Role;
 import net.foodeals.user.domain.entities.User;
 import net.foodeals.user.domain.repositories.RoleRepository;
 import net.foodeals.user.domain.repositories.UserRepository;
 import net.foodeals.user.domain.valueObjects.Name;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +28,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
-    private final AuthenticationService authService;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Override
@@ -41,37 +39,70 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         }
 
         String email = payload.getEmail();
-        String name = (String) payload.get("name");
+        if (email == null || email.isBlank()) {
+            // Fallback if Google doesn't provide email for some reason.
+            email = payload.getSubject() + "@foodeals.com";
+        }
+        final String userEmail = email;
+
+        String fullName = (String) payload.get("name");
         String givenName = (String) payload.get("given_name");
         String familyName = (String) payload.get("family_name");
 
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        User user;
+        Name name = buildName(fullName, givenName, familyName);
 
-        if (userOpt.isPresent()) {
-            user = userOpt.get();
-        } else {
+        User user = userRepository.findByEmail(userEmail).orElseGet(() -> {
             Role role = roleRepository.findByName("CLIENT")
                     .orElseThrow(() -> new RuntimeException("Role CLIENT not found"));
 
-            // Créer un nouvel utilisateur à partir du payload Google
-            RegisterRequest registerRequest = new RegisterRequest(
-                    new Name(givenName != null ? givenName : name.split(" ")[0],
-                            familyName != null ? familyName : name.split(" ")[1]),
-                    email,
-                    null, // pas de mot de passe (auth externe)
-                    UUID.randomUUID().toString(),
-                    true,
-                    role.getId()
-            );
+            User newUser = new User();
+            newUser.setName(name);
+            newUser.setEmail(userEmail);
+            newUser.setIsEmailVerified(true);
+            newUser.setRole(role);
+            newUser.setSocialLogin(true);
+            newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+            return userRepository.save(newUser);
+        });
 
-            authService.register(registerRequest);
-            user = userRepository.findByEmail(email).orElseThrow();
+        AuthenticationResponse tokens = getTokens(user);
+
+        UUID organizationId = null;
+        List<String> solutions = null;
+        if (user.getOrganizationEntity() != null) {
+            organizationId = user.getOrganizationEntity().getId();
+            solutions = user.getOrganizationEntity().getSolutions().stream()
+                    .map(Solution::getName)
+                    .collect(Collectors.toList());
         }
 
-        // ⚡ Connexion de l’utilisateur
-        LoginRequest loginRequest = new LoginRequest(user.getEmail(), user.getPassword());
-        return authService.login(loginRequest);
+        return new LoginResponse(
+                user.getName(),
+                user.getEmail(),
+                user.getPhone(),
+                organizationId,
+                solutions,
+                user.getRole().getName(),
+                user.getAvatarPath(),
+                user.getId(),
+                tokens
+        );
+    }
+
+    private Name buildName(String fullName, String givenName, String familyName) {
+        String first = givenName;
+        String last = familyName;
+
+        if ((first == null || first.isBlank()) && fullName != null && !fullName.isBlank()) {
+            String[] parts = fullName.trim().split("\\s+", 2);
+            first = parts[0];
+            last = parts.length > 1 ? parts[1] : "";
+        }
+
+        if (first == null) first = "";
+        if (last == null) last = "";
+
+        return new Name(first, last);
     }
 
 

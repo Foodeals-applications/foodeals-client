@@ -149,10 +149,28 @@ class AuthenticationServiceImpl implements AuthenticationService {
             userRepository.save(user);
         }
 
-        // Générer JWT + refreshToken
+        // Social login: generate JWTs directly (no username/password authentication)
+        AuthenticationResponse token = getTokens(user);
 
-        LoginRequest loginRequest = new LoginRequest(user.getEmail(), user.getPassword());
-        return this.login(loginRequest);
+        UUID organizationId = null;
+        List<String> solutions = null;
+        if (user.getOrganizationEntity() != null) {
+            organizationId = user.getOrganizationEntity().getId();
+            solutions = user.getOrganizationEntity().getSolutions().stream()
+                    .map(Solution::getName).collect(Collectors.toList());
+        }
+
+        return new LoginResponse(
+                user.getName(),
+                user.getEmail(),
+                user.getPhone(),
+                organizationId,
+                solutions,
+                user.getRole().getName(),
+                user.getAvatarPath(),
+                user.getId(),
+                token
+        );
 
     }
 
