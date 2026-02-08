@@ -65,15 +65,34 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             return userRepository.save(newUser);
         });
 
+        // Ensure existing accounts created by older versions still have the required fields.
+        if (user.getRole() == null) {
+            Role role = roleRepository.findByName("CLIENT")
+                    .orElseThrow(() -> new RuntimeException("Role CLIENT not found"));
+            user.setRole(role);
+        }
+        if (user.getName() == null) {
+            user.setName(name);
+        }
+        if (user.getIsEmailVerified() == null || !user.getIsEmailVerified()) {
+            user.setIsEmailVerified(true);
+        }
+        if (user.getSocialLogin() == null || !user.getSocialLogin()) {
+            user.setSocialLogin(true);
+        }
+        user = userRepository.save(user);
+
         AuthenticationResponse tokens = getTokens(user);
 
         UUID organizationId = null;
         List<String> solutions = null;
         if (user.getOrganizationEntity() != null) {
             organizationId = user.getOrganizationEntity().getId();
-            solutions = user.getOrganizationEntity().getSolutions().stream()
-                    .map(Solution::getName)
-                    .collect(Collectors.toList());
+            if (user.getOrganizationEntity().getSolutions() != null) {
+                solutions = user.getOrganizationEntity().getSolutions().stream()
+                        .map(Solution::getName)
+                        .collect(Collectors.toList());
+            }
         }
 
         return new LoginResponse(
@@ -159,8 +178,19 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     }
 
     private AuthenticationResponse getTokens(User user) {
-        final Map<String, Object> extraClaims = Map.of("email", user.getEmail(), "phone", user.getPhone(), "role",
-                user.getRole().getName());
+        // Map.of(...) does not allow null values; Google users often don't have a phone yet.
+        Map<String, Object> extraClaims = new HashMap<>();
+
+        if (user.getEmail() != null) {
+            extraClaims.put("email", user.getEmail());
+        }
+        if (user.getPhone() != null) {
+            extraClaims.put("phone", user.getPhone());
+        }
+        if (user.getRole() != null && user.getRole().getName() != null) {
+            extraClaims.put("role", user.getRole().getName());
+        }
+
         return jwtService.generateTokens(user, extraClaims);
     }
 }

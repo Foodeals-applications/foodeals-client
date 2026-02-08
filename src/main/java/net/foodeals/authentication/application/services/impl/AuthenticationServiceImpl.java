@@ -34,6 +34,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -134,7 +135,16 @@ class AuthenticationServiceImpl implements AuthenticationService {
     public LoginResponse authenticateWithApple(String identityToken, String authorizationCode) {
         AppleUser appleUser = verifyAppleToken(identityToken);
 
-        Optional<User> userOpt = userRepository.findByEmail(appleUser.getEmail());
+        String email = appleUser.getEmail();
+        if (email == null || email.isBlank()) {
+            // Apple may not return email after the first consent; fallback to a stable synthetic email.
+            if (appleUser.getSubject() == null || appleUser.getSubject().isBlank()) {
+                throw new RuntimeException("Invalid Apple identity token: missing email and subject");
+            }
+            email = appleUser.getSubject() + "@foodeals.com";
+        }
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
         User user;
 
         if (userOpt.isPresent()) {
@@ -143,11 +153,26 @@ class AuthenticationServiceImpl implements AuthenticationService {
             Role role = roleRepository.findByName("CLIENT").orElseThrow();
             user = new User();
             user.setName(new Name(appleUser.getFirstName(),appleUser.getLastName()));
-            user.setEmail(appleUser.getEmail());
+            user.setEmail(email);
             user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString())); // mot de passe aléatoire
             user.setRole(role);
+            user.setIsEmailVerified(true);
+            user.setSocialLogin(true);
             userRepository.save(user);
         }
+
+        // Ensure existing accounts created by older versions still have the required fields.
+        if (user.getRole() == null) {
+            Role role = roleRepository.findByName("CLIENT").orElseThrow();
+            user.setRole(role);
+        }
+        if (user.getIsEmailVerified() == null || !user.getIsEmailVerified()) {
+            user.setIsEmailVerified(true);
+        }
+        if (user.getSocialLogin() == null || !user.getSocialLogin()) {
+            user.setSocialLogin(true);
+        }
+        user = userRepository.save(user);
 
         // Social login: generate JWTs directly (no username/password authentication)
         AuthenticationResponse token = getTokens(user);
@@ -156,8 +181,10 @@ class AuthenticationServiceImpl implements AuthenticationService {
         List<String> solutions = null;
         if (user.getOrganizationEntity() != null) {
             organizationId = user.getOrganizationEntity().getId();
-            solutions = user.getOrganizationEntity().getSolutions().stream()
-                    .map(Solution::getName).collect(Collectors.toList());
+            if (user.getOrganizationEntity().getSolutions() != null) {
+                solutions = user.getOrganizationEntity().getSolutions().stream()
+                        .map(Solution::getName).collect(Collectors.toList());
+            }
         }
 
         return new LoginResponse(
@@ -166,7 +193,7 @@ class AuthenticationServiceImpl implements AuthenticationService {
                 user.getPhone(),
                 organizationId,
                 solutions,
-                user.getRole().getName(),
+                user.getRole() != null ? user.getRole().getName() : null,
                 user.getAvatarPath(),
                 user.getId(),
                 token
@@ -182,8 +209,9 @@ class AuthenticationServiceImpl implements AuthenticationService {
             String email = claims.getStringClaim("email");
             String firstName = claims.getStringClaim("given_name");
             String lastName = claims.getStringClaim("family_name");
+            String subject = claims.getSubject();
 
-            return new AppleUser(firstName, lastName, email);
+            return new AppleUser(firstName, lastName, email, subject);
         } catch (Exception e) {
             throw new RuntimeException("Invalid Apple identity token", e);
         }
@@ -194,8 +222,15 @@ class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private AuthenticationResponse getTokens(User user) {
-        final Map<String, Object> extraClaims = Map.of("email", user.getEmail(), "phone", user.getPhone(), "role",
-                user.getRole().getName());
+        Map<String, Object> extraClaims = new HashMap<>();
+
+        if (user.getEmail() != null)
+            extraClaims.put("email", user.getEmail());
+        if (user.getPhone() != null)
+            extraClaims.put("phone", user.getPhone());
+        if (user.getRole() != null && user.getRole().getName() != null)
+            extraClaims.put("role", user.getRole().getName());
+
         return jwtService.generateTokens(user, extraClaims);
     }
 }
