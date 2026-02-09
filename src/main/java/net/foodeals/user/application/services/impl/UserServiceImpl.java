@@ -84,9 +84,9 @@ class UserServiceImpl implements UserService {
     @Transactional
     public User create(UserRequest request) {
         final User user = modelMapper.map(request, User.class);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         final Role role = roleService.findById(request.roleId());
-        user.setRole(role).setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(role);
+        user.setPassword(passwordEncoder.encode(request.password()));
         return this.repository.save(user);
     }
 

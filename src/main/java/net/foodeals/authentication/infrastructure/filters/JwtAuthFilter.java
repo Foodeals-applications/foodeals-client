@@ -26,6 +26,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        // Auth endpoints must remain usable even when the client has an expired/invalid JWT.
+        final String path = request.getServletPath();
+        return path != null && path.startsWith("/api/v1/auth/");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -35,13 +42,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
 
-        try {
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                logger.debug("No JWT token found in request headers");
-                filterChain.doFilter(request, response);
-                return;
-            }
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            logger.debug("No JWT token found in request headers");
+            filterChain.doFilter(request, response);
+            return;
+        }
 
+        try {
             jwt = authHeader.substring(7);
             userEmail = jwtService.extractUsername(jwt);
             logger.debug("JWT token found in request headers");
@@ -61,12 +68,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     logger.warn("Invalid JWT token");
                 }
             }
-
-            filterChain.doFilter(request, response);
         } catch (Exception e) {
             logger.error("Cannot set user authentication", e);
             handleException(response, e);
+            return;
         }
+
+        filterChain.doFilter(request, response);
     }
 
     private void handleException(HttpServletResponse response, Exception e) throws IOException {

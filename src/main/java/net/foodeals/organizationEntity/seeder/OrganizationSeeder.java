@@ -51,6 +51,8 @@ import net.foodeals.user.domain.entities.User;
 import net.foodeals.user.domain.repositories.RatingRepository;
 import net.foodeals.user.domain.repositories.UserRepository;
 import net.foodeals.user.domain.valueObjects.Name;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +69,8 @@ import java.util.concurrent.ThreadLocalRandom;
 @Transactional
 @org.springframework.core.annotation.Order(7)
 public class OrganizationSeeder implements CommandLineRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(OrganizationSeeder.class);
 
     private final OrganizationEntityRepository organizationEntityRepository;
     private final SubEntityRepository subEntityRepository;
@@ -113,6 +117,10 @@ public class OrganizationSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        if (organizationEntityRepository.count() > 0 || subEntityRepository.count() > 0) {
+            log.info("OrganizationSeeder skipped (database already seeded).");
+            return;
+        }
         SubEntity goldenTolipCasa = null;
         SubEntity kfcCasa = null;
         Box box2 = null;
@@ -266,16 +274,8 @@ public class OrganizationSeeder implements CommandLineRunner {
          */
 
         Activity activityIndustry = createActivity("Industriels");
-        User industryManager = null;
-        if (!userRepository.findByEmail("kamel.ltaiefa@delice.ma").isPresent()) {
-            industryManager = createUser("Kamel", "Ltaief", "kamel.ltaiefa@delice.ma", "0650123456");
-
-        }
-
-        User subEntityIndustryManager = null;
-        if (!userRepository.findByEmail("mounir.bansalha@delice.ma").isPresent()) {
-            subEntityIndustryManager = createUser("Mounir", "Ben Salha", "mounir.bansalha@delice.ma", "0650865432");
-        }
+        User industryManager = getOrCreateUser("Kamel", "Ltaief", "kamel.ltaiefa@delice.ma", "0650123456");
+        User subEntityIndustryManager = getOrCreateUser("Mounir", "Ben Salha", "mounir.bansalha@delice.ma", "0650865432");
 
 
         Address industryMainAddress = createAddress("123 Charles Egaul ", "Casablanca", "20000", "Morocco", "Casablanca-Settat");
@@ -306,7 +306,7 @@ public class OrganizationSeeder implements CommandLineRunner {
         Optional<SubEntityDomain> domainAgriculture = subEntityDomainRepository.findByName("Agricultures");
         domainsAgriculture.add(domainAgriculture.get());
 
-        SubEntity zalarCasa = createSubEntity("Zalar Holding Casa", delice, subEntityAgriculureManager, activityAgriculture, subEntityAgrocultureAddress, 400, true, 4.8F, domainsAgriculture);
+        SubEntity zalarCasa = createSubEntity("Zalar Holding Casa", zalar, subEntityAgriculureManager, activityAgriculture, subEntityAgrocultureAddress, 400, true, 4.8F, domainsAgriculture);
 
 
         // OFFERS & DEALS POUR HÔTEL (Golden Tolip)
@@ -618,8 +618,24 @@ public class OrganizationSeeder implements CommandLineRunner {
 
     // Méthode pour créer une OrganizationEntity
     private OrganizationEntity createOrganizationEntity(String name, Activity mainActivity, Address address, User partnerManager) {
-        OrganizationEntity org = OrganizationEntity.builder().name(name).avatarPath("/images/" + name.toLowerCase() + "-avatar.png").coverPath("/images/" + name.toLowerCase() + "-cover.png").type(EntityType.PARTNER).mainActivity(mainActivity).address(address).commercialNumber("123456789").users(List.of(partnerManager)).build();
+        Objects.requireNonNull(partnerManager, "partnerManager must not be null for organization: " + name);
+        List<User> users = new ArrayList<>();
+        users.add(partnerManager);
+        OrganizationEntity org = OrganizationEntity.builder()
+                .name(name)
+                .avatarPath("/images/" + name.toLowerCase() + "-avatar.png")
+                .coverPath("/images/" + name.toLowerCase() + "-cover.png")
+                .type(EntityType.PARTNER)
+                .mainActivity(mainActivity)
+                .address(address)
+                .commercialNumber("123456789")
+                .users(users)
+                .build();
         return organizationEntityRepository.save(org);
+    }
+
+    private User getOrCreateUser(String firstName, String lastName, String email, String phone) {
+        return userRepository.findByEmail(email).orElseGet(() -> createUser(firstName, lastName, email, phone));
     }
 
     // Méthode pour créer une sous-entité
@@ -887,9 +903,6 @@ public class OrganizationSeeder implements CommandLineRunner {
 
     }
 }
-
-
-
 
 
 

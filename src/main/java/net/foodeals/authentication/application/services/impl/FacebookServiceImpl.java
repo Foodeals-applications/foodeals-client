@@ -85,6 +85,23 @@ public class FacebookServiceImpl implements FacebookService {
                     return userRepository.save(newUser);
                 });
 
+        // Ensure existing accounts created by older versions still have the required fields.
+        if (user.getRole() == null) {
+            Role role = roleRepository.findByName("CLIENT")
+                    .orElseThrow(() -> new RuntimeException("Role CLIENT non trouvé"));
+            user.setRole(role);
+        }
+        if (user.getIsEmailVerified() == null || !user.getIsEmailVerified()) {
+            user.setIsEmailVerified(true);
+        }
+        if (user.getSocialLogin() == null || !user.getSocialLogin()) {
+            user.setSocialLogin(true);
+        }
+        if (user.getFacebookId() == null) {
+            user.setFacebookId(fbUser.getId());
+        }
+        user = userRepository.save(user);
+
         // 4️⃣ Générer les tokens JWT directement (pas besoin d’authManager)
         AuthenticationResponse tokens = getTokens(user);
 
@@ -94,10 +111,12 @@ public class FacebookServiceImpl implements FacebookService {
 
         if (user.getOrganizationEntity() != null) {
             organizationId = user.getOrganizationEntity().getId();
-            solutions = user.getOrganizationEntity().getSolutions()
-                    .stream()
-                    .map(Solution::getName)
-                    .collect(Collectors.toList());
+            if (user.getOrganizationEntity().getSolutions() != null) {
+                solutions = user.getOrganizationEntity().getSolutions()
+                        .stream()
+                        .map(Solution::getName)
+                        .collect(Collectors.toList());
+            }
         }
 
         // 6️⃣ Construire la réponse finale
@@ -107,7 +126,7 @@ public class FacebookServiceImpl implements FacebookService {
                 user.getPhone(),
                 organizationId,
                 solutions,
-                user.getRole().getName(),
+                user.getRole() != null ? user.getRole().getName() : null,
                 user.getAvatarPath(),
                 user.getId(),
                 tokens
@@ -119,9 +138,17 @@ public class FacebookServiceImpl implements FacebookService {
         String url = "https://graph.facebook.com/me?fields=id,name,email&access_token=" + accessToken;
         FacebookUser fbUser = restTemplate.getForObject(url, FacebookUser.class);
 
-        if(fbUser.getEmail() == null || fbUser.getEmail().isEmpty()) {
-            // Générer un email fictif à partir de l'ID Facebook
-            fbUser.setEmail(fbUser.getName().split(" ")[0]+"."+fbUser.getName().split(" ")[1] + "@foodeals.com");
+        if (fbUser == null) {
+            return null;
+        }
+
+        if (fbUser.getEmail() == null || fbUser.getEmail().isEmpty()) {
+            // Générer un email fictif à partir de l'ID Facebook (most stable fallback).
+            if (fbUser.getId() != null && !fbUser.getId().isBlank()) {
+                fbUser.setEmail(fbUser.getId() + "@foodeals.com");
+            } else {
+                fbUser.setEmail("facebook-user@foodeals.com");
+            }
         }
 
         return fbUser;

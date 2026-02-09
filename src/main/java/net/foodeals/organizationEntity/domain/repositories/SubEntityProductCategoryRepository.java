@@ -3,6 +3,8 @@ package net.foodeals.organizationEntity.domain.repositories;
 import net.foodeals.common.contracts.BaseRepository;
 import net.foodeals.organizationEntity.domain.entities.SubEntityProductCategory;
 import net.foodeals.product.domain.entities.ProductCategory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -17,6 +19,13 @@ public interface SubEntityProductCategoryRepository extends BaseRepository<SubEn
             "WHERE sec.subEntityDomain.id = :domainId")
     List<SubEntityProductCategory> findBySubEntityDomainId(@Param("domainId") UUID domainId);
     
-    SubEntityProductCategory findByName(String name);
+    List<SubEntityProductCategory> findByNameAndDeletedAtIsNullOrderByCreatedAtDesc(String name, Pageable pageable);
+
+    default SubEntityProductCategory findByName(String name) {
+        return findByNameAndDeletedAtIsNullOrderByCreatedAtDesc(name, PageRequest.of(0, 1))
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
 
 }

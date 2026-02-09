@@ -15,12 +15,14 @@ import net.foodeals.authentication.application.services.JwtService;
 
 import jakarta.servlet.http.Cookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RestController
 @RequestMapping("api/v1/auth")
@@ -71,6 +73,9 @@ public class AuthController {
 
     @PostMapping("/facebook")
     public ResponseEntity<LoginResponse> loginWithFacebook(@RequestBody FacebookTokenRequest request, HttpServletResponse response) {
+        if (request.getAccessToken() == null || request.getAccessToken().isBlank()) {
+            throw new ResponseStatusException(BAD_REQUEST, "Missing field: accessToken");
+        }
         LoginResponse loginResponse = facebookService.authenticateWithFacebook(request.getAccessToken());
         // Ajoute le token JWT dans un cookie si besoin
         return ResponseEntity.ok(loginResponse);
@@ -79,11 +84,17 @@ public class AuthController {
     @PostMapping("/google")
     public ResponseEntity<LoginResponse> loginWithGoogle(@RequestBody Map<String, String> body) {
         String idToken = body.get("idToken");
+        if (idToken == null || idToken.isBlank()) {
+            throw new ResponseStatusException(BAD_REQUEST, "Missing field: idToken");
+        }
         return ResponseEntity.ok(googleAuthService.authenticateWithGoogle(idToken));
     }
 
     @PostMapping("/apple")
     public ResponseEntity<LoginResponse> authenticateWithApple(@RequestBody AppleLoginRequest request) {
+        if (request.getIdentityToken() == null || request.getIdentityToken().isBlank()) {
+            throw new ResponseStatusException(BAD_REQUEST, "Missing field: identityToken");
+        }
         LoginResponse response = service.authenticateWithApple(request.getIdentityToken(), request.getAuthorizationCode());
         return ResponseEntity.ok(response);
     }

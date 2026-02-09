@@ -9,7 +9,6 @@ import net.foodeals.dlc.application.dtos.responses.ScanCreateResponse;
 import net.foodeals.dlc.application.dtos.responses.ScanLookupResponse;
 import net.foodeals.dlc.application.dtos.responses.UserProductResponse;
 import net.foodeals.dlc.application.services.DlcService;
-;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
