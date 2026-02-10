@@ -3,6 +3,7 @@ package net.foodeals.user.infrastructure.interfaces.web;
 import java.util.List;
 import java.util.Map;
 
+import net.foodeals.core.domain.entities.Coordinates;
 import net.foodeals.core.domain.entities.User;
 import net.foodeals.product.application.dtos.responses.ProductResponse;
 import net.foodeals.user.application.dtos.responses.*;
@@ -38,14 +39,31 @@ public class UserController {
 		return ResponseEntity.ok(positionClientResponse);
 	}
 
-	@GetMapping("/nearby")
-	public ResponseEntity<Map<String, Object>> getNears(@RequestParam double latitude, @RequestParam double longitude,
-			@RequestParam double radius) {
-        User user=service.getConnectedUser();
-		Map<String, Object> result = offerService.getNears(user.getCoordinates().latitude(),
-                user.getCoordinates().longitude(), radius);
-		return ResponseEntity.ok(result);
-	}
+    @GetMapping("/nearby")
+    public ResponseEntity<Map<String, Object>> getNears(
+            @RequestParam Float latitude,
+            @RequestParam Float longitude,
+            @RequestParam Float radius) {
+
+        User user = service.getConnectedUser();
+
+        Float lat = latitude;
+        Float lng = longitude;
+
+        if (user.getCoordinates() != null) {
+            if (user.getCoordinates().latitude() != null &&
+                    user.getCoordinates().longitude() != null) {
+
+                lat = user.getCoordinates().latitude();
+                lng = user.getCoordinates().longitude();
+            }
+        }
+
+        Map<String, Object> result =
+                offerService.getNears(lat, lng, radius);
+
+        return ResponseEntity.ok(result);
+    }
 
     @GetMapping("/me/statistics")
     public UserStatisticsResponse getMyStatistics() {
