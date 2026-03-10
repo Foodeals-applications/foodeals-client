@@ -1,0 +1,40 @@
+name: Deploy foodeals-client to EC2
+
+on:
+  push:
+    branches: ["master"]
+
+concurrency:
+  group: deploy-foodeals-client-master
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Decode SSH key into env
+        run: |
+          echo "EC2_SSH_KEY<<EOF" >> $GITHUB_ENV
+          echo "${{ secrets.EC2_SSH_KEY_B64 }}" | base64 -d >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ env.EC2_SSH_KEY }}
+          passphrase: ${{ secrets.EC2_SSH_PASSPHRASE }}
+          port: 22
+          command_timeout: 20m
+          script: |
+            set -e
+            cd /home/ubuntu/foodeals-client
+            git pull origin master
+            mvn clean package -DskipTests
+            sudo systemctl restart foodeals
+            sudo systemctl status foodeals --no-pager -l
