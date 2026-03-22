@@ -27,6 +27,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -317,6 +318,7 @@ class BoxServiceImpl implements BoxService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public BoxDetailsResponse getBoxDetails(UUID id) {
 		Box box =findById(id);
 		return mapBoxToBoxDetailsResponse(box);

@@ -12,6 +12,7 @@ import net.foodeals.authentication.application.services.AuthenticationService;
 import net.foodeals.authentication.application.services.FacebookService;
 import net.foodeals.authentication.application.services.GoogleAuthService;
 import net.foodeals.authentication.application.services.JwtService;
+import net.foodeals.authentication.application.services.PasswordResetService;
 
 import jakarta.servlet.http.Cookie;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +26,14 @@ import java.util.Map;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RestController
-@RequestMapping("api/v1/auth")
+@RequestMapping({ "api/v1/auth", "v1/auth" })
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationService service;
     private final JwtService jwtService;
     private final FacebookService facebookService;
     private final GoogleAuthService googleAuthService;
+    private final PasswordResetService passwordResetService;
 
     @PostMapping("register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody @Valid RegisterRequest request) {
@@ -69,6 +71,24 @@ public class AuthController {
     public ResponseEntity<Boolean> verifyToken(@RequestBody @Valid VerifyTokenRequest request) {
         boolean isValid = service.verifyToken(request.token());
         return ResponseEntity.ok(isValid);
+    }
+
+    @PostMapping("forgot-password")
+    public ResponseEntity<Map<String, Object>> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+        passwordResetService.requestReset(request.email());
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "If an account exists for this email, you'll receive a reset link shortly."
+        ));
+    }
+
+    @PostMapping("reset-password")
+    public ResponseEntity<Map<String, Object>> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        passwordResetService.resetPassword(request.token(), request.newPassword());
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Password updated successfully"
+        ));
     }
 
     @PostMapping("/facebook")

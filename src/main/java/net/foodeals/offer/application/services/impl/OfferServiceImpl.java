@@ -25,6 +25,7 @@ import net.foodeals.user.domain.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -69,6 +70,7 @@ public class OfferServiceImpl implements OfferService {
     }
 
     // Fonction pour obtenir la liste des offres et boxes les plus proches
+    @Transactional(readOnly = true)
     public Map<String, Object> getNears(double userLat, double userLon, double radius) {
 
         Map<String, Object> resultMap = new HashMap<>();
@@ -99,6 +101,7 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public OfferListResponse getOffers(String type, double lat, double lng) {
         // récupérer les offres filtrées par type
         List<Offer> offers = offerRepository.findByType(type);
@@ -137,6 +140,14 @@ public class OfferServiceImpl implements OfferService {
     private List<Map<String, Object>> getNewDeals(double userLat, double userLon, double radius) {
         List<Deal> deals = dealRepository.findAll();
         User connectedUser = userService.getConnectedUser();
+        Set<UUID> favoriteOfferIds = Collections.emptySet();
+        if (connectedUser != null && connectedUser.getFavorisOffers() != null) {
+            favoriteOfferIds = connectedUser.getFavorisOffers()
+                    .stream()
+                    .map(Offer::getId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+        }
         return deals.stream().filter(deal -> {
             Coordinates coordinates = deal.getOffer().getSubEntity().getCoordinates();
             return calculateDistance(userLat, userLon, coordinates.latitude(), coordinates.longitude()) <= radius;
@@ -144,7 +155,7 @@ public class OfferServiceImpl implements OfferService {
             Map<String, Object> dealMap = new HashMap<>();
             SubEntity subEntity = deal.getOffer().getSubEntity();
             dealMap.put("dealId", deal.getId());
-            dealMap.put("favorite", connectedUser.getFavorisOffers().contains(deal.getOffer().getId()));
+            dealMap.put("favorite", favoriteOfferIds.contains(deal.getOffer().getId()));
             dealMap.put("dealPhoto", deal.getProduct().getProductImagePath());
             dealMap.put("price", deal.getPrice().amount());
             dealMap.put("dealName", deal.getTitle());
@@ -162,6 +173,14 @@ public class OfferServiceImpl implements OfferService {
     private List<Map<String, Object>> getBoxes(double userLat, double userLon, double radius) {
         List<Box> boxes = boxRepository.findAll();
         User connectedUser = userService.getConnectedUser();
+        Set<UUID> favoriteOfferIds = Collections.emptySet();
+        if (connectedUser != null && connectedUser.getFavorisOffers() != null) {
+            favoriteOfferIds = connectedUser.getFavorisOffers()
+                    .stream()
+                    .map(Offer::getId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+        }
         return boxes.stream().filter(box -> {
             Coordinates coordinates = box.getOffer().getSubEntity().getCoordinates();
             return calculateDistance(userLat, userLon, coordinates.latitude(), coordinates.longitude()) <= radius;
@@ -169,7 +188,7 @@ public class OfferServiceImpl implements OfferService {
             Map<String, Object> boxMap = new HashMap<>();
             SubEntity subEntity = box.getOffer().getSubEntity();
             boxMap.put("boxId", box.getId());
-            boxMap.put("favorite", connectedUser.getFavorisOffers().contains(box.getOffer().getId()));
+            boxMap.put("favorite", favoriteOfferIds.contains(box.getOffer().getId()));
             boxMap.put("name", box.getTitle());
             boxMap.put("boxPhoto", box.getPhotoBoxPath());
             boxMap.put("price", box.getOffer().getPrice().amount());

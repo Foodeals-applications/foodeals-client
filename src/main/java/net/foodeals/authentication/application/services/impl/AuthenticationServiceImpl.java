@@ -27,12 +27,14 @@ import net.foodeals.user.domain.valueObjects.Name;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +42,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 /**
  * AuthenticationServiceImpl
@@ -111,9 +116,10 @@ class AuthenticationServiceImpl implements AuthenticationService {
             return new LoginResponse(user.getName(), user.getEmail(), user.getPhone(),
                     organizationId, solutions,
                     user.getRole().getName(), user.getAvatarPath(), user.getId(), token);
+        } catch (AuthenticationException e) {
+            throw new ResponseStatusException(UNAUTHORIZED, "Invalid email or password");
         } catch (Exception e) {
-            // Handle exception
-            throw new RuntimeException("Login failed", e);
+            throw new ResponseStatusException(INTERNAL_SERVER_ERROR, "Login failed");
         }
     }
 
